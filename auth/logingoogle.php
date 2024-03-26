@@ -42,7 +42,8 @@ try {
         $password_hash = crypt($password, $PASSWORDHASH);
         $params = array($appid, $firstname, $lastname, $email, "google user", $avatar);
         $id = PrepareExecSQL($sql, "ssssss", $params);
-                
+        
+        
         $sql = "INSERT INTO user_property SET user_id = ?, name = ?, value = ?";
 
         $params = array($id, "google_id", $googleid);

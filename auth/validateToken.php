@@ -1,9 +1,9 @@
 <?php
 
-include_once "./corsheaders.php";
-include_once "./dbutils.php";
-include_once "./utils.php";
-include_once "./security.config.php";
+include_once "../corsheaders.php";
+include_once "../dbutils.php";
+include_once "../utils.php";
+include_once "../security/security.config.php";
 
 $email = '';
 $password = '';
@@ -26,7 +26,7 @@ try {
         }
 
         $table_name = 'Users';
-        $sql = "select id, firstname, lastname, avatar, role_id from user where app_id = ? and id = ? ";
+        $sql = "select id, email, firstname, lastname, avatar, role_id from user where app_id = ? and id = ? ";
         $params = array($appid, $data->id);
         $row = PrepareExecSQL($sql, "ss", $params);
         if ($debug) {
@@ -41,6 +41,7 @@ try {
                 $avatar = $row[0]["avatar"];
                 $profileid = $row[0]["id"];
                 $role_id = $row[0]["role_id"];
+                $email = $row[0]["email"];
 
                 $jwt = createToken(
                     array("id" => $profileid, "firstname" => $firstname, "lastname" => $lastname, "role" => $role_id)
@@ -48,6 +49,7 @@ try {
                 $res = array(
                     "message" => "Token passed validation.",
                     "id" => $profileid,
+                    "email" => $email,
                     "firstname" => $firstname,
                     "lastname" => $lastname,
                     "avatar" => $avatar,

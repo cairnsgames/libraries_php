@@ -1,46 +1,16 @@
 <?php
+include_once dirname(__FILE__)."/corsheaders.php";
+include_once dirname(__FILE__)."/dbconfig.php";
+
 $mysqli = null;
-// $config = array(
-//   "database" => array(
-//     "server" => 'cairns.co.za',
-//     "username" => 'cairnsco_justdance',
-//     "password" => '4pyNU}G_wWIf',
-//     "database" => 'cairnsco_justdance'
-//   )
-// );
-
-$config = array(
-  "database" => array(
-    "server" => 'cairns.co.za',
-    "username" => 'cairnsco_cairnsgames',
-    "password" => 'cairnsco_cairnsgames',
-    "database" => 'cairnsco_cairnsgames'
-  )
-);
-
-// localhost/
-// cairnsgames.co.za/dev/php
-
-$server = $_SERVER['SERVER_NAME'];
-
-// if ($server == "localhost") {
-//   $config = array(
-//     "database" => array(
-//       "server" => 'localhost',
-//       "username" => 'membership',
-//       "password" => 'membership',
-//       "database" => 'membership'
-//     )
-//   );
-// }
+$writeStatementLog = false;
 
 if ($mysqli == null) {
-  $mysqli = mysqli_connect($config["database"]["server"], $config["database"]["username"], $config["database"]["password"], $config["database"]["database"]);
+  $mysqli = mysqli_connect($dbconfig["server"], $dbconfig["username"], $dbconfig["password"], $dbconfig["database"]);
   if (mysqli_connect_errno()) {
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
   }
 }
-
 
 function lastError()
 {
@@ -50,8 +20,16 @@ function lastError()
 
 function PrepareExecSQL($sql, $pars = '', $params = [])
 {
-  global $mysqli;
+  global $mysqli, $writeStatementLog;
   $result = db_query($mysqli, $sql, $pars, $params);
+
+  if ($writeStatementLog) {
+    $logsql = "insert into statementlog (sqlstr, sss, params) values (?,?,?)";
+    $logparams = [$sql, $pars, json_encode($params)];
+    $logparams = str_replace("\"", "'", $logparams);
+    $logresult = db_query($mysqli, $logsql, 'sss', $logparams);
+  }
+
 
   return $result;
 }

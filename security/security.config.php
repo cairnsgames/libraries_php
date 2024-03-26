@@ -1,21 +1,19 @@
 <?php
 include_once "jwt.php";
 
-$JWTSECRET = "Juzt.Dance's super secret key that no one can guess because it is so long";
-$SSLSECRET = "Juzt.Dance's super secret certificate that no one can guess because it is so long";
-$PASSWORDHASH = 'justdancefordanaandwilliam';
-$defaultConfig = array("issuer"=>"Juzt.Dance","subject"=>"just dance token","audience"=>"just dance client");
+$JWTSECRET = "cairnsgameSUPERsecretPASSWORD";
+$SSLSECRET = "cairnsgameSUPERsecretPASSWORD";
+$PASSWORDHASH = 'cairnsgameSUPERsecretPASSWORD';
+$defaultConfig = array("issuer"=>"cairnsgames.co.za","subject"=>"cairnsgames token","audience"=>"cairnsgames client");
 
-// echo "PASSORDHASH****", $PASSWORDHASH, "\n";
-
-function createToken($payload) {    
+function createToken($payload) {
     global $JWTSECRET;
     jwt_set_secret($JWTSECRET);
     jwt_set_payload($payload); 
     $jwt = jwt_token();
     return $jwt;
 }
-function validateJwt($token,$time=false,$aud=NULL) { 
+function validateJwt($token,$time=false,$aud=NULL) {
     global $JWTSECRET;
     jwt_set_secret($JWTSECRET);
     // var_dump(validate_jwt($token,$time,$aud));
