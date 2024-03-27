@@ -6,7 +6,7 @@ include_once "../utils.php";
 include_once "../security/security.config.php";
 include_once "./authfunctions.php";
 
-$appid = getHeader("APP_ID",$appid = getHeader("app_id",$appid = getHeader("App_id","")));
+$appid = getAppId();
 $email = getParam("email", "");
 $password = getParam("password", "");
 
@@ -45,5 +45,4 @@ if (count($errors) > 0) {
 }
 
 if ($debug) {array_push($out, array("debug" => $debugValues));}
-$res = $out;
-die(json_encode($res));
+die(json_encode($out));

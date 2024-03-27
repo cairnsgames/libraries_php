@@ -38,7 +38,6 @@ function getAppId() {
 	}
 	if ($appid == "") {
 		$headers = getallheaders();
-		var_dump($headers);
 	}
 	return $appid;
 }

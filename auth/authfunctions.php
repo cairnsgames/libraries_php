@@ -1,21 +1,45 @@
 <?php
 
-function getLoginToken($email, $password, $appid)
+function getUserPermissions($id, $appid)
 {
-    global $out, $debugValues, $errors, $PASSWORDHASH;
+    $sql = "SELECT name, IF(NEVER>0,'NEVER', if(YES>0,'YES', 'NO')) permission FROM (
+        SELECT NAME, SUM(yes) yes, SUM(NO) no, SUM(NEVER) never FROM (
+        SELECT 'Application' role, NAME, if(VALUE=1,1,0) yes, if(VALUE=0,1,0) no, if(VALUE=-1,1,0) never FROM permission
+        WHERE app_id = ?
+        UNION
+        SELECT r.name, p.NAME, if(rp.VALUE=1,1,0) yes, if(rp.VALUE=0,1,0) no, if(rp.VALUE=-1,1,0) NEVER
+            FROM permission p, role_permissions rp, role r, user_role ur
+        WHERE p.app_id = ?
+            AND rp.permission_id = p.id
+            AND rp.role_id = r.id
+            AND ur.user_id = ?
+            AND ur.role_id = r.id
+            UNION
+        SELECT 'User' name, p.NAME, if(up.VALUE=1,1,0) yes, if(up.VALUE=0,1,0) no, if(up.VALUE=-1,1,0) NEVER 
+            FROM permission p, user_permissions up
+        WHERE p.app_id = ?
+            AND up.permission_id = p.id
+            AND up.user_id = ?
+            ) t
+        GROUP BY NAME) t2";
+    $params = array($appid, $appid, $id, $appid, $id);
+    $rows = PrepareExecSQL($sql, "sssss", $params);
+    return $rows;
+}
+function getToken($id, $appid)
+{
+    global $out, $debugValues, $errors;
+    $jwt = "";
     try {
-        $sql = "select id, email, firstname, lastname, avatar, role_id from user where app_id = ? and email = ? and password = ?  ";
+        $sql = "select id, email, firstname, lastname, avatar, role_id from user where app_id = ? and id = ?";
 
-        // echo $sql, "\n";
-        $password_hash = crypt($password, $PASSWORDHASH);
-        $params = array($appid, $email, $password_hash);
-        $row = PrepareExecSQL($sql, "sss", $params);
+        $params = array($appid, $id);
+        $row = PrepareExecSQL($sql, "ss", $params);
 
-        $params[2] = "######";
-        array_push($debugValues, array("selectAuthUser" => array("sql" => $sql, "params" => $params)));
+        array_push($debugValues, array("selectUser" => array("sql" => $sql, "params" => $params)));
 
         if (empty ($row)) {
-            array_push($errors, array("message" => "Invalid Email or Password."));
+            array_push($errors, array("message" => "Invalid user email or application."));
         } else {
 
             $firstname = $row[0]["firstname"];
@@ -25,8 +49,12 @@ function getLoginToken($email, $password, $appid)
             $role_id = $row[0]["role_id"];
             $email = $row[0]["email"];
 
+            $permissions = getUserPermissions($row[0]["id"], $appid);
+
             $jwt = createToken(
-                array("id" => $profileid, "firstname" => $firstname, "lastname" => $lastname, "role" => $role_id)
+                array("id" => $profileid, "firstname" => $firstname, "lastname" => $lastname, 
+                    "role" => $role_id,
+                    "permissions" => $permissions)
             );
             $out =
                 array(
@@ -40,8 +68,36 @@ function getLoginToken($email, $password, $appid)
                     "role" => $role_id,
                     "app_id" => $appid
                 );
-            // TODO: Record the key so that we can use it for future auto-login
+            
+        }
 
+    } catch (Exception $e) {
+        array_push($errors, array("message" => $e->getMessage()));
+    }
+    return $jwt;
+}
+
+function getLoginToken($email, $password, $appid)
+{
+    global $out, $debugValues, $errors, $PASSWORDHASH;
+    try {
+        $sql = "select id, email, firstname, lastname, avatar, role_id from user where app_id = ? and email = ? and password = ?  ";
+
+        // echo $sql, "\n";
+        $password_hash = crypt($password, $PASSWORDHASH);
+        $params = array($appid, $email, $password_hash);
+        $row = PrepareExecSQL($sql, "sss", $params);
+
+        // $params[2] = "######";
+        array_push($debugValues, array("selectAuthUser" => array("sql" => $sql, "params" => $params)));
+
+        if (empty ($row)) {
+            array_push($errors, array("message" => "Invalid Email or Password."));
+        } else {
+            
+            $profileid = $row[0]["id"];
+            $jwt = getToken($profileid, $appid);
+            
             // Save login to database
             $sql = "insert into auth_login (userid,token) values (?,?)";
             $params = array($profileid, $jwt);
