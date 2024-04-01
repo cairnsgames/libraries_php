@@ -1,5 +1,7 @@
 <?php
 
+include_once "../security/security.config.php";
+
 function getUserPermissions($id, $appid)
 {
     $sql = "SELECT name, IF(NEVER>0,'NEVER', if(YES>0,'YES', 'NO')) permission FROM (
@@ -26,7 +28,7 @@ function getUserPermissions($id, $appid)
     $rows = PrepareExecSQL($sql, "sssss", $params);
     return $rows;
 }
-function getToken($id, $appid)
+function getToken($id, $appid, $mastertoken = "")
 {
     global $out, $debugValues, $errors;
     $jwt = "";
@@ -38,7 +40,7 @@ function getToken($id, $appid)
 
         array_push($debugValues, array("selectUser" => array("sql" => $sql, "params" => $params)));
 
-        if (empty ($row)) {
+        if (empty($row)) {
             array_push($errors, array("message" => "Invalid user email or application."));
         } else {
 
@@ -51,11 +53,18 @@ function getToken($id, $appid)
 
             $permissions = getUserPermissions($row[0]["id"], $appid);
 
-            $jwt = createToken(
-                array("id" => $profileid, "firstname" => $firstname, "lastname" => $lastname, 
-                    "role" => $role_id,
-                    "permissions" => $permissions)
+            $tokenfields = array(
+                "id" => $profileid,
+                "firstname" => $firstname,
+                "lastname" => $lastname,
+                "role" => $role_id,
+                "permissions" => $permissions
             );
+            if ($mastertoken != "") {
+                $tokenfields["mastertoken"] = $mastertoken;
+            }
+
+            $jwt = createToken($tokenfields);
             $out =
                 array(
                     "message" => "Login succeded.",
@@ -66,9 +75,9 @@ function getToken($id, $appid)
                     "avatar" => $avatar,
                     "token" => $jwt,
                     "role" => $role_id,
-                    "app_id" => $appid
+                    "app_id" => $appid,
+                    "permissions" => $permissions,
                 );
-            
         }
 
     } catch (Exception $e) {
@@ -91,13 +100,13 @@ function getLoginToken($email, $password, $appid)
         // $params[2] = "######";
         array_push($debugValues, array("selectAuthUser" => array("sql" => $sql, "params" => $params)));
 
-        if (empty ($row)) {
+        if (empty($row)) {
             array_push($errors, array("message" => "Invalid Email or Password."));
         } else {
-            
+
             $profileid = $row[0]["id"];
             $jwt = getToken($profileid, $appid);
-            
+
             // Save login to database
             $sql = "insert into auth_login (userid,token) values (?,?)";
             $params = array($profileid, $jwt);
@@ -108,4 +117,13 @@ function getLoginToken($email, $password, $appid)
     } catch (Exception $e) {
         array_push($errors, array("message" => $e->getMessage()));
     }
+}
+
+function getUserEmail($token)
+{
+    if (validateJwt($token)) {
+        $data = get_jwt_payload($token)->data;
+        return $data->email;
+    }
+    return "";
 }

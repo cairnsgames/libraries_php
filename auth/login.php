@@ -14,7 +14,6 @@ $debugValues = array();
 $out = array();
 $debug = getParam("debug", false);
 
-
 // VALIDATIONS
 $errors = array();
 

@@ -16,17 +16,25 @@ $token = getParam("token", "");
 $debug = getParam("debug", false);
 $debugValues = array();
 
+$mastertoken = null;
+
 try {
     if (validateJwt($token) == true) {
         // Valid token
         $data = get_jwt_payload($token)->data;
         $id = $data->id;
+        if (isset($data->mastertoken)) {
+            $mastertoken = $data->mastertoken;
+        }
 
         if ($debug) {
             $debugValues["debug"] = array("tokendata" => $data, "app_id" => $appid);
         }
 
-        getToken($id, $appid);
+        getToken($id, $appid, $mastertoken);
+        if (isset($mastertoken)) {
+            $out["mastertoken"] = $mastertoken;
+        }
 
     } else {
         array_push($errors, array("message" => "Invalid token, please login"));

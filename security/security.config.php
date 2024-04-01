@@ -9,7 +9,7 @@ $defaultConfig = array("issuer"=>"cairnsgames.co.za","subject"=>"cairnsgames tok
 function createToken($payload) {
     global $JWTSECRET;
     jwt_set_secret($JWTSECRET);
-    jwt_set_payload($payload); 
+    jwt_set_payload($payload);
     $jwt = jwt_token();
     return $jwt;
 }
