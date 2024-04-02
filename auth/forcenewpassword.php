@@ -29,6 +29,7 @@ $force = '';
 $pwd = '';
 $confirm = '';
 $conn = null;
+$deviceid = getParam("deviceid", "");
 
 $res = "";
 $errors = array();

@@ -46,3 +46,44 @@ function hasAccess($id, $permission) {
     }
     return false;
 }
+
+function getSecret($secretname, $default) {
+    global $debugValues;
+    $appid = getAppId();
+    if ($appid == null) {
+        return null;
+    }
+    $sql = "SELECT value FROM application_secret WHERE app_id = ? and name = ?";
+    $params = [$appid, $secretname];
+    $sss = "ss";
+    $result = PrepareExecSQL($sql, $sss, $params);
+    if (empty($result)) {
+        return null;
+    }
+    return $result[0]["value"];
+}
+
+$app_properties = array();
+
+function getProperty($name, $default) {
+    global $debugValues, $app_properties;
+    $appid = getAppId();
+    if ($appid == null) {
+        return null;
+    }
+    if (empty($app_properties)) {
+        $sql = "SELECT name, value FROM application_property WHERE app_id = ?";
+        $params = [$appid];
+        $sss = "s";
+        $result = PrepareExecSQL($sql, $sss, $params);
+        foreach ($result as $r) {
+            $app_properties[$r["name"]] = $r["value"];
+        }
+    }
+    foreach ($app_properties as $p) {
+        if ($p["name"] == $name) {
+            return $p["value"];
+        }
+    }
+    return $default;
+}

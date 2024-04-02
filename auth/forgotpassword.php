@@ -10,6 +10,7 @@ $email = '';
 $conn = null;
 $res = "";
 $errors = array();
+$deviceid = getParam("deviceid", "");
 
 // TODO: Get application detaisl for chnage password page
 

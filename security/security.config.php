@@ -1,10 +1,16 @@
 <?php
-include_once "jwt.php";
+include_once dirname(__FILE__)."/jwt.php";
+include_once dirname(__FILE__)."/../permissions/permissionfunctions.php";
 
-$JWTSECRET = "cairnsgameSUPERsecretPASSWORD";
-$SSLSECRET = "cairnsgameSUPERsecretPASSWORD";
-$PASSWORDHASH = 'cairnsgameSUPERsecretPASSWORD';
-$defaultConfig = array("issuer"=>"cairnsgames.co.za","subject"=>"cairnsgames token","audience"=>"cairnsgames client");
+$issuer = getProperty("jwt_issuer", "cairnsgames.co.za");
+$subject = getProperty("jwt_subject", "cairnsgames token");
+$audience = getProperty("jwt_audience", "cairnsgames client");
+
+$defaultConfig = array("issuer"=>$issuer,"subject"=>$subject,"audience"=>$audience);
+
+$JWTSECRET = getSecret("SECURE_SECRET","cairnsgameSUPERsecretPASSWORD");
+$SSLSECRET = $JWTSECRET;
+$PASSWORDHASH = $JWTSECRET;
 
 function createToken($payload) {
     global $JWTSECRET;
@@ -16,7 +22,6 @@ function createToken($payload) {
 function validateJwt($token,$time=false,$aud=NULL) {
     global $JWTSECRET;
     jwt_set_secret($JWTSECRET);
-    // var_dump(validate_jwt($token,$time,$aud));
     return validate_jwt($token,$time,$aud);
 }
 

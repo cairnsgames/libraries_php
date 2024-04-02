@@ -61,7 +61,6 @@ function Run($config, $mysqli = null)
 		$info["method"] = $method;
 		$info["fields"] = $input;
 
-
 		// Called method functionality
 		switch ($method) {
 			case 'GET':
@@ -266,6 +265,12 @@ function returnGET($config, $mysqli, $info)
 		if (!is_array($rowresult)) {
 			$rowresult = array($rowresult);
 		}
+	}
+
+	if (isset($key)) {
+		if (count($rowresult) == 1) {
+			$rowresult = $rowresult[0];
+		} 
 	}
 
 	if (isset($config[$table]["afterselect"]) && function_exists($config[$table]["afterselect"])) {

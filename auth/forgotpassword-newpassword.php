@@ -26,6 +26,7 @@ else
 
 // DONOT do validation as login sets validation token
 
+$deviceid = getParam("deviceid", "");
 $email = '';
 $conn = null;
 

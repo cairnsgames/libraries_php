@@ -8,6 +8,7 @@ include_once "./security.config.php";
 $appid = getHeader("APP_ID");
 $email = getParam("email", "");
 $password = getParam("password", "");
+$deviceid = getParam("deviceid", "");
 
 $errors = array();
 

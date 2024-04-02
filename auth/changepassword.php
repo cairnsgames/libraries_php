@@ -10,6 +10,7 @@ $userid = getParam("userid", "");
 $old = getParam("old", "");
 $password = getParam("password", "");
 $password2 = getParam("password2", "");
+$deviceid = getParam("deviceid", "");
 
 $debugValues = array();
 $errors = array();

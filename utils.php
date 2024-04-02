@@ -1,12 +1,13 @@
 <?php
 
-function getHeader($name, $default = "12345") {
-    $headers = getallheaders();
-    if (isset($headers[$name])) {
-        return $headers[$name];
-    } else {
-        return $default;
-    }
+function getHeader($name, $default = "12345")
+{
+	$headers = getallheaders();
+	if (isset($headers[$name])) {
+		return $headers[$name];
+	} else {
+		return $default;
+	}
 }
 
 function getParam($name, $default)
@@ -28,16 +29,14 @@ function getParam($name, $default)
 	return $default;
 }
 
-function getAppId() {
-	$appid = getHeader("APP_ID","");
+function getAppId()
+{
+	$appid = getHeader("APP_ID", "");
 	if ($appid == "") {
-		$appid = getHeader("app_id","");
+		$appid = getHeader("app_id", "");
 	}
 	if ($appid == "") {
-		$appid = getHeader("App_id","");
-	}
-	if ($appid == "") {
-		$headers = getallheaders();
+		$appid = getHeader("App_id", "");
 	}
 	return $appid;
 }
@@ -49,35 +48,39 @@ function retrieveJsonPostData()
 	return json_decode($rawData, true);
 }
 
-function orNull($value, $default = "") {
+function orNull($value, $default = "")
+{
 	if ($value == null) {
 		return $default;
 	}
 	return $value;
 }
 
-function my_json_decode($s) {
-    $s = str_replace(
-        array('"',  "'"),
-        array('\"', '"'),
-        $s
-    );
+function my_json_decode($s)
+{
+	$s = str_replace(
+		array('"', "'"),
+		array('\"', '"'),
+		$s
+	);
 	$s = preg_replace('/(\w+):/i', '"\1":', $s);
-    return json_decode($s);
+	return json_decode($s);
 }
 
-function randomString($len) {
-    $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
-    $pass = array(); //remember to declare $pass as an array
-    $alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
-    for ($i = 0; $i < $len; $i++) {
-        $n = rand(0, $alphaLength);
-        $pass[] = $alphabet[$n];
-    }
-    return implode($pass); //turn the array into a string
+function randomString($len = 12)
+{
+	$alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+	$pass = array(); //remember to declare $pass as an array
+	$alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
+	for ($i = 0; $i < $len; $i++) {
+		$n = rand(0, $alphaLength);
+		$pass[] = $alphabet[$n];
+	}
+	return implode($pass); //turn the array into a string
 }
 
-function isLocalHost() {
+function isLocalHost()
+{
 	if ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['HTTP_HOST'] == '127.0.0.1') {
 		return true;
 	}
@@ -86,7 +89,6 @@ function isLocalHost() {
 
 try {
 	$postdata = retrieveJsonPostData();
+} catch (exception $e) {
+	return $e;
 }
-catch (exception $e) { return $e; }
-
-?>

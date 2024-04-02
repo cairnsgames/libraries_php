@@ -1,12 +1,13 @@
 <?php
 
-include_once "../corsheaders.php";
-include_once "../dbutils.php";
-include_once "../utils.php";
-include_once "../security/security.config.php";
-include_once "./authfunctions.php";
+include_once dirname(__FILE__)."/../corsheaders.php";
+include_once dirname(__FILE__)."/../dbutils.php";
+include_once dirname(__FILE__)."/../utils.php";
+include_once dirname(__FILE__)."/../security/security.config.php";
+include_once dirname(__FILE__)."/authfunctions.php";
 
 $appid = getAppId();
+$deviceid = getParam("deviceid", "");
 $email = getParam("email", "");
 $password = getParam("password", "");
 

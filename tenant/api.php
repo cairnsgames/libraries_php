@@ -45,7 +45,7 @@ function beforeSelectApp($info)
 function beforeSelectProperty($info)
 {
 	global $appid;
-	$info["where"] = "application_id=?";
+	$info["where"] = "app_id=?";
 	$info["wheresss"] = "s";
 	$info["whereparams"] = [$appid];
 	return $info;

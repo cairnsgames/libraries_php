@@ -14,6 +14,7 @@ $debugValues = array();
 $token = getParam("token", "");
 $debug = getParam("debug", 0);
 $appid = getAppId();
+$deviceid = getParam("deviceid", "");
 
 array_push($debugValues, array("token" => $token));
 

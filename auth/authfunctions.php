@@ -1,6 +1,6 @@
 <?php
 
-include_once "../security/security.config.php";
+include_once dirname(__FILE__)."/../security/security.config.php";
 
 function getUserPermissions($id, $appid)
 {
@@ -108,9 +108,17 @@ function getLoginToken($email, $password, $appid)
             $jwt = getToken($profileid, $appid);
 
             // Save login to database
-            $sql = "insert into auth_login (userid,token) values (?,?)";
-            $params = array($profileid, $jwt);
-            $row = PrepareExecSQL($sql, "ss", $params);
+            $ipaddress = $_SERVER['REMOTE_ADDR'];
+            if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {
+                $forwarded_for = $_SERVER['HTTP_X_FORWARDED_FOR'];
+            } else {
+                $forwarded_for = "";
+            }
+            
+            $deviceid = getParam("deviceid", "");
+            $sql = "insert into auth_login (userid,token, ip_address, forwarded_for, device_id) values (?,?,?,?,?)";
+            $params = array($profileid, $jwt, $ipaddress, $forwarded_for, $deviceid);
+            $row = PrepareExecSQL($sql, "sssss", $params);
             array_push($debugValues, array("insertAuthLogin" => array("sql" => $sql, "params" => $params)));
         }
 

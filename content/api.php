@@ -1,0 +1,37 @@
+<?php
+include_once dirname(__FILE__)."/../corsheaders.php";
+include_once dirname(__FILE__)."/../dbconfig.php";
+include_once dirname(__FILE__)."/../apicore/apicore.php";
+include_once dirname(__FILE__)."/../utils.php";
+
+$appid = getAppId();
+
+$config = array(
+	"database" => $dbconfig,
+	
+	"content" => array(
+		"key" => "id",
+		"tablename" => "content",
+		"select" => array("id", "type", "url", "title", "content"),
+		"create" => array("app_id", "user_id", "type", "url", "title", "content"),
+		"update" => array("app_id", "user_id", "type", "url", "title", "content"),
+		"delete" => false,
+		"beforeupdate" => "withApp",
+		"beforeinsert" => "withApp",
+		"beforedelete" => "withApp",
+	),
+
+);
+
+Run($config);
+
+function withApp($info)
+{
+	global $appid;
+	$info["where"] = "app_id=?";
+	$info["wheresss"] = "s";
+	$info["whereparams"] = [$appid];
+	return $info;
+}
+
+?>

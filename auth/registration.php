@@ -1,9 +1,9 @@
 <?php
-include_once "../dbutils.php";
-include_once "../utils.php";
-include_once "../security/security.config.php";
-include_once "../corsheaders.php";
-include_once "authfunctions.php";
+include_once dirname(__FILE__)."/../dbutils.php";
+include_once dirname(__FILE__)."/../utils.php";
+include_once dirname(__FILE__)."/../security/security.config.php";
+include_once dirname(__FILE__)."/../corsheaders.php";
+include_once dirname(__FILE__)."/authfunctions.php";
 
 // TODO: Send welcome email
 
@@ -11,7 +11,7 @@ $out = [];
 $debugValues = [];
 $errors = array();
 
-$appid = getParam("APP_ID","NONE");
+$appid = getAppId();
 
 if ($appid == "NONE") {
     throw new Exception("APP_ID is not set");
@@ -26,6 +26,7 @@ if (!isset($appid)) {
 $email = getParam("email","");
 $password = getParam("password","");
 $confirm = getParam("confirm","");
+$deviceid = getParam("deviceid", "");
 
 $canRegister = true;
 

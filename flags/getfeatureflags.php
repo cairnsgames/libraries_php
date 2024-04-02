@@ -1,7 +1,7 @@
 <?php
 
-include_once "../dbutils.php";
-include_once "../utils.php";
+include_once dirname(__FILE__)."/../dbutils.php";
+include_once dirname(__FILE__)."/../utils.php";
 
 
 $appid = getAppId();
