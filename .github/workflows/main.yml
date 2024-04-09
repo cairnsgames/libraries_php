@@ -12,9 +12,9 @@ jobs:
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
         server: ${{ vars.CG_SERVER }}
-        username: ${{ secrets.CG_FTP_USERNAME }}
+        username: ${{ vars.CG_FTP_USERNAME }}
         password: ${{ secrets.CG_FTP_PASSWORD }}
-        server-dir: ${{ secrets.SERVER_DIR }}
+        server-dir: ${{ vars.SERVER_DIR }}
         exclude: |
           **/Classes/**
           /Classes/**
