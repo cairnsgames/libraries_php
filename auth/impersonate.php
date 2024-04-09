@@ -36,7 +36,7 @@ if (empty($errors)) {
     array_push($debugValues, array("user" => $user));
 
     if (hasAccess($user->id, "ImpersonateUser")) {
-        getToken($id, $appid, $token);
+        getTokenForUser($id, $appid, $token);
         
         $out["mastertoken"] = $token;
     } else {

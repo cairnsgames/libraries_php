@@ -28,7 +28,7 @@ function getUserPermissions($id, $appid)
     $rows = PrepareExecSQL($sql, "sssss", $params);
     return $rows;
 }
-function getToken($id, $appid, $mastertoken = "")
+function getTokenForUser($id, $appid, $mastertoken = "")
 {
     global $out, $debugValues, $errors;
     $jwt = "";
@@ -105,7 +105,7 @@ function getLoginToken($email, $password, $appid)
         } else {
 
             $profileid = $row[0]["id"];
-            $jwt = getToken($profileid, $appid);
+            $jwt = getTokenForUser($profileid, $appid);
 
             // Save login to database
             $ipaddress = $_SERVER['REMOTE_ADDR'];
@@ -132,6 +132,14 @@ function getUserEmail($token)
     if (validateJwt($token)) {
         $data = get_jwt_payload($token)->data;
         return $data->email;
+    }
+    return "";
+}
+function getUserId($token)
+{
+    if (validateJwt($token)) {
+        $data = get_jwt_payload($token)->data;
+        return $data->id;
     }
     return "";
 }

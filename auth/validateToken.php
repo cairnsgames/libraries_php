@@ -32,7 +32,7 @@ try {
             $debugValues["debug"] = array("tokendata" => $data, "app_id" => $appid);
         }
 
-        getToken($id, $appid, $mastertoken);
+        getTokenForUser($id, $appid, $mastertoken);
         if (isset($mastertoken)) {
             $out["mastertoken"] = $mastertoken;
         }

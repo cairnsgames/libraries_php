@@ -11,7 +11,7 @@ jobs:
     - name: Sync files
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
-        server: ${{ secrets.CG_SERVER }}
+        server: ${{ vars.CG_SERVER }}
         username: ${{ secrets.CG_FTP_USERNAME }}
         password: ${{ secrets.CG_FTP_PASSWORD }}
         server-dir: ${{ secrets.SERVER_DIR }}

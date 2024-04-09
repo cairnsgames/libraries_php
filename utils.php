@@ -40,6 +40,11 @@ function getAppId()
 	}
 	return $appid;
 }
+function getToken()
+{
+	$token = getHeader("token", "");
+	return $token;
+}
 function retrieveJsonPostData()
 {
 	// get the raw POST data

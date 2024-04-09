@@ -12,15 +12,14 @@ $config = array(
 	"content" => array(
 		"key" => "id",
 		"tablename" => "content",
-		"select" => array("id", "type", "url", "title", "content"),
-		"create" => array("app_id", "user_id", "type", "url", "title", "content"),
-		"update" => array("app_id", "user_id", "type", "url", "title", "content"),
+		"select" => array("id", "parent_id", "user_id", "style", "type", "url", "title", "content"),
+		"create" => array("parent_id", "app_id", "user_id", "style", "type", "url", "title", "content"),
+		"update" => array("parent_id", "app_id", "user_id", "style", "type", "url", "title", "content"),
 		"delete" => false,
 		"beforeupdate" => "withApp",
 		"beforeinsert" => "withApp",
 		"beforedelete" => "withApp",
 	),
-
 );
 
 Run($config);
