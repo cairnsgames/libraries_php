@@ -161,6 +161,7 @@ function returnGET($config, $mysqli, $info)
 			$defaultlimit = $tconfig['limit'];
 		}
 	}
+
 	// Check for Pagination  limit=20&offset=40
 	$limit = "";
 	if (isset($_GET["offset"])) {
@@ -172,13 +173,14 @@ function returnGET($config, $mysqli, $info)
 		if (isset($defaultlimit)) {
 			$limit .= (strlen($limit) > 0 ? ',' : '') . $defaultlimit;
 		}
-
 	}
 	$limit = (strlen($limit) > 0 ? 'Limit ' . $limit : '');
-
+	
 	if (isset($config[$info["table"]]["beforeselect"]) && function_exists($config[$info["table"]]["beforeselect"])) {
 		$info = call_user_func($config[$info["table"]]["beforeselect"], $tconfig, $info);
 	}
+
+
 	if (isset($info["where"])) {
 		$defaultwhere = $info["where"];
 		$defaultsss = $info["wheresss"];
@@ -252,6 +254,8 @@ function returnGET($config, $mysqli, $info)
 	// echo json_encode($sss);
 	// echo "==========================\n";
 	// echo json_encode($info);
+	// echo "==========================\n";
+	// var_dump($info);
 	// echo "==========================\n";
 
 	$rowresult = PrepareExecSQL($sql, $sss, $param);

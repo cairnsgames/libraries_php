@@ -1,14 +1,14 @@
 <?php
-include_once dirname(__FILE__)."/../corsheaders.php";
-include_once dirname(__FILE__)."/../dbconfig.php";
-include_once dirname(__FILE__)."/../apicore/apicore.php";
-include_once dirname(__FILE__)."/../utils.php";
+include_once dirname(__FILE__) . "/../corsheaders.php";
+include_once dirname(__FILE__) . "/../dbconfig.php";
+include_once dirname(__FILE__) . "/../apicore/apicore.php";
+include_once dirname(__FILE__) . "/../utils.php";
 
 $appid = getAppId();
 
 $config = array(
 	"database" => $dbconfig,
-	
+
 	"content" => array(
 		"key" => "id",
 		"tablename" => "content",
@@ -20,6 +20,14 @@ $config = array(
 		"beforeinsert" => "withApp",
 		"beforedelete" => "withApp",
 	),
+	"zharo" => [
+		"key" => "id",
+		"select" => "SELECT uuid, type, style, url, title, content, user.firstname, user.lastname
+		FROM content, content_share, user 
+		WHERE UUID = {id}
+		AND content_id = content.id
+		AND user_id = user.id"
+	]
 );
 
 Run($config);
@@ -30,6 +38,7 @@ function withApp($info)
 	$info["where"] = "app_id=?";
 	$info["wheresss"] = "s";
 	$info["whereparams"] = [$appid];
+	$info["fields"]["app_id"] = $appid;
 	return $info;
 }
 

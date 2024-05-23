@@ -4,7 +4,7 @@ include_once dirname(__FILE__)."/../dbconfig.php";
 include_once dirname(__FILE__)."/../apicore/apicore.php";
 include_once dirname(__FILE__)."/../utils.php";
 
-$appid = getParam("APP_ID","NONE");
+$appid = getAppId();
 
 if ($appid === "NONE") {
 	die("No app_id provided");
