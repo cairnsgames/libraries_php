@@ -1,6 +1,6 @@
 <?php
 
-include_once dirname(__FILE__)."/../security/security.config.php";
+include_once dirname(__FILE__) . "/../security/security.config.php";
 
 function getUserPermissions($id, $appid)
 {
@@ -28,7 +28,7 @@ function getUserPermissions($id, $appid)
     $rows = PrepareExecSQL($sql, "sssss", $params);
     return $rows;
 }
-function getTokenForUser($id, $appid, $mastertoken = "")
+function getTokenForUser($id, $appid, $mastertoken = "", $permissions = null)
 {
     global $out, $debugValues, $errors;
     $jwt = "";
@@ -51,7 +51,9 @@ function getTokenForUser($id, $appid, $mastertoken = "")
             $role_id = $row[0]["role_id"];
             $email = $row[0]["email"];
 
-            $permissions = getUserPermissions($row[0]["id"], $appid);
+            if (!isset($permisisons)) {
+                $permissions = getUserPermissions($row[0]["id"], $appid);
+            }
 
             $tokenfields = array(
                 "id" => $profileid,
@@ -114,7 +116,7 @@ function getLoginToken($email, $password, $appid)
             } else {
                 $forwarded_for = "";
             }
-            
+
             $deviceid = getParam("deviceid", "");
             $sql = "insert into auth_login (userid,token, ip_address, forwarded_for, device_id) values (?,?,?,?,?)";
             $params = array($profileid, $jwt, $ipaddress, $forwarded_for, $deviceid);

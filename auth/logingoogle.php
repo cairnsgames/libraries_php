@@ -4,11 +4,13 @@ include_once "../corsheaders.php";
 include_once "../dbutils.php";
 include_once "../utils.php";
 include_once "../security/security.config.php";
+include_once dirname(__FILE__)."/authfunctions.php";
 
 $appid = getAppId();
 $email = getParam("email", "");
 $password = getParam("password", "");
 $deviceid = getParam("deviceid", "");
+$debugValues = [];
 
 $errors = array();
 
@@ -54,18 +56,20 @@ try {
     $profileid = $row[0]["id"];
     $role_id = $row[0]["role_id"];
 
-    $jwt = createToken(
-        array("id" => $profileid, "firstname" => $firstname, "lastname" => $lastname, "role" => $role_id)
-    );
+    $permissions = getUserPermissions($profileid, $appid);
+    $jwt = getTokenForUser(id: $profileid, appid: $appid, permissions: $permissions);
+
     $res = array(
-            "message" => "Login succeded.",
-            "id" => $profileid,
+            "app_id" => $appid,
+            "avatar" => $avatar,
             "email" => $email,
             "firstname" => $firstname,
+            "id" => $profileid,
             "lastname" => $lastname,
-            "avatar" => $avatar,
-            "token" => $jwt,
-            "role" => $role_id
+            "message" => "Login succeded.",
+            "permissions" => $permissions,
+            "role" => $role_id,
+            "token" => $jwt
     );
 
     // Save login to database
