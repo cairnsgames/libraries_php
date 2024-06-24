@@ -6,6 +6,7 @@ include_once dirname(__FILE__) . "/../utils.php";
 include_once dirname(__FILE__) . "/../security/security.config.php";
 include_once dirname(__FILE__) . "/authfunctions.php";
 
+
 $appid = getAppId();
 $email = getParam("email", "");
 $password = getParam("password", "");
@@ -27,6 +28,7 @@ try {
 
     $params = array($appid, $email);
     $row = PrepareExecSQL($sql, "ss", $params);
+
 
     if (empty($row)) {
         // CREATE NEW USER
@@ -50,6 +52,7 @@ try {
         $row = PrepareExecSQL($sql, "ss", $params);
     }
 
+
     $firstname = $row[0]["firstname"];
     $lastname = $row[0]["lastname"];
     $avatar = $row[0]["avatar"];
@@ -57,7 +60,7 @@ try {
     $role_id = $row[0]["role_id"];
 
     $permissions = getUserPermissions($profileid, $appid);
-    $jwt = getTokenForUser(id: $profileid, appid: $appid, permissions: $permissions);
+    $jwt = getTokenForUser($profileid, $appid);
 
     $res = array(
         "app_id" => $appid,
@@ -82,7 +85,7 @@ try {
     $sql = "insert into auth_login (userid, token, ip_address, forwarded_for, device_id) values (?,?,?,?,?)";
     $params = array($profileid, $jwt, $ipaddress, $forwarded_for, $deviceid);
     $row = PrepareExecSQL($sql, "sssss", $params);
-
+    
 } catch (Exception $e) {
     array_push($errors, array("message" => $e->getMessage()));
 }
@@ -92,3 +95,4 @@ if (count($errors) > 0) {
 }
 
 die(json_encode($res));
+
