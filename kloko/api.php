@@ -159,7 +159,6 @@ $configs = [
     ]
 ];
 
-
 function checksecurity($config)
 {
     global $appId;

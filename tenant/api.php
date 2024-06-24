@@ -28,6 +28,15 @@ $config = array(
 		"create" => false,
 		"update" => false,
 		"beforeselect" => "beforeSelectProperty"
+	),
+	"secrets" => array(
+		"key" => "id",
+		"tablename" => "application_secret",
+		"select" => array("id", "name"),
+		"insert" => array("name", "value"),
+		"update" => array("name", "value"),
+		"delete" => false,
+		"beforeselect" => "beforeSelectProperty"
 	)
 );
 

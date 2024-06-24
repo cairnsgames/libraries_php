@@ -3,9 +3,22 @@
 include_once dirname(__FILE__)."/dbconn.php";
 include_once dirname(__FILE__)."/rud.php";
 include_once dirname(__FILE__)."/get.php";
+include_once dirname(__FILE__)."/generateopenapi.php";
 
-function runAPI($configs)
-{
+function getConfig($config) {
+    $simpleConfig = [];
+    foreach ($config as $key => $value) {
+        $simpleConfig[$key] = [
+            'select' => isset($value['select']) ? $value['select'] : [],
+            'create' => isset($value['create']) ? $value['create'] : [],
+            'update' => isset($value['update']) ? $value['update'] : [],
+            'delete' => isset($value['delete']) ? $value['delete'] : false
+        ];
+    }
+    return $simpleConfig;
+}
+
+function runAPI($configs) {
     // Rest Endpoint Handler
     $path = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
     $path = preg_replace('/.*\.php\//', '', $path);
@@ -15,7 +28,29 @@ function runAPI($configs)
     $id = isset($parts[1]) ? $parts[1] : null;
     $subkey = isset($parts[2]) ? $parts[2] : null;
 
-    // echo "ENDPOINT:", $endpoint, "<br/>";
+    // Handle the special $$ endpoint
+    if ($endpoint === '$$') {
+        if ($method === 'GET') {
+            header('Content-Type: application/json');
+            echo json_encode(getConfig($configs));
+        } else {
+            http_response_code(405);
+            echo json_encode(["error" => "Method not allowed"]);
+        }
+        exit;
+    }
+
+    if ($endpoint === 'openapi') {
+        if ($method === 'GET') {
+            header('Content-Type: application/json');
+            echo json_encode(generateOpenAPISpec($configs));
+        } else {
+            http_response_code(405);
+            echo json_encode(["error" => "Method not allowed"]);
+        }
+        exit;
+    }
+
     if (!isset($configs[$endpoint])) {
         http_response_code(404);
         echo json_encode(["error" => "Endpoint not found"]);

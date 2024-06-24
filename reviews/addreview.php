@@ -44,6 +44,8 @@ if ($type != "" && $itemid > 0 && $rating > 0 && $userid > 0) {
 	$errors[] = "Not all required parameters sent";
 }
 
+// TODO: Send email to item_id that a review was added
+
 if (!empty($errors)) {
     $out["error"] = $errors;
     http_response_code(400);
