@@ -1,12 +1,14 @@
 <?php
 
-include_once dirname(__FILE__)."/../dbutils.php";
-include_once dirname(__FILE__)."/../utils.php";
+include_once dirname(__FILE__) . "/../dbutils.php";
+include_once dirname(__FILE__) . "/../utils.php";
 
 $appid = getAppId();
 $permissions;
+$app_properties;
 
-function getPermissions($id) {
+function getPermissions($id)
+{
     global $appid, $permissions;
     $sql = "SELECT name, IF(never>0,'NEVER', if(yes>0,'YES', 'NO')) permission FROM (
         SELECT name, SUM(yes) yes, SUM(NO) no, SUM(NEVER) never FROM (
@@ -31,9 +33,11 @@ function getPermissions($id) {
     $params = [$appid, $appid, $id, $appid, $id];
     $sss = "sssss";
     $permissions = PrepareExecSQL($sql, $sss, $params);
+    var_dump($permissions);
 }
 
-function hasAccess($id, $permission) {
+function hasAccess($id, $permission)
+{
     global $permissions;
     if (!isset($permissions)) {
         getPermissions($id);
@@ -47,7 +51,8 @@ function hasAccess($id, $permission) {
     return false;
 }
 
-function getSecret($secretname, $default) {
+function getSecret($secretname, $default)
+{
     global $debugValues;
     $appid = getAppId();
     if ($appid == null) {
@@ -65,7 +70,8 @@ function getSecret($secretname, $default) {
 
 $app_properties = array();
 
-function getProperty($name, $default) {
+function getProperty($name, $default)
+{
     global $debugValues, $app_properties;
     $appid = getAppId();
     if ($appid == null) {
@@ -80,10 +86,8 @@ function getProperty($name, $default) {
             $app_properties[$r["name"]] = $r["value"];
         }
     }
-    foreach ($app_properties as $p) {
-        if ($p["name"] == $name) {
-            return $p["value"];
-        }
+    if (isset($app_properties[$name])) {
+        return isset($app_properties[$name]);
     }
     return $default;
 }

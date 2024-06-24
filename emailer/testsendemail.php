@@ -1,5 +1,5 @@
 <?php
-
+die();
 include_once dirname(__FILE__) . "/sendemail.php";
 
 // Example usage:

@@ -1,11 +1,11 @@
 <?php
 
-include_once "./corsheaders.php";
-include_once "./dbutils.php";
-include_once "./utils.php";
-include_once "./security.config.php";
+include_once "../corsheaders.php";
+include_once "../dbutils.php";
+include_once "../utils.php";
+include_once "../security/security.config.php";
 
-$appid = getHeader("APP_ID");
+$appid = getAppId();
 $email = getParam("email", "");
 $password = getParam("password", "");
 $deviceid = getParam("deviceid", "");
@@ -20,20 +20,14 @@ if (count($errors) > 0) {
     die(json_encode(array("errors" => $errors)));
 }
 
-// echo crypt("123", $PASSWORDHASH), "\n";
-// echo crypt("123456", $PASSWORDHASH), "\n";
 try {
     $sql = "select id, firstname, lastname, avatar, role_id from user where app_id = ? and email = ? ";
-
-    // echo $sql, "\n";
     
     $params = array($appid, $email);
-    // var_dump($params);
     $row = PrepareExecSQL($sql, "ss", $params);
 
     if (empty($row)) {
-        // CREATE NEW USER
-        
+        // CREATE NEW USER        
         $firstname = getParam("firstname", "");
         $lastname = getParam("lastname", "");
         $avatar = getParam("avatar", "");
@@ -43,8 +37,7 @@ try {
         $password_hash = crypt($password, $PASSWORDHASH);
         $params = array($appid, $firstname, $lastname, $email, "google user", $avatar);
         $id = PrepareExecSQL($sql, "ssssss", $params);
-        
-        
+                
         $sql = "INSERT INTO user_property SET user_id = ?, name = ?, value = ?";
 
         $params = array($id, "google_id", $googleid);
