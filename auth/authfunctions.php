@@ -1,6 +1,8 @@
 <?php
 
 include_once dirname(__FILE__) . "/../security/security.config.php";
+include_once dirname(__FILE__) . "/../getguid.php";
+include_once dirname(__FILE__) . "/getuser.php";
 
 function getUserPermissions($id, $appid)
 {
@@ -127,6 +129,20 @@ function getLoginToken($email, $password, $appid)
     } catch (Exception $e) {
         array_push($errors, array("message" => $e->getMessage()));
     }
+}
+
+function createMagicLink($email, $appid, $deviceid, $ipaddress)
+{
+    $magiccode = getSimpleGUID();
+    $user = getUserByEmail($email, $appid);
+    if (empty($user)) {
+        throw new Exception("User email does not exist.");
+    }
+    $sql = "insert into auth_magic_link (email, app_id, magic_code, device_id, ip_address) values (?,?,?,?,?)";
+    $params = array($email, $appid, $magiccode, $deviceid, $ipaddress);
+    $result = PrepareExecSQL($sql, "sssss", $params);
+
+    return $magiccode;
 }
 
 function getUserEmail($token)

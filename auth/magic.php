@@ -1,62 +1,47 @@
 <?php
-include_once "./dbutils.php";
-include_once "./utils.php";
-include_once "./corsheaders.php";
-include_once "./security.config.php";
+include_once dirname(__FILE__) . "/../dbutils.php";
+include_once dirname(__FILE__) . "/../utils.php";
+include_once dirname(__FILE__) . "/../corsheaders.php";
+include_once dirname(__FILE__) . "/../security/security.config.php";
+include_once dirname(__FILE__) . "/authfunctions.php";
+include_once dirname(__FILE__) . "/../emailer/sendemail.php";
 
 
-$appid = getHeader("APP_ID");
+
+$appid = getAppId();
 $email = getParam("email", "");
 $deviceid = getParam("deviceid", "");
 
-$errors = array();
+$errors = [];
+$out = [];
+
+http_response_code(200);
 
 if ($email == "") {
     array_push($errors, array("message" => "Email is Required."));
 }
 
-if (count($errors) > 0) {
-    die(json_encode(array("errors" => $errors)));
-}
+if (count($errors) == 0) {
+    try {
+        $magiccode = createMagicLink($email, $appid, $deviceid, $_SERVER['REMOTE_ADDR']);
+        $out["magiccode"] = $magiccode;
 
-try {
-    $sql = "select id, firstname, lastname, avatar, role_id from user where app_id = ? and email = ? ";
+        $htmlContent = '<div>Welcome to <strong style="color:purple">Juzt.Dance</strong>
+  <div>Click on this link to access the system</div>
+  <div><a href="http://juzt.dance#magic?code='.$magiccode.'">Login</a></div>
+  <div>DEVELOPER: <a href="http://localhost:3000#magic?code='.$magiccode.'">Login to DEV</a></div>
+</div>';
 
-    $params = array($appid, $email);
-    $row = PrepareExecSQL($sql, "ss", $params);
+        sendEmailWithSendGrid($appid, $email, "Login to Juzt.Dance", $htmlContent);
 
-    if (empty($row)) {
-        array_push($errors, array("message" => "Invalid Email or Password."));
-    } else {
-
-        $firstname = $row[0]["firstname"];
-        $lastname = $row[0]["lastname"];
-        $avatar = $row[0]["avatar"];
-        $profileid = $row[0]["id"];
-        $role_id = $row[0]["role_id"];
-
-        $jwt = createToken(
-            array("id" => $profileid, "firstname" => $firstname, "lastname" => $lastname, "role" => $role_id)
-        );
-        $res = json_encode(
-            array(
-                "message" => "Magic link to login has been sent",
-            )
-        );
-        // TODO: Record the key so that we can use it for future auto-login
-
-        // Save login to database
-        $sql = "insert into auth_login (userid,token) values (?,?)";
-        $params = array($profileid, $jwt);
-        $row = PrepareExecSQL($sql, "ss", $params);
+    } catch (Exception $e) {
+        array_push($errors, array("message" => $e->getMessage()));
     }
-
-} catch (Exception $e) {
-    array_push($errors, array("message" => $e->getMessage()));
 }
 
 if (count($errors) > 0) {
-    die(json_encode(array("errors" => $errors)));
+    http_response_code(404);
+    $out["errors"] = $errors;
 }
 
-die(json_encode($res));
+die(json_encode($out));

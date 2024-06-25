@@ -55,6 +55,8 @@ try {
         $password_hash = crypt($password, $PASSWORDHASH);
         $params = array($appid, $email, $password_hash);
         $id = PrepareExecSQL($sql, "sss", $params);
+
+        // TODO send verification email
     }
 } catch (Exception $e) {
     array_push($errors, array("message" => $e->getMessage()));
