@@ -84,13 +84,24 @@ function runAPI($configs) {
             case 'GET':
                 $response = SelectData($config, $id);
                 break;
-            case 'POST':
-                $data = [];
-                foreach ($config['create'] as $field) {
-                    $data[] = getParam($field);
-                }
-                $response = CreateData($config, $data);
-                break;
+                case 'POST':
+                    if ($id === 'bulk') {
+                        // Handle bulk insert
+                        $data = json_decode(file_get_contents('php://input'), true);
+                        if (!is_array($data)) {
+                            http_response_code(400);
+                            echo json_encode(["error" => "Invalid data format"]);
+                            exit;
+                        }
+                        $response = CreateDataBulk($config, $data);
+                    } else {
+                        $data = [];
+                        foreach ($config['create'] as $field) {
+                            $data[$field] = getParam($field, "");
+                        }
+                        $response = CreateData($config, $data);
+                    }
+                    break;
             case 'PUT':
                 if ($id === null) {
                     http_response_code(400);
@@ -99,7 +110,7 @@ function runAPI($configs) {
                 }
                 $data = [];
                 foreach ($config['update'] as $field) {
-                    $data[] = getParam($field);
+                    $data[$field] = getParam($field);
                 }
                 $response = UpdateData($config, $id, $data);
                 break;

@@ -1,5 +1,7 @@
 <?php
 
+include_once dirname(__FILE__) . "/getselect.php";
+
 // Function to handle limit and order by from query string
 function getLimitAndOrderBy()
 {
@@ -27,15 +29,30 @@ function SelectData($config, $id = null)
 {
     global $conn;
 
-    // echo "Selecting data: ";
-    // var_dump($config);
-
     if (isset($config['beforeselect']) && function_exists($config['beforeselect'])) {
-        $config = call_user_func($config['beforeselect'], $config);
+        $res = call_user_func($config['beforeselect'], $config, []);
+        $config = $res[0];
     }
 
+    $types = "";
+    $params = [];
+
     if (is_string($config['select'])) {
-        $query = strtr($config['select'], $config['values']);
+        if (!isset($config['where'])) {
+            $config['where'] = [];
+        }
+        // $info = manageSqlStatement($config['select'], $config['key'], $config['where']);
+        $info = buildQuery($config);
+
+        // var_dump($info);
+        $query = $info['query'];
+        $types = $info['types'];
+        $params = $info['params'];
+
+
+        $stmt = $conn->prepare($query);
+
+        $stmt->bind_param($types, ...$params);
     } else {
         $fields = implode(", ", $config['select']);
         $where = "1=1";
@@ -48,25 +65,34 @@ function SelectData($config, $id = null)
             $where .= " AND " . $config['key'] . " = ?";
         }
         $query = "SELECT $fields FROM " . $config['tablename'] . " WHERE $where " . $config['orderBy'] . " " . $config['limit'];
-    }
 
-    // echo "SQL: $query";
+        $stmt = $conn->prepare($query);
 
-    $stmt = $conn->prepare($query);
 
-    if (isset($config['where'])) {
-        $types = str_repeat('s', count($config['where']));
-        $params = array_values($config['where']);
-        if ($id) {
-            $types .= 's';
+
+        if (isset($config['where']) && count($config['where']) > 0) {
+            $types = str_repeat('s', count($config['where']));
+            $params = array_values($config['where']);
+            if ($id) {
+                $types .= 's';
+                $params[] = $id;
+            }
+
+            if (count($config['where']) > 0) {
+                $stmt->bind_param($types, ...$params);
+            }
+        } elseif ($id) {
+            $types = 's';
             $params[] = $id;
+            $stmt->bind_param($types, ...$params);
         }
-        $stmt->bind_param($types, ...$params);
-    } else if ($id){
-        $types = 's';
-        $params[] = $id;
-        $stmt->bind_param($types, ...$params);
     }
+
+
+    // echo json_encode($config['where']), "\n";
+    // echo $query, "\n";
+    // echo $types, "\n";
+    // echo json_encode($params);
 
     $stmt->execute();
     $result = $stmt->get_result();
@@ -77,6 +103,5 @@ function SelectData($config, $id = null)
     }
 
     $stmt->close();
-
     return $rows;
 }

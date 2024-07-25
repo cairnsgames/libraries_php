@@ -155,9 +155,12 @@ function getUserEmail($token)
 }
 function getUserId($token)
 {
-    if (validateJwt($token)) {
+    // if (validateJwt($token)) {
         $data = get_jwt_payload($token)->data;
         return $data->id;
-    }
-    return "";
+    // } else {
+    //     echo "Invalid token";
+    //     echo json_encode(jwt_error());
+    // }
+    // return "";
 }

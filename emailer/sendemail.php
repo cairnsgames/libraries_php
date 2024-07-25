@@ -5,7 +5,6 @@ function sendEmailWithSendGrid($appid, $toEmail, $subject, $htmlContent) {
     $url = 'https://api.sendgrid.com/v3/mail/send';
     $apiKey = getSettingOrSecret($appid, 'sendgrid');
     $fromEmail = getSettingOrSecret($appid, 'SendGrid-fromAddress');
-    
 
     $data = [
         'personalizations' => [
@@ -40,6 +39,15 @@ function sendEmailWithSendGrid($appid, $toEmail, $subject, $htmlContent) {
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+
+    try {
+        // write the details to table email_log
+        $sql = "insert into email_log (app_id,email,subject,body) values (?,?,?,?)";
+        $params = array($appid, $toEmail, $subject, $htmlContent);
+        PrepareExecSQL($sql, "ssss", $params);
+    } catch (Exception $e) {
+        // do nothing
+    }
 
     return ['response' => $response, 'http_code' => $httpCode];
 

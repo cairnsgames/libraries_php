@@ -1,6 +1,7 @@
 <?php
 
-function CreateData($config, $data) {
+function CreateData($config, $data)
+{
     global $conn;
 
     if (!isset($config['create'])) {
@@ -8,7 +9,9 @@ function CreateData($config, $data) {
     }
 
     if (isset($config['beforecreate']) && function_exists($config['beforecreate'])) {
-        call_user_func($config['beforecreate'], $config);
+        $res = call_user_func($config['beforecreate'], $config, $data);
+        $config = $res[0];
+        $data = $res[1];
     }
 
     $fields = implode(", ", $config['create']);
@@ -17,8 +20,26 @@ function CreateData($config, $data) {
 
     $stmt = $conn->prepare($query);
 
-    $types = str_repeat('s', count($config['create']));
-    $stmt->bind_param($types, ...$data);
+    // Extract values from $data based on the keys in $config['create']
+    $values = array_map(function ($field) use ($data) {
+        return $data[$field];
+    }, $config['create']);
+
+    // Determine the types of the values
+    $types = '';
+    foreach ($values as $value) {
+        if (is_int($value)) {
+            $types .= 'i'; // Integer
+        } elseif (is_float($value)) {
+            $types .= 'd'; // Double
+        } elseif (is_string($value)) {
+            $types .= 's'; // String
+        } else {
+            $types .= 'b'; // Blob and other types
+        }
+    }
+
+    $stmt->bind_param($types, ...$values);
 
     $stmt->execute();
     $insert_id = $stmt->insert_id;
@@ -28,13 +49,82 @@ function CreateData($config, $data) {
     $new_record = SelectData($config, $insert_id);
 
     if (isset($config['aftercreate']) && function_exists($config['aftercreate'])) {
-        call_user_func($config['aftercreate'], $config, $new_record);
+        $res = call_user_func($config['aftercreate'], $config, $data, $new_record);
+        if (is_array($res)) {
+            $new_record = $res[2];
+        }
     }
 
     return $new_record;
 }
 
-function UpdateData($config, $id, $data) {
+function CreateDataBulk($config, $data)
+{
+    global $conn;
+
+    if (!isset($config['create'])) {
+        die("Create operation not allowed");
+    }
+
+    if (isset($config['beforecreate']) && function_exists($config['beforecreate'])) {
+        $res = call_user_func($config['beforecreate'], $config, $data);
+        $config = $res[0];
+        $data = $res[1];
+    }
+
+    $fields = implode(", ", $config['create']);
+    $placeholders = implode(", ", array_fill(0, count($config['create']), "?"));
+    $query = "INSERT INTO " . $config['tablename'] . " ($fields) VALUES ($placeholders)";
+
+    $stmt = $conn->prepare($query);
+
+    $insert_ids = [];
+
+    foreach ($data as $item) {
+        // Extract values from $item based on the keys in $config['create']
+        $values = array_map(function ($field) use ($item) {
+            return $item[$field];
+        }, $config['create']);
+
+        // Determine the types of the values
+        $types = '';
+        foreach ($values as $value) {
+            if (is_int($value)) {
+                $types .= 'i'; // Integer
+            } elseif (is_float($value)) {
+                $types .= 'd'; // Double
+            } elseif (is_string($value)) {
+                $types .= 's'; // String
+            } else {
+                $types .= 'b'; // Blob and other types
+            }
+        }
+
+        $stmt->bind_param($types, ...$values);
+        $stmt->execute();
+
+        $insert_ids[] = $stmt->insert_id;
+    }
+
+    $stmt->close();
+
+    $new_records = [];
+    foreach ($insert_ids as $insert_id) {
+        $new_record = SelectData($config, $insert_id);
+        if (isset($config['aftercreate']) && function_exists($config['aftercreate'])) {
+            $res = call_user_func($config['aftercreate'], $config, $data, $new_record);
+            if (is_array($res)) {
+                $new_record = $res[2];
+            }
+        }
+        $new_records[] = $new_record;
+    }
+
+    return $new_records;
+}
+
+function UpdateData($config, $id, $data)
+{
     global $conn;
 
     if (!isset($config['update'])) {
@@ -42,7 +132,9 @@ function UpdateData($config, $id, $data) {
     }
 
     if (isset($config['beforeupdate']) && function_exists($config['beforeupdate'])) {
-        call_user_func($config['beforeupdate'], $config);
+        $res = call_user_func($config['beforeupdate'], $config, $data);
+        $config = $res[0];
+        $data = $res[1];
     }
 
     $fields = implode(" = ?, ", $config['update']) . " = ?";
@@ -50,9 +142,16 @@ function UpdateData($config, $id, $data) {
 
     $stmt = $conn->prepare($query);
 
-    $types = str_repeat('s', count($config['update'])) . 's';
-    $data[] = $id;
-    $stmt->bind_param($types, ...$data);
+    $types = '';
+    $values = [];
+    foreach ($config['update'] as $field) {
+        $types .= 's';
+        $values[] = $data[$field];
+    }
+    $types .= 's';
+    $values[] = $id;
+
+    $stmt->bind_param($types, ...$values);
 
     $stmt->execute();
 
@@ -67,7 +166,9 @@ function UpdateData($config, $id, $data) {
     return $updated_record;
 }
 
-function DeleteData($config, $id) {
+
+function DeleteData($config, $id)
+{
     global $conn;
 
     if (!isset($config['delete']) || !$config['delete']) {
@@ -75,7 +176,8 @@ function DeleteData($config, $id) {
     }
 
     if (isset($config['beforedelete']) && function_exists($config['beforedelete'])) {
-        call_user_func($config['beforedelete'], $config);
+        $res = call_user_func($config['beforedelete'], $config, []);
+        $config = $res[0];
     }
 
     $query = "DELETE FROM " . $config['tablename'] . " WHERE " . $config['key'] . " = ?";

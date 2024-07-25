@@ -87,7 +87,7 @@ function getProperty($name, $default)
         }
     }
     if (isset($app_properties[$name])) {
-        return isset($app_properties[$name]);
+        return $app_properties[$name];
     }
     return $default;
 }

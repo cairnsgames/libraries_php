@@ -2,7 +2,7 @@
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 	header("Access-Control-Allow-Origin: *");
-	header('Access-Control-Allow-Methods: POST, GET, PUT, OPTIONS');
+	header('Access-Control-Allow-Methods: POST, GET, DELETE, PUT, OPTIONS');
 	header("Access-Control-Allow-Headers: authorization, token, app_id, deviceid, Info, Origin, X-Requested-With, Content-Type, Accept");
 	header('Access-Control-Max-Age: 0');
 	header('Content-Length: 0');

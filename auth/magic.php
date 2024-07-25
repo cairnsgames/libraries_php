@@ -5,6 +5,8 @@ include_once dirname(__FILE__) . "/../corsheaders.php";
 include_once dirname(__FILE__) . "/../security/security.config.php";
 include_once dirname(__FILE__) . "/authfunctions.php";
 include_once dirname(__FILE__) . "/../emailer/sendemail.php";
+include_once dirname(__FILE__) . "/../tenant/gettenant.php";
+include_once dirname(__FILE__) . "/../permissions/permissionfunctions.php";
 
 
 
@@ -23,16 +25,23 @@ if ($email == "") {
 
 if (count($errors) == 0) {
     try {
+        $tenant = getTenant($appid); 
+        $homeurl = getProperty("url", null);
+
+        // var_dump($tenant);
+        // echo "==================\n";
+        // echo  $homeurl;
+        // echo "==================\n";
         $magiccode = createMagicLink($email, $appid, $deviceid, $_SERVER['REMOTE_ADDR']);
         $out["magiccode"] = $magiccode;
 
-        $htmlContent = '<div>Welcome to <strong style="color:purple">Juzt.Dance</strong>
-  <div>Click on this link to access the system</div>
-  <div><a href="http://juzt.dance#magic?code='.$magiccode.'">Login</a></div>
-  <div>DEVELOPER: <a href="http://localhost:3000#magic?code='.$magiccode.'">Login to DEV</a></div>
-</div>';
+        $htmlContent = '<div>Welcome to <strong style="color:purple">' . $tenant["name"] . '</strong>
+                            <div>Click on this link to access the system</div>
+                            <div><a href="' . $homeurl . '#magic?code=' . $magiccode . '">Login</a></div>
+                            <div>DEVELOPER: <a href="http://localhost:3000#magic?code=' . $magiccode . '">Login to DEV</a></div>
+                        </div>';
 
-        sendEmailWithSendGrid($appid, $email, "Login to Juzt.Dance", $htmlContent);
+        sendEmailWithSendGrid($appid, $email, "Login to " . $tenant["name"], $htmlContent);
 
     } catch (Exception $e) {
         array_push($errors, array("message" => $e->getMessage()));
