@@ -1,0 +1,19 @@
+CREATE TABLE trigger_subscriptions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  trigger_type VARCHAR(255) NOT NULL,
+  action VARCHAR(255) NOT NULL,
+  script_path VARCHAR(255) NOT NULL,
+  function_name VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE trigger_logs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  subscription_id INT NOT NULL,
+  trigger_type VARCHAR(255) NOT NULL,
+  action VARCHAR(255) NOT NULL,
+  data JSON NOT NULL,
+  called_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (subscription_id) REFERENCES trigger_subscriptions(id)
+);

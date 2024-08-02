@@ -1,6 +1,7 @@
 <?php
 
-function buildQuery($config) {
+function buildQuery($config)
+{
     // Initialize components
     $select = isset($config['select']) ? $config['select'] : '';
     $where = isset($config['where']) ? $config['where'] : [];
@@ -14,13 +15,13 @@ function buildQuery($config) {
 
     // Extract special parameters from $config
     $specialParams = isset($config['params']) ? $config['params'] : [];
-    
+
     // Combine query string parameters and special parameters
     $allParams = array_merge($queryParams, $specialParams);
-    
+
     // Track unresolved placeholders
     $unresolvedParams = [];
-    
+
     // Replace placeholders in SELECT statement with ?
     preg_match_all('/{(\w+)}/', $select, $matches);
     foreach ($matches[1] as $paramName) {
@@ -73,7 +74,16 @@ function buildQuery($config) {
     // Add any additional WHERE conditions from the config
     foreach ($where as $column => $value) {
         if ($value !== '') {
-            $select .= " AND {$column} = ?";
+            if (empty($whereClauses)) {
+
+                if (preg_match('/\bWHERE\b(?![^()]*\))/', $select)) {
+                    $select .= " AND {$column} = ?";
+                } else {
+                    $select .= " WHERE {$column} = ?";
+                }
+            } else {
+                $select .= " AND {$column} = ?";
+            }
             $params[] = $value;
             $types .= 's'; // Assuming all `where` values are strings
         }
@@ -83,9 +93,9 @@ function buildQuery($config) {
     $finalSql = $select;
 
     // echo "$finalSql", "\n";
-    // var_dump($types,"\n");
-    // var_dump($params,"\n");
-    
+    // var_dump("TYPES", $types,"\n");
+    // var_dump("PARAMS", $params,"\n");
+
     // Return the result
     return [
         'query' => $finalSql,

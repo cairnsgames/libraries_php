@@ -8,6 +8,8 @@ GAPIv2 is a powerful and flexible tool designed to simplify the process of build
 - **Pre- and Post-Operation Hooks**: Implement custom logic for security, validation, and data manipulation.
 - **Subkeys**: Manage related data with nested configurations.
 - **OpenAPI Documentation**: Automatically generate OpenAPI (Swagger) documentation for your API.
+- **Dynamic Function Calls**: Call PHP functions dynamically based on configuration values for select, create, update, and delete operations.
+- **Special Endpoints**: Handle special `post` endpoints with dynamic function execution.
 
 ## Configuration
 
@@ -17,14 +19,20 @@ Each endpoint is configured with an associative array. Below is a breakdown of t
 
 - `tablename`: The name of the table in the database.
 - `key`: The primary key of the table.
-- `select`: An array of columns to be selected.
-- `create`: An array of columns allowed for creation.
-- `update`: An array of columns allowed for updating.
-- `delete`: A boolean indicating if delete operation is allowed.
+- `select`: An array of columns to be selected, or a SQL query string. If a string is provided and a function with that name exists, that function will be called instead.
+- `create`: An array of columns allowed for creation, or a SQL query string. If a string is provided and a function with that name exists, that function will be called instead.
+- `update`: An array of columns allowed for updating, or a SQL query string. If a string is provided and a function with that name exists, that function will be called instead.
+- `delete`: A boolean indicating if delete operation is allowed, or a SQL query string. If a string is provided and a function with that name exists, that function will be called instead.
 - `where`: An associative array of default where conditions.
 - `beforeselect`, `beforecreate`, `beforeupdate`, `beforedelete`: Hook functions to be called before each operation.
 - `afterselect`, `aftercreate`, `afterupdate`: Hook functions to be called after each operation.
 - `subkeys`: Nested configurations for related data.
+
+### Special Endpoints
+
+- `post`: A top-level configuration for special endpoints that map to functions. If a request is made to an endpoint that is not found, the system will check the `post` configuration. If a corresponding function exists, it will be called with the `_POST` data or JSON body data as a parameter.
+- `openapi`: Retrieve the OpenAPI (Swagger) documentation for the API.
+- `$$`: Retrieve simple documentation for the API (just field name list).
 
 ### Subkeys
 
@@ -32,9 +40,7 @@ Subkeys only support GET with the following configuration options:
 
 - `tablename`: The name of the table in the database.
 - `key`: The foreign key of the table pointing to the parent.
-- `select`: An array of columns to be selected.
-
-
+- `select`: An array of columns to be selected, or a SQL query string.
 
 ### Example Configuration
 
@@ -66,8 +72,11 @@ $configs = [
         ]
     ],
     // Additional endpoint configurations...
+    "post" => [
+        'addtocart' => 'addItemToCart',
+        // Other post actions...
+    ]
 ];
-```
 
 ## Hook Functions
 
@@ -75,18 +84,19 @@ $configs = [
 
 Before hooks are used to validate user authentication, permissions, and add custom where clauses.
 
-- beforeselect($config): Called before a select operation.
-- beforecreate($config): Called before a create operation.
-- beforeupdate($config): Called before an update operation.
-- beforedelete($config): Called before a delete operation.
+- beforeselect($config, $id): Called before a select operation. ($id is optional)
+- beforecreate($config, $data): Called before a create operation. Must return [$config, $data]
+- beforeupdate($config, $id, $data): Called before an update operation. Must return [$config, $data]
+- beforedelete($config, $id): Called before a delete operation.
 
 ### After Hooks
 
 After hooks allow you to modify the results of a select operation or perform actions after create, update, or delete operations.
 
-- afterselect($config, $results): Called after a select operation.
-- aftercreate($config): Called after a create operation.
-- afterupdate($config): Called after an update operation.
+- afterselect($config, $results): Called after a select operation. should return $results
+- aftercreate($config, $new_record): Called after a create operation. Must return [$config, $new_record]
+- afterupdate($config, $updated_record): Called after an update operation. must return [$config, $updated_record]
+- afterdelete($config, $id): Called after an update operation. Must return [$config]
 
 ## API Endpoints
 
@@ -104,6 +114,8 @@ Each configured endpoint supports the following HTTP methods:
 
 - GET /openapi: Retrieve the OpenAPI (Swagger) documentation for the API.
 - GET /$$: Retrieve simple documentation for the API (just field name list)
+
+- POST /<name> if name does not exist as a normal endpoint, the post collection will be checked and if name is found, the vlaue will  be called as a function.
 
 ## Example Usage
 

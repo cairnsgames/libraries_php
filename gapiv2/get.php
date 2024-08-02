@@ -37,23 +37,28 @@ function SelectData($config, $id = null)
     $types = "";
     $params = [];
 
+    // Handle the case where select is a function name
     if (is_string($config['select'])) {
-        if (!isset($config['where'])) {
-            $config['where'] = [];
+        if (function_exists($config['select'])) {
+            // Call the function with the config and id
+            return call_user_func($config['select'], $config, $id);
+        } else {
+            // Handle the case where select is a raw SQL statement
+            if (!isset($config['where'])) {
+                $config['where'] = [];
+            }
+            $info = buildQuery($config);
+
+            $query = $info['query'];
+            $types = $info['types'];
+            $params = $info['params'];
+
+            $stmt = $conn->prepare($query);
+
+            $stmt->bind_param($types, ...$params);
         }
-        // $info = manageSqlStatement($config['select'], $config['key'], $config['where']);
-        $info = buildQuery($config);
-
-        // var_dump($info);
-        $query = $info['query'];
-        $types = $info['types'];
-        $params = $info['params'];
-
-
-        $stmt = $conn->prepare($query);
-
-        $stmt->bind_param($types, ...$params);
-    } else {
+    } elseif (is_array($config['select'])) {
+        // Handle the case where select is an array of fields
         $fields = implode(", ", $config['select']);
         $where = "1=1";
         if (isset($config['where'])) {
@@ -64,11 +69,15 @@ function SelectData($config, $id = null)
         if ($id) {
             $where .= " AND " . $config['key'] . " = ?";
         }
+        if (!isset($config['orderBy'])) {
+            $config['orderBy'] = '';
+        }
+        if (!isset($config['limit'])) {
+            $config['limit'] = '';
+        }
         $query = "SELECT $fields FROM " . $config['tablename'] . " WHERE $where " . $config['orderBy'] . " " . $config['limit'];
 
         $stmt = $conn->prepare($query);
-
-
 
         if (isset($config['where']) && count($config['where']) > 0) {
             $types = str_repeat('s', count($config['where']));
@@ -88,12 +97,7 @@ function SelectData($config, $id = null)
         }
     }
 
-
-    // echo json_encode($config['where']), "\n";
-    // echo $query, "\n";
-    // echo $types, "\n";
-    // echo json_encode($params);
-
+    // Execute the query and fetch results
     $stmt->execute();
     $result = $stmt->get_result();
     $rows = $result->fetch_all(MYSQLI_ASSOC);

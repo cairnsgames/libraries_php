@@ -92,6 +92,13 @@ function isLocalHost()
 	return false;
 }
 
+function hasValue($param) {
+    if (!isset($param) || $param === null || $param === "") {
+        return false;
+    }
+    return true;
+}
+
 try {
 	$postdata = retrieveJsonPostData();
 } catch (exception $e) {

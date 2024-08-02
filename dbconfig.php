@@ -8,6 +8,9 @@ $dbconfig = array(
     "database" => 'cairnsco_cairnsgames'
 );
 
+$returnUrl = "http://localhost/cairnsgames/paypal/success.php?success=true";
+$cancelUrl = "http://localhost/cairnsgames/paypal/success.php?success=false";
+
 // localhost/
 // cairnsgames.co.za/dev/php
 

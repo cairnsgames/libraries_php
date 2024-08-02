@@ -4,6 +4,29 @@ include_once dirname(__FILE__) . "/../security/security.config.php";
 include_once dirname(__FILE__) . "/../getguid.php";
 include_once dirname(__FILE__) . "/getuser.php";
 
+/*
+// Fetches user permissions for a given user and application ID.
+function getUserPermissions($id, $appid)
+
+// Generates a JWT token for a user with provided user ID and application ID, optionally including a master token and permissions.
+function getTokenForUser($id, $appid, $mastertoken = "", $permissions = null)
+
+// Authenticates a user with email, password, and application ID, returning a JWT token upon successful login.
+function getLoginToken($email, $password, $appid)
+
+// Creates a magic link for user authentication based on email, application ID, device ID, and IP address.
+function createMagicLink($email, $appid, $deviceid, $ipaddress)
+
+// Retrieves the email associated with a given JWT token.
+function getUserEmail($token)
+
+// Retrieves the user ID associated with a given JWT token.
+function getUserId($token)
+
+// Sends a 401 Unauthorized HTTP response with a custom message.
+function sendUnauthorizedResponse($customMessage = 'You are not authorized to access this resource. Please provide valid authentication credentials.')
+*/
+
 function getUserPermissions($id, $appid)
 {
     $sql = "SELECT name, IF(NEVER>0,'NEVER', if(YES>0,'YES', 'NO')) permission FROM (
@@ -156,11 +179,43 @@ function getUserEmail($token)
 function getUserId($token)
 {
     // if (validateJwt($token)) {
-        $data = get_jwt_payload($token)->data;
-        return $data->id;
+    $data = get_jwt_payload($token)->data;
+    return $data->id;
     // } else {
     //     echo "Invalid token";
     //     echo json_encode(jwt_error());
     // }
     // return "";
+}
+
+function sendUnauthorizedResponse($customMessage = 'You are not authorized to access this resource. Please provide valid authentication credentials.')
+{
+    http_response_code(401);
+    header('Content-Type: application/json');
+
+    $response = [
+        'error' => 'Unauthorized',
+        'message' => $customMessage
+    ];
+
+    echo json_encode($response);
+    exit;
+}
+
+class UserNotFoundException extends Exception {
+    public function __construct($message = "User not found.", $code = 404, Exception $previous = null) {
+        parent::__construct($message, $code, $previous);
+    }
+}
+
+function getUser($id, $appid)
+{
+    $sql = "select id, email, firstname, lastname, avatar, role_id from user where app_id = ? and id = ?";
+    $params = array($appid, $id);
+    $row = PrepareExecSQL($sql, "ss", $params);
+
+    if ($row == null) {
+        throw new UserNotFoundException();
+    }
+    return $row[0];
 }

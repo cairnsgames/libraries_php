@@ -1,25 +1,60 @@
-on: push
-name: Deploy PHP Libraries on push
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main  # Adjust if you are using a different branch
+
 jobs:
-  web-deploy:
-    name: 🎉 Deploy
+  build_and_deploy:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Get latest code
+    - name: Checkout code
       uses: actions/checkout@v3
-    
-    - name: Sync files
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'  # Specify the PHP version you are using
+
+    - name: Install Composer dependencies for root
+      working-directory: ./
+      run: composer install
+
+    - name: Install Composer dependencies for paypal
+      working-directory: ./paypal
+      run: composer install
+
+    - name: Generate dbconfig.php
+      working-directory: ./paypal
+      run: |
+        echo "<?php" > dbconfig.php
+        echo "" >> dbconfig.php
+        echo "\$dbconfig = array(" >> dbconfig.php
+        echo "    \"server\" => '${{ vars.CG_DATABASE_HOST }}'," >> dbconfig.php
+        echo "    \"username\" => '${{ vars.CG_DATABASE_USER }}'," >> dbconfig.php
+        echo "    \"password\" => '${{ secrets.CG_DATABASE_PASSWORD }}'," >> dbconfig.php
+        echo "    \"database\" => '${{ vars.CG_DATABASE }}'" >> dbconfig.php
+        echo ");" >> dbconfig.php
+        echo "" >> dbconfig.php
+        echo "\$returnUrl = \"${{ vars.PAYPAL_RETURN_URL }}\";" >> dbconfig.php
+        echo "\$cancelUrl = \"${{ vars.PAYPAL_CANCEL_URL }}\";" >> dbconfig.php        
+
+    - name: Build project
+      run: |
+        # Add any build steps if required
+        echo "Build step (if any) goes here."
+
+    - name: Deploy via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
         server: ${{ vars.CG_SERVER }}
         username: ${{ vars.CG_FTP_USERNAME }}
         password: ${{ secrets.CG_FTP_PASSWORD }}
+        local-dir: ./
         server-dir: ${{ vars.SERVER_DIR }}
-        exclude: |
-          **/Classes/**
-          /Classes/**
-          **/.git/**
-          **/.github/**
-          **/paypalsdk/**
-          **/paypal/vendor/**
-          **/uploads/**
+
+    - name: Clean up
+      working-directory: ./paypal
+      run: rm dbconfig.php

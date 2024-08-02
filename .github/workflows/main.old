@@ -1,0 +1,25 @@
+on: push
+name: Deploy PHP Libraries on push
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: Get latest code
+      uses: actions/checkout@v3
+    
+    - name: Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ vars.CG_SERVER }}
+        username: ${{ vars.CG_FTP_USERNAME }}
+        password: ${{ secrets.CG_FTP_PASSWORD }}
+        server-dir: ${{ vars.SERVER_DIR }}
+        exclude: |
+          **/Classes/**
+          /Classes/**
+          **/.git/**
+          **/.github/**
+          **/paypalsdk/**
+          **/paypal/vendor/**
+          **/uploads/**
