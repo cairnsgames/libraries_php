@@ -18,10 +18,6 @@ jobs:
       with:
         php-version: '8.1'  # Specify the PHP version you are using
 
-    - name: Install Composer dependencies for root
-      working-directory: ./
-      run: composer install
-
     - name: Install Composer dependencies for paypal
       working-directory: ./paypal
       run: composer install
