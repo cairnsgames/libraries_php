@@ -179,6 +179,10 @@ function getUserEmail($token)
 function getUserId($token)
 {
     // if (validateJwt($token)) {
+    if (empty($token) || $token == "undefined") {
+        return "";
+    }
+
     $data = get_jwt_payload($token)->data;
     return $data->id;
     // } else {
@@ -196,6 +200,61 @@ function sendUnauthorizedResponse($customMessage = 'You are not authorized to ac
     $response = [
         'error' => 'Unauthorized',
         'message' => $customMessage
+    ];
+
+    echo json_encode($response);
+    exit;
+}
+
+function sendErrorResponse($message)
+{
+    http_response_code(400);
+    header('Content-Type: application/json');
+
+    $response = [
+        'error' => 'Bad Request',
+        'message' => $message
+    ];
+
+    echo json_encode($response);
+    exit;
+}
+
+function sendNotFoundResponse($message)
+{
+    http_response_code(404);
+    header('Content-Type: application/json');
+
+    $response = [
+        'error' => 'Not Found',
+        'message' => $message
+    ];
+
+    echo json_encode($response);
+    exit;
+}
+
+function sendBadRequestResponse($message)
+{
+    http_response_code(400);
+    header('Content-Type: application/json');
+
+    $response = [
+        'error' => 'Bad Request',
+        'message' => $message
+    ];
+
+    echo json_encode($response);
+    exit;
+}
+
+function sendSuccessResponse($message)
+{
+    http_response_code(200);
+    header('Content-Type: application/json');
+
+    $response = [
+        'message' => $message
     ];
 
     echo json_encode($response);

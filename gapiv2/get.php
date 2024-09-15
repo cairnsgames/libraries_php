@@ -53,6 +53,10 @@ function SelectData($config, $id = null)
             $types = $info['types'];
             $params = $info['params'];
 
+            // echo "Query: $query\n";
+            // echo "Types: $types\n";
+            // echo "Params: " . json_encode($params) . "\n";
+
             $stmt = $conn->prepare($query);
 
             $stmt->bind_param($types, ...$params);
@@ -79,6 +83,7 @@ function SelectData($config, $id = null)
 
         $stmt = $conn->prepare($query);
 
+
         if (isset($config['where']) && count($config['where']) > 0) {
             $types = str_repeat('s', count($config['where']));
             $params = array_values($config['where']);
@@ -96,6 +101,10 @@ function SelectData($config, $id = null)
             $stmt->bind_param($types, ...$params);
         }
     }
+
+    // echo "Query: $query\n";
+    // echo "Types: $types\n";
+    // echo "Params: " . json_encode($params) . "\n";
 
     // Execute the query and fetch results
     $stmt->execute();

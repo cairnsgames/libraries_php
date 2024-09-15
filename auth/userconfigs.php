@@ -33,7 +33,7 @@ $userconfigs = [
             'roles' => [
                 'tablename' => 'user_role',
                 'key' => 'user_id',
-                'select' => ['id', 'user_id', 'role_id'],
+                'select' => "select id, name from role r where r.id in (select role_id from user_role where user_id = ?)",
                 'beforeselect' => '',
                 'afterselect' => ''
             ]
@@ -54,7 +54,7 @@ $userconfigs = [
         'afterupdate' => '',
         'beforedelete' => ''
     ],
-    "user_property" => [
+    "property" => [
         'tablename' => 'user_property',
         'key' => 'id',
         'select' => ['id', 'user_id', 'name', 'value', 'created', 'modified'],
@@ -63,7 +63,7 @@ $userconfigs = [
         'delete' => true,
         'beforeselect' => '',
         'afterselect' => '',
-        'beforecreate' => '',
+        'beforecreate' => 'beforecreateproperty',
         'aftercreate' => '',
         'beforeupdate' => '',
         'afterupdate' => '',

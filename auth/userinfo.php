@@ -45,3 +45,12 @@ function userdelete($endpoint, $id) {
     global $userconfigs;
     return GAPIdelete($userconfigs, $endpoint, $id);
 }
+
+
+function beforecreateproperty($config, $data)
+{
+    global $userid;
+    $data['user_id'] = $userid;
+    var_dump($data);
+    return [$config, $data];
+}

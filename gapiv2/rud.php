@@ -24,11 +24,13 @@ function CreateData($config, $data)
         $data = $res[1];
         $new_record = $res[2];
     } else {
-
-        // Build the insert query
+        // Build the insert query with ON DUPLICATE KEY UPDATE
         $fields = implode(", ", $config['create']);
         $placeholders = implode(", ", array_fill(0, count($config['create']), "?"));
-        $query = "INSERT INTO " . $config['tablename'] . " ($fields) VALUES ($placeholders)";
+        $updateFields = implode(", ", array_map(function ($field) {
+            return "$field = VALUES($field)";
+        }, $config['create']));
+        $query = "INSERT INTO " . $config['tablename'] . " ($fields) VALUES ($placeholders) ON DUPLICATE KEY UPDATE $updateFields";
 
         $stmt = $conn->prepare($query);
 
@@ -80,6 +82,7 @@ function CreateData($config, $data)
 }
 
 
+
 function CreateDataBulk($config, $data)
 {
     global $conn;
@@ -95,7 +98,7 @@ function CreateDataBulk($config, $data)
         $res = call_user_func($config['beforcreate'], $config, $data);
         $config = $res[0];
         $data = $res[1];
-    }    
+    }
 
     // Check if 'create' is a function name
     if (is_string($config['create']) && function_exists($config['create'])) {
@@ -147,7 +150,7 @@ function CreateDataBulk($config, $data)
         $insert_ids[] = $stmt->insert_id;
 
         $stmt->close();
-    
+
         // Fetch new records
         $new_records = [];
         foreach ($insert_ids as $insert_id) {
@@ -190,20 +193,31 @@ function UpdateData($config, $id, $data)
         $updated_record = $res[1];
     } else {
 
-        // Build the update query
-        $fields = implode(" = ?, ", $config['update']) . " = ?";
+        // Build the update query// Filter $config['update'] to only include fields that exist in $data
+        $updateFields = array_values(array_filter($config['update'], function ($field) use ($data) {
+            return isset($data[$field]);
+        }));
+
+        // Generate the $fields string with the filtered fields
+        $fields = implode(" = ?, ", $updateFields) . " = ?";
+
         $query = "UPDATE " . $config['tablename'] . " SET $fields WHERE " . $config['key'] . " = ?";
 
         $stmt = $conn->prepare($query);
 
         $types = '';
         $values = [];
-        for ($i = 0; $i < count($config['update']); $i++) {
+        for ($i = 0; $i < count($updateFields); $i++) {
             $types .= 's';
-            $values[] = $data[$config['update'][$i]];
+            $values[] = $data[$updateFields[$i]];
         }
         $types .= 's';
         $values[] = $id;
+
+        // echo "Update Fields: ", json_encode($updateFields), "\n";
+        // echo "Query: ", $query, "\n";
+        // echo "Types: ", $types, "\n";
+        // echo "Values: ", json_encode($values), "\n";
 
         $stmt->bind_param($types, ...$values);
 
@@ -258,11 +272,11 @@ function DeleteData($config, $id)
         $stmt->close();
     }
 
-        // Execute before after function if it exists
-        if (isset($config['afterdelete']) && function_exists($config['afterdelete'])) {
-            $res = call_user_func($config['afterdelete'], $config, $id);
-            $config = $res[0];
-        }
+    // Execute before after function if it exists
+    if (isset($config['afterdelete']) && function_exists($config['afterdelete'])) {
+        $res = call_user_func($config['afterdelete'], $config, $id);
+        $config = $res[0];
+    }
 
 
     return $affected_rows > 0;

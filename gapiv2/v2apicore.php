@@ -112,7 +112,11 @@ function runAPI($configs)
                     } else {
                         $data = [];
                         foreach ($config['create'] as $field) {
-                            $data[$field] = getParam($field, "");
+                            $value = getParam($field, null);
+
+                            if ($field != null) {
+                                $data[$field] = $value;
+                            }
                         }
                         $response = CreateData($config, $data);
                     }
@@ -124,8 +128,17 @@ function runAPI($configs)
                         exit;
                     }
                     $data = [];
+                    if ($config['update'] === false) {
+                        http_response_code(405);
+                        echo json_encode(["error" => "Method not allowed for update"]);
+                        exit;
+                    }
                     foreach ($config['update'] as $field) {
-                        $data[$field] = getParam($field);
+                        $value = getParam($field, null);
+                        // echo "Field: $field = $value\n";
+                        if ($field != null) {
+                            $data[$field] = $value;
+                        }
                     }
                     $response = UpdateData($config, $id, $data);
                     break;

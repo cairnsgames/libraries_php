@@ -19,18 +19,20 @@ $loyaltyconfigs = [
             'systems' => [
                 'tablename' => 'loyalty_system',
                 'key' => 'venue_id',
-                'select' => ['id', 'app_id', 'venue_id', 'name', 'description', 'stamps_required', 'reward_description', 'start_date', 'end_date'],
+                'select' => ['id', 'app_id', 'venue_id', 'name', 'description', 'image', 'stamps_required', 'reward_description', 'start_date', 'end_date'],
                 'beforeselect' => '',
                 'afterselect' => ''
             ],
             'cards' => [
                 'tablename' => 'loyalty_card',
                 'key' => 'user_id',
-                'select' => ['id', 'app_id', 'user_id', 'system_id', 'qr_code', 'stamps_collected'],
+                'select' => "SELECT card.id, card.user_id, card.system_id, stamps_collected, sys.name, sys.description, sys.reward_description, sys.image 
+FROM loyalty_card card, loyalty_system sys
+WHERE card.system_id = sys.id",
                 'beforeselect' => '',
                 'afterselect' => ''
             ],
-            'reward' => [
+            'rewards' => [
                 'tablename' => 'loyalty_reward',
                 'key' => 'user_id',
                 'select' => ['id', 'app_id', 'user_id', 'system_id', 'reward_description', 'date_earned', 'date_redeemed'],
@@ -42,9 +44,9 @@ $loyaltyconfigs = [
     "system" => [
         'tablename' => 'loyalty_system',
         'key' => 'id',
-        'select' => ['id', 'app_id', 'venue_id', 'name', 'description', 'stamps_required', 'reward_description', 'start_date', 'end_date'],
-        'create' => ['app_id', 'venue_id', 'name', 'description', 'stamps_required', 'reward_description', 'start_date', 'end_date'],
-        'update' => ['name', 'description', 'stamps_required', 'reward_description', 'start_date', 'end_date'],
+        'select' => ['id', 'app_id', 'venue_id', 'name', 'description', 'image', 'stamps_required', 'reward_description', 'start_date', 'end_date'],
+        'create' => ['app_id', 'venue_id', 'name', 'description', 'image', 'stamps_required', 'reward_description', 'start_date', 'end_date'],
+        'update' => ['name', 'description', 'image', 'stamps_required', 'reward_description', 'start_date', 'end_date'],
         'delete' => true,
         'beforeselect' => '',
         'afterselect' => 'modifyrows',
@@ -70,6 +72,9 @@ $loyaltyconfigs = [
                 'beforeselect' => '',
                 'afterselect' => ''
             ],
+            'stamp' => [
+                'select' => 'stampCard'
+            ]
         ]
     ],
     "card" => [
@@ -126,5 +131,12 @@ $loyaltyconfigs = [
         'beforeupdate' => '',
         'afterupdate' => '',
         'beforedelete' => ''
-    ]
+    ],
 ];
+
+function stampCard($config, $id)
+{
+    var_dump($config);
+    var_dump($id);
+    $user = $_GET['user'];
+}
