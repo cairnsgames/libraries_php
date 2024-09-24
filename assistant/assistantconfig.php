@@ -9,6 +9,13 @@ $assistantconfigs = [
                 'tablename' => 'assistant_user_role',
                 'key' => 'user_id',
                 'select' => ['id', 'user_id', 'venue_id', 'role_id'],
+            ],
+            "venues" => [
+                'tablename' => 'assistant_user_role',
+                'key' => 'user_id',
+                'select' => 'SELECT distinct ur.venue_id, v.firstname, v.lastname
+                            FROM assistant_user_role ur 
+                            JOIN user v ON ur.venue_id = v.id '
             ]
         ],
         'create' => false,
