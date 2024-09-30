@@ -119,7 +119,6 @@ function getLoginToken($email, $password, $appid)
     try {
         $sql = "select id, email, firstname, lastname, avatar, role_id from user where app_id = ? and email = ? and password = ?  ";
 
-        // echo $sql, "\n";
         $password_hash = crypt($password, $PASSWORDHASH);
         $params = array($appid, $email, $password_hash);
         $row = PrepareExecSQL($sql, "sss", $params);
