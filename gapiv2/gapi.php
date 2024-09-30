@@ -94,6 +94,9 @@ function GAPIselect($configs, $endpoint, $id = null, $subkey = null, $where = []
     } else {
         $response = SelectData($config, $id);
     }
+    if (!is_array($response)) {
+        $response = [];
+    }
 
     return $response;
 }
