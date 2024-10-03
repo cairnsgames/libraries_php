@@ -21,20 +21,11 @@ if (!$userid) {
     sendUnauthorizedResponse("User not found");
 }
 
-$query = "SELECT role_id, name FROM user_role, role WHERE user_id = ? AND role_id = role.id";
+$sql = "SELECT role_id, name FROM user_role, role WHERE user_id = ? AND role_id = role.id";
 $params = [$userid];
-$result = PrepareExecSQL($query, 'i', $params);
 
-$roles = [];
-if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        if ($row['role_id'] < 26) {
-            continue;
-        }
-        $roles[] = $row;
-    }
-}
+$result = PrepareExecSQL($sql, 'i', $params);
 
 header('Content-Type: application/json');
-echo json_encode($roles);
+echo json_encode($result);
 ?>
