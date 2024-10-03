@@ -53,13 +53,8 @@ function SelectData($config, $id = null)
             $types = $info['types'];
             $params = $info['params'];
 
-            // echo "Query: $query\n";
-            // echo "Types: $types\n";
-            // echo "Params: " . json_encode($params) . "\n";
-
-            $stmt = $conn->prepare($query);
-
-            $stmt->bind_param($types, ...$params);
+            // Use PrepareExecSQL
+            $rows = PrepareExecSQL($query, $types, $params);
         }
     } elseif (is_array($config['select'])) {
         // Handle the case where select is an array of fields
@@ -81,9 +76,6 @@ function SelectData($config, $id = null)
         }
         $query = "SELECT $fields FROM " . $config['tablename'] . " WHERE $where " . $config['orderBy'] . " " . $config['limit'];
 
-        $stmt = $conn->prepare($query);
-
-
         if (isset($config['where']) && count($config['where']) > 0) {
             $types = str_repeat('s', count($config['where']));
             $params = array_values($config['where']);
@@ -91,30 +83,22 @@ function SelectData($config, $id = null)
                 $types .= 's';
                 $params[] = $id;
             }
-
-            if (count($config['where']) > 0) {
-                $stmt->bind_param($types, ...$params);
-            }
         } elseif ($id) {
             $types = 's';
             $params[] = $id;
-            $stmt->bind_param($types, ...$params);
         }
+
+        // Use PrepareExecSQL
+        $rows = PrepareExecSQL($query, $types, $params);
     }
 
     // echo "Query: $query\n";
     // echo "Types: $types\n";
     // echo "Params: " . json_encode($params) . "\n";
 
-    // Execute the query and fetch results
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $rows = $result->fetch_all(MYSQLI_ASSOC);
-
     if (isset($config['afterselect']) && function_exists($config['afterselect'])) {
         $rows = call_user_func($config['afterselect'], $config, $rows);
     }
 
-    $stmt->close();
     return $rows;
 }

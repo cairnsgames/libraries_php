@@ -20,20 +20,19 @@ if (!$userid) {
     sendUnauthorizedResponse("User not found");
 }
 
-$query = "SELECT role_id, name FROM user_role, role WHERE user_id = ? and role_id = role.id";
-$stmt = $mysqli->prepare($query);
-$stmt->bind_param('i', $userid);
-$stmt->execute();
-$result = $stmt->get_result();
+$query = "SELECT role_id, name FROM user_role, role WHERE user_id = ? AND role_id = role.id";
+$params = [$userid];
+$result = PrepareExecSQL($query, 'i', $params);
 
 $roles = [];
-while ($row = $result->fetch_assoc()) {
-    if ($row['role_id'] < 26) {
-        continue;
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        if ($row['role_id'] < 26) {
+            continue;
+        }
+        $roles[] = $row;
     }
-    $roles[] = $row;
 }
-$stmt->close();
 
 header('Content-Type: application/json');
 echo json_encode($roles);

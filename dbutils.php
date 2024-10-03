@@ -17,7 +17,18 @@ function lastError()
   global $mysqli;
   return mysqli_error($mysqli);
 }
-
+/**
+ * Executes a SQL query using the global MySQLi connection and optionally logs the executed statement.
+ *
+ * @param string $sql The SQL query string to be executed.
+ * @param string $pars (Optional) A string indicating the types of parameters ('s', 'i', 'd', etc.) to bind to the query.
+ * @param array $params (Optional) An array of parameters to bind to the SQL query.
+ *
+ * @global mysqli $mysqli The MySQLi connection object.
+ * @global bool $writeStatementLog A flag indicating whether to log executed SQL statements.
+ *
+ * @return mixed The result of the executed query.
+ */
 function PrepareExecSQL($sql, $pars = '', $params = [])
 {
   global $mysqli, $writeStatementLog;
