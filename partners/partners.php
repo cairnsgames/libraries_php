@@ -33,14 +33,7 @@ $current_roles = [];
 
 // Fetch current user roles
 $query = "SELECT role_id FROM user_role WHERE user_id = ?";
-$stmt = $mysqli->prepare($query);
-$stmt->bind_param('i', $userid);
-$stmt->execute();
-$result = $stmt->get_result();
-while ($row = $result->fetch_assoc()) {
-    $current_roles[] = $row['role_id'];
-}
-$stmt->close();
+$result = PrepareExecSQL($query, 'i', [$userid]);
 
 // Extract role IDs from input data
 $new_roles = [];
@@ -55,10 +48,7 @@ foreach ($new_roles as $role) {
     if (!in_array($role, $current_roles)) {
         // Add new role
         $insert_query = "INSERT INTO user_role (user_id, role_id) VALUES (?, ?)";
-        $insert_stmt = $mysqli->prepare($insert_query);
-        $insert_stmt->bind_param('ii', $userid, $role);
-        $insert_stmt->execute();
-        $insert_stmt->close();
+        PrepareExecSQL($insert_query, 'ii', [$userid, $role]);
     }
 }
 
@@ -66,10 +56,7 @@ foreach ($new_roles as $role) {
 foreach ($current_roles as $current_role) {
     if (!in_array($current_role, $new_roles)) {
         $delete_query = "DELETE FROM user_role WHERE user_id = ? AND role_id = ?";
-        $delete_stmt = $mysqli->prepare($delete_query);
-        $delete_stmt->bind_param('ii', $userid, $current_role);
-        $delete_stmt->execute();
-        $delete_stmt->close();
+        PrepareExecSQL($delete_query, 'ii', [$userid, $current_role]);
     }
 }
 
