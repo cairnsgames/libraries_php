@@ -52,13 +52,12 @@ foreach ($new_roles as $role) {
     }
 }
 
-// Remove roles not in the new list
-foreach ($current_roles as $current_role) {
-    if (!in_array($current_role, $new_roles)) {
-        $delete_query = "DELETE FROM user_role WHERE user_id = ? AND role_id = ?";
-        PrepareExecSQL($delete_query, 'ii', [$userid, $current_role]);
-    }
-}
+$placeholders = implode(',', array_fill(0, count($new_roles), '?'));
+$params = array_merge([$userid], $new_roles);
+$types = str_repeat('i', count($params));
+$delete_query = "DELETE FROM user_role WHERE user_id = ? AND role_id not in ($placeholders)";
+
+PrepareExecSQL($delete_query, $types, $params);
 
 // Handle payment method data (if any logic needs to be added here)
 // Example:
