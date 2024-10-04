@@ -21,7 +21,7 @@ if (!$userid) {
     sendUnauthorizedResponse("User not found");
 }
 
-$sql = "SELECT role_id, name FROM user_role, role WHERE user_id = ? AND role_id = role.id";
+$sql = "SELECT distinct role_id, name FROM user_role, role WHERE user_id = ? AND role_id = role.id";
 $params = [$userid];
 
 $result = PrepareExecSQL($sql, 'i', $params);
