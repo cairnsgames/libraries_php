@@ -47,8 +47,8 @@ foreach ($roles as $role) {
 foreach ($new_roles as $role) {
     if (!in_array($role, $current_roles)) {
         // Add new role
-        $insert_query = "INSERT INTO user_role (user_id, role_id) VALUES (?, ?)";
-        PrepareExecSQL($insert_query, 'ii', [$userid, $role]);
+        $insert_query = "INSERT INTO user_role (user_id, role_id) VALUES (?, ?) on duplicate key update role_id = ?";
+        PrepareExecSQL($insert_query, 'iii', [$userid, $role, $role]);
     }
 }
 
