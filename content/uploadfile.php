@@ -34,7 +34,7 @@ if (isLocalHost()) {
 } else {
     $fileconfig = array(
         "target_dir" => '/files'
-    );;
+    );
 }
 
 function mime2ext($mime)
