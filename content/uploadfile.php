@@ -33,7 +33,7 @@ if (isLocalHost()) {
     );
 } else {
     $fileconfig = array(
-        "target_dir" => '/files'
+        "target_dir" => '/cairnsgames/files'
     );
 }
 
@@ -179,11 +179,16 @@ if (!isset($_FILES['files'])) {
                 // $out["data"] = saveFileDetails( $prefix, $id, $file_dir, $_FILES['files']['name'][$i], getUserId($token));
 
                 // Move temporary files to new specified location
-                move_uploaded_file($_FILES['files']['tmp_name'][$i], $file_dir);
+                $moved = move_uploaded_file($_FILES['files']['tmp_name'][$i], $file_dir);
+                if (!$moved) {
+                    $out["error"][] = 'File not uploaded.';
+                } else {
+                    $out["success"][] = 'File uploaded.';
+                }
             }
         } catch (Exception $e) {
             http_response_code(500);
-            $out["error"] = $e->getMessage();
+            $out["error"][] = $e->getMessage();
         }
     }
 }
