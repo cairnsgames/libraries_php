@@ -33,7 +33,7 @@ if (isLocalHost()) {
     );
 } else {
     $fileconfig = array(
-        "target_dir" => 'uploads/'
+        "target_dir" => '/files'
     );;
 }
 
