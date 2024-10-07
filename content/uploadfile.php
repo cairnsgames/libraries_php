@@ -124,7 +124,8 @@ function mime2ext($mime)
     */
 }
 
-function saveFileDetails($entity, $entityid, $filename, $originalfilename, $profileid) {
+function saveFileDetails($entity, $entityid, $filename, $originalfilename, $profileid)
+{
     $sql = "insert into files (entity, entityid, filename, originalfilename, profileid) values (?,?,?,?,?)";
     $params = [$entity, $entityid, $filename, $originalfilename, $profileid];
     $result = PrepareExecSQL($sql, 'sssss', $params);
@@ -139,9 +140,9 @@ if (is_uploaded_file($_FILES["files"]["tmp_name"][0])) {
 
     // If you want to allow certain files
     $allowed_file_types = ['image/png', 'image/jpeg'];
-    
+
     $extension = mime2ext($mime_type); // extract extension from mime type
-    if (! in_array($mime_type, $allowed_file_types)) {
+    if (!in_array($mime_type, $allowed_file_types)) {
         // File type is NOT allowed.
     }
 }
@@ -154,26 +155,26 @@ if (!isset($_FILES['files'])) {
         try {
             // Upload destination directory
             $target_dir = $fileconfig["target_dir"];
-            
+
             // Iterate all the files and move the temporary file to the new directory
             for ($i = 0; $i < count($_FILES['files']['tmp_name']); $i++) {
 
                 // Add your validation here
                 $file = $target_dir . $_FILES['files']['name'][$i];
-                
 
-                $fname = $prefix."-".$id;
+
+                $fname = $prefix . "-" . $id;
                 if (!$fname == "") {
                     $fname .= "-";
                 }
-                
+
                 $d = new DateTime();
                 $fname .= $d->format('Y-m-d-H-i-s');
                 if ($i > 0) {
                     $fname .= "-" . $i;
                 }
                 $file_dir = $target_dir . "/" . $fname . "." . $extension;
-                $out["filename"] = $fname. "." . $extension;
+                $out["filename"] = $fname . "." . $extension;
                 $out["filepath"] = $file_dir;
 
                 // $out["data"] = saveFileDetails( $prefix, $id, $file_dir, $_FILES['files']['name'][$i], getUserId($token));
@@ -181,7 +182,42 @@ if (!isset($_FILES['files'])) {
                 // Move temporary files to new specified location
                 $moved = move_uploaded_file($_FILES['files']['tmp_name'][$i], $file_dir);
                 if (!$moved) {
-                    $out["error"][] = 'File not uploaded.';
+                    $error_code = $_FILES['files']['error'][$i];
+                    switch ($error_code) {
+                        case UPLOAD_ERR_INI_SIZE:
+                            $out["error"][] = "The uploaded file exceeds the upload_max_filesize directive in php.ini.";
+                            break;
+                        case UPLOAD_ERR_FORM_SIZE:
+                            $out["error"][] = "The uploaded file exceeds the MAX_FILE_SIZE directive specified in the HTML form.";
+                            break;
+                        case UPLOAD_ERR_PARTIAL:
+                            $out["error"][] = "The uploaded file was only partially uploaded.";
+                            break;
+                        case UPLOAD_ERR_NO_FILE:
+                            $out["error"][] = "No file was uploaded.";
+                            break;
+                        case UPLOAD_ERR_NO_TMP_DIR:
+                            $out["error"][] = "Missing a temporary folder.";
+                            break;
+                        case UPLOAD_ERR_CANT_WRITE:
+                            $out["error"][] = "Failed to write file to disk.";
+                            break;
+                        case UPLOAD_ERR_EXTENSION:
+                            $out["error"][] = "A PHP extension stopped the file upload.";
+                            break;
+                        default:
+                            $out["error"][] = "Unknown error during file upload.";
+                            break;
+                    }
+
+                    // Additionally, check if destination folder is writable
+                    if (!is_writable(dirname($file_dir))) {
+                        $out["error"][] = "The destination directory is not writable.";
+                    }
+
+                    // Check if file upload meets other PHP conditions
+                    $out["error"][] = 'Temp file: ' . $_FILES['files']['tmp_name'][$i];
+                    $out["error"][] = 'Destination: ' . $file_dir;
                 } else {
                     $out["success"][] = 'File uploaded.';
                 }
