@@ -32,7 +32,7 @@ if (!hasValue($system_id) || !hasValue($user_id)) {
 // Validate that the $userid matches the venue_id of the system
 $query = "SELECT id FROM loyalty_system WHERE id = ? AND venue_id = ?";
 $result = PrepareExecSQL($query, 'ii', [$system_id, $userid]);
-if ($result->num_rows === 0) {
+if (count($result) === 0) {
     sendUnauthorizedResponse("Unauthorized access");
 }
 
@@ -41,11 +41,11 @@ $query = "SELECT id FROM loyalty_reward WHERE user_id = ? AND system_id = ? AND 
 $result = PrepareExecSQL($query, 'ii', [$user_id, $system_id]);
 
 
-if ($result->num_rows === 0) {
+if (count($result) === 0) {
     sendBadRequestResponse("No unredeemed rewards available for this user.");
 } else {
     // Mark the earliest reward as redeemed
-    $row = $result->fetch_assoc();
+    $row = $result[0];
     $reward_id = $row['id'];
 
     $query = "UPDATE loyalty_reward SET date_redeemed = CURRENT_TIMESTAMP, date_modified = CURRENT_TIMESTAMP WHERE id = ?";
