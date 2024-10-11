@@ -43,19 +43,18 @@ $result = PrepareExecSQL($query, 'ii', [$user_id, $system_id]);
 
 if ($result->num_rows === 0) {
     // No card exists, create a new card for the user
-    $query = "INSERT INTO loyalty_card (app_id, user_id, system_id, qr_code, stamps_collected, date_created, date_modified) 
-              VALUES (?, ?, ?, NULL, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
-    PrepareExecSQL($query, 'sii', [$appId, $user_id, $system_id]);
-    $card_id = $mysqli->insert_id;
+    $query = "INSERT INTO loyalty_card (app_id, user_id, system_id, qr_code, stamps_collected) 
+              VALUES (?, ?, ?, NULL, 0)";
+    $id = PrepareExecSQL($query, 'sii', [$appId, $user_id, $system_id]);
+    $card_id = $id;
 } else {
     // Card exists, get the card ID
-    $row = $result->fetch_assoc();
-    $card_id = $row['id'];
+    $card_id = $$result[0]['id'];
 }
 
 // Add a new stamp to the card
-$query = "INSERT INTO loyalty_stamp (app_id, card_id, date_created, date_modified) 
-          VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+$query = "INSERT INTO loyalty_stamp (app_id, card_id) 
+          VALUES (?, ?)";
 PrepareExecSQL($query, 'si', [$appId, $card_id]);
 
 // Update the stamp count on the card

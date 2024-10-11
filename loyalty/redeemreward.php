@@ -40,6 +40,7 @@ if ($result->num_rows === 0) {
 $query = "SELECT id FROM loyalty_reward WHERE user_id = ? AND system_id = ? AND date_redeemed IS NULL ORDER BY date_earned ASC LIMIT 1";
 $result = PrepareExecSQL($query, 'ii', [$user_id, $system_id]);
 
+
 if ($result->num_rows === 0) {
     sendBadRequestResponse("No unredeemed rewards available for this user.");
 } else {

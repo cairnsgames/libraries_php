@@ -9,7 +9,7 @@ function checkAndAllocateReward($mysqli, $appId, $user_id, $system_id) {
         return ["success" => false, "message" => "System not found"];
     }
 
-    $system = $result->fetch_assoc();
+    $system = $result[0];
     $stamps_required = $system['stamps_required'] ? $system['stamps_required'] : 10; // Default to 10 if not set
     $reward_description = $system['reward_description'];
 
@@ -21,7 +21,7 @@ function checkAndAllocateReward($mysqli, $appId, $user_id, $system_id) {
         return ["success" => false, "message" => "Loyalty card not found"];
     }
 
-    $card = $result->fetch_assoc();
+    $card = $result[0];
     $card_id = $card['id'];
     $stamps_collected = $card['stamps_collected'];
 
@@ -35,7 +35,7 @@ function checkAndAllocateReward($mysqli, $appId, $user_id, $system_id) {
         $query = "INSERT INTO loyalty_reward (app_id, user_id, system_id, reward_description, date_earned, date_created, date_modified) 
                   VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
         PrepareExecSQL($query, 'siis', [$appId, $user_id, $system_id, $reward_description]);
-        
+
         return ["success" => true, "message" => "Reward allocated and stamps reset to zero."];
     }
 
