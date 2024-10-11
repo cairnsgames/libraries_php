@@ -33,7 +33,7 @@ if (isLocalHost()) {
     );
 } else {
     $fileconfig = array(
-        "target_dir" => '/cairnsgames/files'
+        "target_dir" => dirname(__FILE__) . "/../../files"
     );
 }
 

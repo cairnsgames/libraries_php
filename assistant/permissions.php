@@ -1,6 +1,7 @@
 <?php
 include_once dirname(__FILE__) . "/../corsheaders.php";
 include_once dirname(__FILE__) . "/../gapiv2/dbconn.php";
+include_once dirname(__FILE__) . "/../gapiv2/dbutils.php"; // Include dbutils for PrepareExecSQL
 include_once dirname(__FILE__) . "/../gapiv2/v2apicore.php";
 include_once dirname(__FILE__) . "/../utils.php";
 include_once dirname(__FILE__) . "/../auth/authfunctions.php";
@@ -35,10 +36,7 @@ $query = "SELECT ar.id AS role_id
           FROM assistant_user_role aur
           JOIN assistant_role ar ON aur.role_id = ar.id
           WHERE aur.user_id = ? AND aur.venue_id = ?";
-$stmt = $mysqli->prepare($query);
-$stmt->bind_param('ii', $userid, $venue_id);
-$stmt->execute();
-$result = $stmt->get_result();
+$result = PrepareExecSQL($query, 'ii', [$userid, $venue_id]);
 
 // Initialize permissions array
 $permissions = [];
@@ -53,10 +51,7 @@ while ($row = $result->fetch_assoc()) {
                         JOIN assistant_permission ap ON arp.permission_id = ap.id
                         WHERE arp.role_id = ?
                         having value > 0";
-    $permissionStmt = $mysqli->prepare($permissionQuery);
-    $permissionStmt->bind_param('i', $role_id);
-    $permissionStmt->execute();
-    $permissionResult = $permissionStmt->get_result();
+    $permissionResult = PrepareExecSQL($permissionQuery, 'i', [$role_id]);
 
     // Add permissions to the array
     while ($permissionRow = $permissionResult->fetch_assoc()) {
@@ -64,11 +59,7 @@ while ($row = $result->fetch_assoc()) {
             $permissions[] = $permissionRow;
         }
     }
-
-    $permissionStmt->close();
 }
-
-$stmt->close();
 
 // Return permissions as a JSON response
 header('Content-Type: application/json');
