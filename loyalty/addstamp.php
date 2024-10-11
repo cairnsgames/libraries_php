@@ -41,7 +41,7 @@ if ($result->num_rows === 0) {
 $query = "SELECT id FROM loyalty_card WHERE user_id = ? AND system_id = ?";
 $result = PrepareExecSQL($query, 'ii', [$user_id, $system_id]);
 
-if ($result->num_rows === 0) {
+if (count($result) === 0) {
     // No card exists, create a new card for the user
     $query = "INSERT INTO loyalty_card (app_id, user_id, system_id, qr_code, stamps_collected) 
               VALUES (?, ?, ?, NULL, 0)";
@@ -49,7 +49,7 @@ if ($result->num_rows === 0) {
     $card_id = $id;
 } else {
     // Card exists, get the card ID
-    $card_id = $$result[0]['id'];
+    $card_id = $result[0]['id'];
 }
 
 // Add a new stamp to the card
