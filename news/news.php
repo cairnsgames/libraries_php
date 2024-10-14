@@ -39,13 +39,10 @@ function newsbeforecreate($config, $data)
         sendUnauthorizedResponse("Invalid tenant");
     }
 
-    echo "beforecreate\n";
     $config["create"][] = "user_id";
     $config["create"][] = "app_id";
     $data["user_id"] = $userid;
     $data["app_id"] = $appId;
-    echo "config: " . json_encode($config) . "\n";
-    echo "data: " . json_encode($data) . "\n";
 
     return [$config, $data];
 }
