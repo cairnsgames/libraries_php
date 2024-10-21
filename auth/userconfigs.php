@@ -4,16 +4,16 @@ $userconfigs = [
     "user" => [
         'tablename' => 'user',
         'key' => 'id',
-        'select' => ['id', 'firstname', 'lastname', 'email'],
+        'select' => ['id', 'firstname', 'lastname', 'email','avatar'],
         'create' => false,
-        'update' => false,
+        'update' => ['firstname', 'lastname', 'email','avatar'],
         'delete' => false,
         'beforeselect' => '',
         'afterselect' => '',
         'beforecreate' => '',
         'aftercreate' => '',
         'beforeupdate' => '',
-        'afterupdate' => '',
+        'afterupdate' => 'calcToken',
         'beforedelete' => '',
         'subkeys' => [
             'permissions' => [
@@ -85,3 +85,13 @@ $userconfigs = [
         'beforedelete' => ''
     ]
 ];
+
+function calcToken($config, $updated_record) {
+    // After updating the user, return with token to allow front end to record new token
+    global $appId;
+    $record = $updated_record[0];
+    $user = getUser($record["id"], $appId);
+    $jwt = getTokenForUser($record["id"],$appId, null);
+    $user["token"] = $jwt;
+    return $user;
+}
