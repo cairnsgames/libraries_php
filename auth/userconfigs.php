@@ -36,6 +36,13 @@ $userconfigs = [
                 'select' => "select id, name from role r where r.id in (select role_id from user_role where user_id = ?)",
                 'beforeselect' => '',
                 'afterselect' => ''
+            ],
+            'old' => [
+                'tablename' => 'user_mapping',
+                'key' => 'old_profile_id',
+                'select' => ['old_user_id', 'old_profile_id', 'new_user_id'],
+                'beforeselect' => '',
+                'afterselect' => ''
             ]
         ]
     ],
