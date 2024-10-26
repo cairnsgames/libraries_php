@@ -5,7 +5,7 @@ function checkAndAllocateReward($mysqli, $appId, $user_id, $system_id) {
     $query = "SELECT stamps_required, reward_description FROM loyalty_system WHERE id = ?";
     $result = PrepareExecSQL($query, 'i', [$system_id]);
 
-    if ($result->num_rows === 0) {
+    if (count($result) === 0) {
         return ["success" => false, "message" => "System not found"];
     }
 
@@ -17,7 +17,7 @@ function checkAndAllocateReward($mysqli, $appId, $user_id, $system_id) {
     $query = "SELECT id, stamps_collected FROM loyalty_card WHERE user_id = ? AND system_id = ?";
     $result = PrepareExecSQL($query, 'ii', [$user_id, $system_id]);
 
-    if ($result->num_rows === 0) {
+    if (count($result) === 0) {
         return ["success" => false, "message" => "Loyalty card not found"];
     }
 

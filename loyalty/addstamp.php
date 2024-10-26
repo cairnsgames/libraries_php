@@ -1,7 +1,6 @@
 <?php
 include_once dirname(__FILE__) . "/../corsheaders.php";
 include_once dirname(__FILE__) . "/../gapiv2/dbconn.php";
-include_once dirname(__FILE__) . "/../gapiv2/dbutils.php";
 include_once dirname(__FILE__) . "/../gapiv2/v2apicore.php";
 include_once dirname(__FILE__) . "/../utils.php";
 include_once dirname(__FILE__) . "/../auth/authfunctions.php";
@@ -9,6 +8,7 @@ include_once dirname(__FILE__) . "/loyaltyfunctions.php";
 
 $appId = getAppId();
 $token = getToken();
+$stamper = getUserId($token);
 
 if (!hasValue($token)) {
     sendUnauthorizedResponse("Invalid token");
@@ -35,7 +35,7 @@ if (!hasValue($system_id) || !hasValue($user_id)) {
 $query = "SELECT id FROM loyalty_system WHERE id = ? AND venue_id = ?";
 $result = PrepareExecSQL($query, 'ii', [$system_id, $userid]);
 
-if ($result->num_rows === 0) {
+if (count($result) === 0) {
     sendUnauthorizedResponse("Unauthorized access");
 }
 
@@ -54,7 +54,7 @@ if (count($result) === 0) {
 // Add a new stamp to the card
 $query = "INSERT INTO loyalty_stamp (app_id, card_id, lat, lng, stamped_by) 
           VALUES (?, ?, ?, ?, ?)";
-PrepareExecSQL($query, 'si', [$appId, $card_id, $lat, $lng, $userid]);
+PrepareExecSQL($query, 'sssss', [$appId, $card_id, $lat, $lng, $userid]);
 
 // Update the stamp count on the card
 $query = "UPDATE loyalty_card SET stamps_collected = stamps_collected + 1, date_modified = CURRENT_TIMESTAMP WHERE id = ?";
