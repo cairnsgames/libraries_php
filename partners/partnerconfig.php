@@ -26,7 +26,7 @@ $partnerconfigs = [
             'banking' => [
                 'tablename' => 'partner_banking',
                 'key' => 'partner_id',
-                'select' => ['id', 'bank_name','account_number','branch_code','payment_method','paypal_username'],
+                'select' => ['id', 'partner_id', 'bank_name','account_number','branch_code','payment_method','paypal_username'],
                 'beforeselect' => '',
                 'afterselect' => ''
             ],
