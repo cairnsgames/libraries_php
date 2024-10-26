@@ -29,6 +29,10 @@ function SelectData($config, $id = null)
 {
     global $conn;
 
+    if (!isset($config['select']) || !$config['select']) {
+        die("Select operation not allowed");
+    }
+
     if (isset($config['beforeselect']) && function_exists($config['beforeselect'])) {
         $res = call_user_func($config['beforeselect'], $config, []);
         $config = $res[0];

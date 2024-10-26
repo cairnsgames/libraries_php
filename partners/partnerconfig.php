@@ -23,12 +23,19 @@ $partnerconfigs = [
                 'beforeselect' => '',
                 'afterselect' => ''
             ],
+            'banking' => [
+                'tablename' => 'partner_banking',
+                'key' => 'partner_id',
+                'select' => ['id', 'bank_name','account_number','branch_code','payment_method','paypal_username'],
+                'beforeselect' => '',
+                'afterselect' => ''
+            ],
         ]
     ],
     "banking" => [
         'tablename' => 'partner_banking',
-        'key' => 'id',
-        'select' => ['id', 'bank_name','account_number','branch_code','payment_method','paypal_username'],
+        'key' => 'partner_id',
+        'select' => false,
         'create' => ['partner_id', 'bank_name','account_number','branch_code','payment_method','paypal_username'],
         'update' => ['partner_id', 'bank_name','account_number','branch_code','payment_method','paypal_username'],
         'delete' => false,
