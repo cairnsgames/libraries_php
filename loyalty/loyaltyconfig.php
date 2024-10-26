@@ -71,9 +71,6 @@ WHERE card.system_id = sys.id",
                 'select' => ['id', 'app_id', 'user_id', 'system_id', 'reward_description', 'date_earned', 'date_redeemed'],
                 'beforeselect' => '',
                 'afterselect' => ''
-            ],
-            'stamp' => [
-                'select' => 'stampCard'
             ]
         ]
     ],
@@ -96,15 +93,15 @@ WHERE card.system_id = sys.id",
             'stamps' => [
                 'tablename' => 'loyalty_stamp',
                 'key' => 'card_id',
-                'select' => ['id', 'app_id', 'card_id', 'date_created'],
+                'select' => ['id', 'app_id', 'card_id', 'date_created', 'lat', 'lng', 'stamped_by'],
             ]
         ]
     ],
     "stamp" => [
         'tablename' => 'loyalty_stamp',
         'key' => 'id',
-        'select' => ['id', 'app_id', 'card_id', 'date_created'],
-        'create' => ['app_id', 'card_id', 'date_created'],
+        'select' => ['id', 'app_id', 'card_id', 'date_created', 'lat', 'lng', 'stamped_by'],
+        'create' => ['app_id', 'card_id', 'date_created', 'lat', 'lng', 'stamped_by'],
         'update' => false,
         'delete' => true,
         'where' => [],
