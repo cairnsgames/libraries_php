@@ -42,6 +42,10 @@ Subkeys only support GET with the following configuration options:
 - `key`: The foreign key of the table pointing to the parent.
 - `select`: An array of columns to be selected, or a SQL query string.
 
+to support POSt an dPUT and DELETE for subkecys add these at the top level
+
+to prevent selection of all items at the top level, set select = false in the config
+
 ### Example Configuration
 
 ```php
@@ -174,3 +178,83 @@ curl -X GET "https://example.com/api/$$"
 # License
 
 GAPIv2 is licensed under the MIT License.
+
+# Suggested File Structure
+
+##<dirname> where dirname is the feature
+##<dirname>/api.php
+
+contains the require dimports and then runs the api
+
+```php
+include_once dirname(__FILE__) . "/../corsheaders.php";
+include_once dirname(__FILE__) . "/../gapiv2/dbconn.php";
+include_once dirname(__FILE__) . "/../gapiv2/v2apicore.php";
+include_once dirname(__FILE__) . "/../utils.php";
+include_once dirname(__FILE__) . "/../auth/authfunctions.php";
+
+include_once dirname(__FILE__) . "/featureconfig.php";
+include_once dirname(__FILE__) . "/feature.php";
+
+runAPI($klokoconfigs);
+```
+
+## featureconfig.php
+
+replace feature with name of feature matching dirname
+
+contians the configuration object
+
+```php
+<?php
+
+// Define the configurations
+$featureconfigs = [
+    "calendar" => [
+        'tablename' => 'kloko_calendar',
+        'key' => 'id',
+```
+
+## feature.php
+
+this file contians all the security and before/after functions for the above config. In this example the $token is used to check that the user is logged in.
+
+
+
+```php
+$appId = getAppId();
+$token = getToken();
+
+if (!hasValue($token)) {
+    sendUnauthorizedResponse("Invalid token");
+}
+if (!hasValue($appId)) {
+    sendUnauthorizedResponse("Invalid tenant");
+}
+
+$userid = getUserId($token);
+
+include_once dirname(__FILE__) . "/klokoconfig.php";
+
+// And then all the additional functions required by the config
+// e.g.
+function beforesearch($config, $data)
+{
+    global $appId, $userid;
+    $config["params"]["app_id"] = $appId;
+    $config["params"]["userid"] = $userid;
+    return [$config, $data];
+}
+```
+
+An example function to ensure any records added by a user are linked to the user account use something like:
+
+```php
+function beforeCreateProfile($config, $data)
+{
+    global $appId, $userid;
+    $data["app_id"] = $appId;
+    $data["user_id"] = $userid;
+    return [$config, $data];
+}
+```

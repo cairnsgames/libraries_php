@@ -27,7 +27,7 @@ function lastError()
  * @global mysqli $mysqli The MySQLi connection object.
  * @global bool $writeStatementLog A flag indicating whether to log executed SQL statements.
  *
- * @return mixed The result of the executed query.
+ * @return mixed The result of the executed query as a php array of records.
  */
 function PrepareExecSQL($sql, $pars = '', $params = [])
 {
