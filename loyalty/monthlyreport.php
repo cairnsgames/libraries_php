@@ -86,8 +86,8 @@ function createOrUpdateOrderForStamps($user_id, $order_month, $stamp_quantity)
 
   // Insert line item for stamps with item_type = 2, price from settings or default, and the specified quantity
   $insertItemSql = "
-        INSERT INTO breezo_order_item (order_id, item_type_id, item_id, supplier_id, price, quantity, commission_rate, created, modified)
-        VALUES (?, 2, 1, 1, ?, ?, 10.00, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        INSERT INTO breezo_order_item (order_id, item_type_id, item_id, item_description, supplier_id, price, quantity, commission_rate, created, modified)
+        VALUES (?, 2, 1, 'Loyalty Stamp', 1, ?, ?, 10.00, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
     ";
   PrepareExecSQL($insertItemSql, 'iid', [$order_id, $stamp_price, $stamp_quantity]);
 
