@@ -51,6 +51,6 @@ function beforecreateproperty($config, $data)
 {
     global $userid;
     $data['user_id'] = $userid;
-    var_dump($data);
+    // var_dump($data);
     return [$config, $data];
 }

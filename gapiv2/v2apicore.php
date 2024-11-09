@@ -98,7 +98,7 @@ function runAPI($configs)
             switch ($method) {
                 case 'GET':
                     $response = SelectData($config, $id);
-                    var_dump($response);
+                    // var_dump($response);
                     break;
                 case 'POST':
                     if ($id === 'bulk') {
