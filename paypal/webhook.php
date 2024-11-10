@@ -2,14 +2,19 @@
 // /paypal/webhook.php
 
 require 'vendor/autoload.php';
+require_once './dbconfig.php';
+die();
+require_once './settings.php';
+
+require_once './dbconnection.php';
+
+
 
 use PayPal\Api\WebhookEvent;
 use PayPal\Rest\ApiContext;
 use PayPal\Auth\OAuthTokenCredential;
 
-require_once './dbconfig.php';
-require_once './settings.php';
-require_once './dbconnection.php';
+
 
 $clientId = getPropertyValue('b0181e17-e5c6-11ee-bb99-1a220d8ac2c9', 'paypal_clientid');
 $secret = getPropertyValue('b0181e17-e5c6-11ee-bb99-1a220d8ac2c9', 'paypal_secret');
@@ -39,6 +44,7 @@ $query = "INSERT INTO `webhook` (`data`) VALUES (?)";
 $stmt = $conn->prepare($query);
 $stmt->bind_param('s', $body);
 $stmt->execute();
+
 
 try {
     $details = json_decode($body);
