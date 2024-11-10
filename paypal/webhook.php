@@ -1,14 +1,15 @@
 <?php
 // /paypal/webhook.php
 
-require 'vendor/autoload.php'; // Load Composer dependencies
+require 'vendor/autoload.php';
 
 use PayPal\Api\WebhookEvent;
 use PayPal\Rest\ApiContext;
 use PayPal\Auth\OAuthTokenCredential;
 
-require_once './dbconfig.php'; // Load PayPal API credentials
-require_once './settings.php'; // Load PayPal API settings
+require_once './dbconfig.php';
+require_once './settings.php';
+require_once './dbconnection.php';
 
 $clientId = getPropertyValue('b0181e17-e5c6-11ee-bb99-1a220d8ac2c9', 'paypal_clientid');
 $secret = getPropertyValue('b0181e17-e5c6-11ee-bb99-1a220d8ac2c9', 'paypal_secret');
@@ -16,19 +17,19 @@ $secret = getPropertyValue('b0181e17-e5c6-11ee-bb99-1a220d8ac2c9', 'paypal_secre
 // PayPal API Context setup
 $apiContext = new ApiContext(
     new OAuthTokenCredential(
-        $clientId,     // Client ID
-        $secret  // Client Secret
+        $clientId,
+        $secret
     )
 );
 $apiContext->setConfig([
-    'mode' => 'sandbox', // Change to 'live' in production
+    'mode' => 'sandbox',
 ]);
 
 
 // Retrieve webhook payload
 $body = file_get_contents('php://input');
 if (empty($body)) {
-    http_response_code(400); // Bad Request
+    http_response_code(400);
     die("No payload received.");
 }
 
