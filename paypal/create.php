@@ -17,9 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require 'vendor/autoload.php'; // Load Composer dependencies
-require_once 'config.php';
-require_once 'utils.php';
-require_once 'settings.php';
+require_once './dbconfig.php';
+require_once './utils.php';
+require_once './settings.php';
 
 $clientId = getPropertyValue('b0181e17-e5c6-11ee-bb99-1a220d8ac2c9', 'paypal_clientid');
 $secret = getPropertyValue('b0181e17-e5c6-11ee-bb99-1a220d8ac2c9', 'paypal_secret');

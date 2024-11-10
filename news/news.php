@@ -60,15 +60,6 @@ function checkSecurityCard($config)
     return $config;
 }
 
-function updateStampCard($config, $data, $new_record)
-{
-    $cardId = $data["card_id"];
-    $sql = "UPDATE loyalty_card SET stamps_collected = stamps_collected + 1 WHERE id = ?";
-    $sss = 's';
-    $params = [$cardId];
-    $res = PrepareExecSQL($sql, $sss, $params);
-    return [$config, $data, $new_record];
-}
 
 
 function loyaltyselect($endpoint, $id = null, $subkey = null, $where = [], $orderBy = '', $page = null, $limit = null)

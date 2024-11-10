@@ -130,10 +130,3 @@ WHERE card.system_id = sys.id",
         'beforedelete' => ''
     ],
 ];
-
-function stampCard($config, $id)
-{
-    var_dump($config);
-    var_dump($id);
-    $user = $_GET['user'];
-}
