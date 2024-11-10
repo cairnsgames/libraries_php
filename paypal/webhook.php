@@ -3,12 +3,11 @@
 
 require 'vendor/autoload.php';
 require_once './dbconfig.php';
-die();
 require_once './settings.php';
 
 require_once './dbconnection.php';
 
-
+die();// End here for testing
 
 use PayPal\Api\WebhookEvent;
 use PayPal\Rest\ApiContext;
