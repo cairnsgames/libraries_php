@@ -1,9 +1,9 @@
 <?php
 
-require_once 'config.php';
-require_once 'utils.php';
-require_once 'settings.php';
-require_once 'dbconnection.php';
+require_once './dbconfig.php';
+require_once './utils.php';
+require_once './settings.php';
+require_once './dbconnection.php';
 
 // Cache array to store values by appId
 $cache = [];

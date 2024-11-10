@@ -7,8 +7,8 @@ use PayPal\Api\WebhookEvent;
 use PayPal\Rest\ApiContext;
 use PayPal\Auth\OAuthTokenCredential;
 
-require_once 'config.php'; // Load PayPal API credentials
-require_once 'settings.php'; // Load PayPal API settings
+require_once './dbconfig.php'; // Load PayPal API credentials
+require_once './settings.php'; // Load PayPal API settings
 
 $clientId = getPropertyValue('b0181e17-e5c6-11ee-bb99-1a220d8ac2c9', 'paypal_clientid');
 $secret = getPropertyValue('b0181e17-e5c6-11ee-bb99-1a220d8ac2c9', 'paypal_secret');

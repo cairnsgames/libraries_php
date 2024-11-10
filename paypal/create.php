@@ -21,8 +21,10 @@ require_once './dbconfig.php';
 require_once './utils.php';
 require_once './settings.php';
 
-$clientId = getPropertyValue('b0181e17-e5c6-11ee-bb99-1a220d8ac2c9', 'paypal_clientid');
-$secret = getPropertyValue('b0181e17-e5c6-11ee-bb99-1a220d8ac2c9', 'paypal_secret');
+$app_id = 'b0181e17-e5c6-11ee-bb99-1a220d8ac2c9';
+
+$clientId = getPropertyValue($app_id, 'paypal_clientid');
+$secret = getPropertyValue($app_id, 'paypal_secret');
 
 // echo "clientid: $clientId, secret: $secret \n";
 
@@ -71,13 +73,21 @@ $apiContext->setConfig([
 $orderID = $_POST['order_id'];
 $totalPrice = $_POST['total_price']; // Get from your database
 
+$customData = json_encode([
+    'order_id' => $orderID,
+    'app_id' => $app_id,
+    'total_price' => $totalPrice,
+]);
+
 $amount = new Amount();
 $amount->setTotal($totalPrice)
     ->setCurrency('USD');
 
 $transaction = new Transaction();
 $transaction->setAmount($amount)
-    ->setDescription('Order payment');
+    ->setDescription('Order payment')
+    ->setCustom($customData)
+    ->setInvoiceNumber($orderID);
 
 $redirectUrls = new RedirectUrls();
 $redirectUrls->setReturnUrl($returnUrl)
@@ -94,7 +104,7 @@ try {
     $paymentId = $payment->getId();
     $eccode = getECCode($payment);
     create($orderID, $paymentId, $eccode);
-    echo json_encode(['paymentid' => $paymentId, 'eccode' => $eccode]);
+    echo json_encode(['paymentid' => $paymentId, 'eccode' => $eccode, 'customData' => $customData]);
 } catch (PayPal\Exception\PayPalConnectionException $ex) {
     $code = $ex->getCode(); // Prints the Error Code
     $message = $ex->getData(); // Prints the detailed error message
