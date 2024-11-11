@@ -5,8 +5,6 @@ require_once dirname(__DIR__) . "/dbconfig.php";
 function getDbConnection() {
     global $host, $user, $password, $database;
 
-    echo "connecting to database", $host, $user, $password, $database;
-
     static $conn = null; // Static variable to hold the connection
 
     // Create the connection if it does not exist

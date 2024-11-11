@@ -7,13 +7,9 @@ require_once './settings.php';
 
 require_once './dbconnection.php';
 
-die();// End here for testing
-
 use PayPal\Api\WebhookEvent;
 use PayPal\Rest\ApiContext;
 use PayPal\Auth\OAuthTokenCredential;
-
-
 
 $clientId = getPropertyValue('b0181e17-e5c6-11ee-bb99-1a220d8ac2c9', 'paypal_clientid');
 $secret = getPropertyValue('b0181e17-e5c6-11ee-bb99-1a220d8ac2c9', 'paypal_secret');
@@ -37,6 +33,10 @@ if (empty($body)) {
     die("No payload received.");
 }
 
+$data = json_decode($body);
+
+$custom = json_decode($data->resource->transactions[0]->custom);
+
 // using mysqli add $body to database "webhook" table with field data=$body
 $conn = getDbConnection();
 $query = "INSERT INTO `webhook` (`data`) VALUES (?)";
@@ -53,10 +53,18 @@ try {
     if ($eventtype == 'PAYMENTS.PAYMENT.CREATED') {
         $status = "completed";
     }
-    $query = "Update payment_progress set webhook_data = ?, event_type = ?, status = ? where payment_id = ?";
+    $query = "Update payment_progress set webhook_data = ?, event_type = ?, status = ?, custom_order_id = ?, custom_app_id = ?, custom_total_price = ? where payment_id = ?";
     $stmt = $conn->prepare($query);
-    $stmt->bind_param('ssss', $body, $eventtype, $status, $paymentid);
+    $stmt->bind_param('sssssss', $body, $eventtype, $status, $custom->order_id, $custom->app_id, $custom->total_price, $paymentid);
     $stmt->execute();
+
+    // Lets handle the actual order and mark it paid
+    $query = "Update breezo_order set status = ?, payment_date = NOW() where id = ?";
+    $stmt = $conn->prepare($query);
+    $status = "paid";
+    $stmt->bind_param('ss', $status, $custom->order_id);
+    $stmt->execute();
+
 } catch (Exception $e) {
     http_response_code(400); // Bad Request
     die("Error processing webhook: " . $e->getMessage());

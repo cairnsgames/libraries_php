@@ -27,8 +27,8 @@ jobs:
       run: |
         echo "<?php" > dbconfig.php
         echo "" >> dbconfig.php
-        echo "\$server = '${{ vars.CG_DATABASE_HOST }}';" >> dbconfig.php
-        echo "\$username = '${{ vars.CG_DATABASE_USER }}';" >> dbconfig.php
+        echo "\$host = '${{ vars.CG_DATABASE_HOST }}';" >> dbconfig.php
+        echo "\$user = '${{ vars.CG_DATABASE_USER }}';" >> dbconfig.php
         echo "\$password = '${{ secrets.CG_DATABASE_PASSWORD }}';" >> dbconfig.php
         echo "\$database = '${{ vars.CG_DATABASE }}';" >> dbconfig.php
         echo "" >> dbconfig.php
