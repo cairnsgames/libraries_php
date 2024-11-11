@@ -6,6 +6,7 @@ require_once './dbconfig.php';
 require_once './settings.php';
 
 require_once './dbconnection.php';
+require_once '../breezo/breezo.php';
 
 use PayPal\Api\WebhookEvent;
 use PayPal\Rest\ApiContext;
@@ -58,12 +59,7 @@ try {
     $stmt->bind_param('sssssss', $body, $eventtype, $status, $custom->order_id, $custom->app_id, $custom->total_price, $paymentid);
     $stmt->execute();
 
-    // Lets handle the actual order and mark it paid
-    $query = "Update breezo_order set status = ?, payment_date = NOW() where id = ?";
-    $stmt = $conn->prepare($query);
-    $status = "paid";
-    $stmt->bind_param('ss', $status, $custom->order_id);
-    $stmt->execute();
+    processOrderPayment($custom->order_id);
 
 } catch (Exception $e) {
     http_response_code(400); // Bad Request

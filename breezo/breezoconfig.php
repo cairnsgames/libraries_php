@@ -35,7 +35,7 @@ $breezoconfigs = [
                 'select' => ['id', 'order_id', 'user_id', 'file_path', 'created'],
                 'beforeselect' => '',
                 'afterselect' => ''
-            ]
+            ],
         ]
     ],
     "supplier" => [

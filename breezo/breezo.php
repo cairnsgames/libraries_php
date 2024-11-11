@@ -142,6 +142,8 @@ function processOrderPayment($orderId) {
     foreach ($supplierPayments as $supplierId => $amount) {
         $paymentData = [
             "order_id" => $orderId,
+            "order_item_id" => "",
+            "proof_of_payment" => "",
             "supplier_id" => $supplierId,
             "amount" => $amount,
             "status" => "pending",
@@ -149,7 +151,41 @@ function processOrderPayment($orderId) {
         breezocreate("supplier_payment", $paymentData);
     }
 
+    echo "Updating order status to paid";
+    updateOrderStatus($orderId, 'paid');
+    markBookingsByOrder($orderId, 'paid');
+
     return $supplierPayments;
+}
+
+function markBookingsByOrder($orderId, $newStatus) {
+    // Initialize an array to store updated booking records
+    $updatedBookings = [];
+
+    // Step 1: Retrieve all booking IDs related to the order items with the specified orderId
+    $sql = "SELECT booking_id FROM breezo_order_item WHERE item_type_id = 1 and order_id = ? AND booking_id IS NOT NULL";
+    $params = [$orderId];
+    
+    $orderItems = PrepareExecSQL($sql, 'i', $params);
+
+    if (!empty($orderItems)) {
+        // Step 2: Update each booking's status in kloko_booking
+        $updateSQL = "UPDATE kloko_booking SET status = ? WHERE id = ?";
+        
+        foreach ($orderItems as $item) {
+            $bookingId = $item['booking_id'];
+            PrepareExecSQL($updateSQL, 'si', [$newStatus, $bookingId]);
+        }
+
+        // Step 3: Retrieve the updated records
+        $updatedBookingIds = array_column($orderItems, 'booking_id');
+        $placeholders = implode(',', array_fill(0, count($updatedBookingIds), '?'));
+        $fetchUpdatedSQL = "SELECT * FROM kloko_booking WHERE id IN ($placeholders)";
+        
+        $updatedBookings = PrepareExecSQL($fetchUpdatedSQL, str_repeat('i', count($updatedBookingIds)), $updatedBookingIds);
+    }
+
+    return $updatedBookings;
 }
 
 function beforeInsertCartItem($config, $data)
@@ -173,9 +209,23 @@ function breezoupdate($endpoint, $id, $data) {
 
 }
 
-
-
 function breezodelete($endpoint, $id) {
     global $breezoconfigs;
     return GAPIdelete($breezoconfigs, $endpoint, $id);
+}
+
+// New function to update order status
+function updateOrderStatus($orderId, $status) {
+    if (empty($orderId) || empty($status)) {
+        throw new Exception("Order ID and status must be provided.");
+    }
+
+    $order = breezoselect("order", $orderId);
+    if (empty($order)) {
+        throw new Exception("Order not found.");
+    }
+
+    $data = ["status" => $status];
+    breezoupdate("order", $orderId, $data);
+    return true;
 }
