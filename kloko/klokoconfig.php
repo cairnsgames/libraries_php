@@ -59,9 +59,9 @@ $klokoconfigs = [
         'subkeys' => [
             "bookings" => [
                 'tablename' => 'kloko_booking',
-                'key' => 'kloko_booking.user_id',
-                'select' => "SELECT kloko_booking.*, ev.title, ev.description, ev.start_time, ev.price
-FROM kloko_booking, kloko_event ev",
+                'key' => 'b.user_id',
+                'select' => "SELECT b.*, ev.title, ev.description, ev.start_time, ev.price
+FROM kloko_booking b, kloko_event ev WHERE b.event_id = ev.id",
                 'beforeselect' => '',
                 'afterselect' => ''
             ],
