@@ -51,6 +51,15 @@ function beforecreate($config, $data)
     return [$config, $data];
 }
 
+function beforeCreateEvent($config, $data)
+{
+    // var_dump($config, $data);
+    global $appId, $userid;
+    $data["app_id"] = $appId;
+    $data["user_id"] = $userid;
+    return [$config, $data];
+}
+
 function formatIsoDate($date)
 {
     $dateTime = new DateTime($date);
