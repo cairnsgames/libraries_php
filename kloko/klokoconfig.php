@@ -1,5 +1,7 @@
 <?php
 
+$EVENT_FIELDS = ['id', 'calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'price', 'image', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time'];
+
 // Define the configurations
 $klokoconfigs = [
     "calendar" => [
@@ -20,7 +22,7 @@ $klokoconfigs = [
             'events' => [
                 'tablename' => 'kloko_event',
                 'key' => 'calendar_id',
-                'select' => ['id', 'calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'image', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time'],
+                'select' => $EVENT_FIELDS,
                 'beforeselect' => '',
                 'afterselect' => 'formatEventDates'
             ]
