@@ -76,8 +76,46 @@ FROM kloko_booking b, kloko_event ev WHERE b.event_id = ev.id",
                 'tablename' => 'kloko_event_template',
                 'key' => 'user_id',
                 'select' => ['id', 'user_id', 'title', 'description', 'image', 'content_id', 'duration', 'location', 'lat', 'lng', 'max_participants', 'price', 'event_type'],
+            ],
+            "locations" => [
+                'tablename' => 'kloko_user_location',
+                'key' => 'user_id',
+                'select' => "SELECT ul.id, ul.user_id, l.name, l.address_line1, l.address_line2, l.town, l.lat, l.lng
+FROM kloko_user_location ul
+JOIN kloko_location l ON ul.location_id = l.id",
+                'beforeselect' => '',
+                'afterselect' => ''
             ]
         ]
+    ],
+
+    "location" => [
+        'tablename' => 'kloko_location',
+        'key' => 'id',
+        'select' => ['id', 'name', 'address_line1', 'address_line2', 'town', 'lat', 'lng'],
+        'create' => ['name', 'address_line1', 'address_line2', 'town', 'lat', 'lng'],
+        'update' => ['name', 'address_line1', 'address_line2', 'town', 'lat', 'lng'],
+        'delete' => true,
+        'beforeselect' => '',
+        'afterselect' => '',
+        'beforecreate' => '',
+        'aftercreate' => '',
+        'beforeupdate' => '',
+        'afterupdate' => '',
+        'beforedelete' => ''
+    ],
+
+    "user_location" => [
+        'tablename' => 'kloko_user_location',
+        'key' => 'id',
+        'select' => ['id', 'user_id', 'location_id', 'created', 'modified'],
+        'create' => ['user_id', 'location_id'],
+        'delete' => true,
+        'beforeselect' => '',
+        'afterselect' => '',
+        'beforecreate' => '',
+        'aftercreate' => '',
+        'beforedelete' => ''
     ],
     "booking" => [
         'tablename' => 'kloko_booking',
