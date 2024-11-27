@@ -61,29 +61,28 @@ function checkSecurityCard($config)
 }
 
 
-
-function loyaltyselect($endpoint, $id = null, $subkey = null, $where = [], $orderBy = '', $page = null, $limit = null)
+function newsBeforeDelete($config, $id)
 {
-    global $loyaltyconfigs;
-    return GAPIselect($loyaltyconfigs, $endpoint, $id, $subkey, $where, $orderBy, $page, $limit);
+    global $userid, $appId, $token;
 
-}
+    if (!hasValue($token)) {
+        sendUnauthorizedResponse("Invalid token");
+    }
+    if (!hasValue($appId)) {
+        sendUnauthorizedResponse("Invalid tenant");
+    }
 
-function loyaltyupdate($endpoint, $id, $data)
-{
-    global $loyaltyconfigs;
-    return GAPIupdate($loyaltyconfigs, $endpoint, $id, $data);
+    $sql = "SELECT user_id FROM news WHERE id = ? AND app_id = ?";
+    $params = [$id, $appId];
+    $sss = "ss";
+    $result = PrepareExecSQL($sql, $sss, $params);
 
-}
+    if (empty($result) || $result[0]["user_id"] != $userid) {
+        sendUnauthorizedResponse("You are not authorized to delete this news");
+    }
 
-function loyaltycreate($endpoint, $data)
-{
-    global $loyaltyconfigs;
-    return GAPIcreate($loyaltyconfigs, $endpoint, $data);
-}
+    $config["where"]["user_id"] = $userid;
+    $config["where"]["app_id"] = $appId;
 
-function loyaltydelete($endpoint, $id)
-{
-    global $loyaltyconfigs;
-    return GAPIdelete($loyaltyconfigs, $endpoint, $id);
+    return [$config, $id];
 }

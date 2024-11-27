@@ -27,14 +27,14 @@ $newsconfigs = [
         'where' => [],
         'create' => ["title", "body", "image_url", "date", "expires"],
         'update' => ["title", "body", "image_url", "date", "expires","deleted"],
-        'delete' => false,
+        'delete' => true,
         'beforeselect' => 'addAppId',
         'afterselect' => '',
         'beforecreate' => 'newsbeforecreate',
         'aftercreate' => '',
         'beforeupdate' => '',
         'afterupdate' => '',
-        'beforedelete' => '',
+        'beforedelete' => 'newsBeforeDelete',
         'subkeys' => []
     ],
     "user" => [
@@ -81,3 +81,4 @@ WHERE
         ]
     ]
 ];
+
