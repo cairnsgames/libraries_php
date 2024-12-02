@@ -71,10 +71,7 @@ $newsconfigs = [
 FROM 
     news n
 JOIN 
-    user u ON n.user_id = u.id
-WHERE 
-    n.date <= NOW()
-    AND n.expires > NOW()",
+    user u ON n.user_id = u.id",
                 'beforeselect' => '',
                 'afterselect' => ''
             ],
