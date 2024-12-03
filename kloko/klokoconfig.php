@@ -80,7 +80,7 @@ FROM kloko_booking b, kloko_event ev WHERE b.event_id = ev.id",
             "locations" => [
                 'tablename' => 'kloko_user_location',
                 'key' => 'user_id',
-                'select' => "SELECT ul.id, ul.user_id, l.name, l.address_line1, l.address_line2, l.showonmap, l.town, l.lat, l.lng
+                'select' => "SELECT l.id, ul.user_id, l.name, l.address_line1, l.address_line2, l.showonmap, l.town, l.lat, l.lng
 FROM kloko_user_location ul
 JOIN kloko_location l ON ul.location_id = l.id",
                 'beforeselect' => '',
