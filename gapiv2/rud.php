@@ -275,7 +275,6 @@ function DeleteData($config, $id)
     // Execute before after function if it exists
     if (isset($config['afterdelete']) && function_exists($config['afterdelete'])) {
         $res = call_user_func($config['afterdelete'], $config, $id);
-        $config = $res[0];
     }
 
 

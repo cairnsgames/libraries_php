@@ -102,7 +102,8 @@ JOIN kloko_location l ON ul.location_id = l.id",
         'aftercreate' => '',
         'beforeupdate' => '',
         'afterupdate' => '',
-        'beforedelete' => ''
+        'beforedelete' => '',
+        'afterdelete' => 'afterDeleteLocation'
     ],
 
     "user_location" => [

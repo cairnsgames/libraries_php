@@ -94,6 +94,14 @@ function afterCreateBooking($config, $data, $new_record)
     return [$config, $data, $new_record];
 }
 
+function afterDeleteLocation($config, $id) {
+    $sql = "delete from kloko_user_location where location_id = ? ";
+    $params = [$id];
+    $sss = "s";
+    PrepareExecSQL($sql, $sss, $params);
+    
+}
+
 function klokoselect($endpoint, $id = null, $subkey = null, $where = [], $orderBy = '', $page = null, $limit = null)
 {
     global $klokoconfigs;
@@ -119,3 +127,4 @@ function klokodelete($endpoint, $id)
     global $klokoconfigs;
     return GAPIdelete($klokoconfigs, $endpoint, $id);
 }
+
