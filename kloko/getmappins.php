@@ -27,11 +27,11 @@ $biggestlng = max($lng_nw, $lng_se);
 
 // Fetch data from the database
 $query = "
-SELECT title, '' AS NAME, 'event' AS category, id, image, event_type, keywords, lat, lng, 'blue' color, '#event' as reference, start_time, end_time
+SELECT title, '' AS NAME, 'event' AS category, id, image, JSON_ARRAY(event_type) subcategory, keywords, lat, lng, 'blue' color, '#event' as reference, start_time, end_time
 FROM kloko_event
 WHERE lat < ? AND lat > ? AND lng < ? AND lng > ?
 UNION
-SELECT kl.name, CONCAT(u.firstname, ' ', u.lastname) AS NAME, 'partner', u.id, u.avatar, 'partner', GROUP_CONCAT(role.name) AS keywords, lat, lng, 'blue' color, '#user' as reference, null, null
+SELECT kl.name, CONCAT(u.firstname, ' ', u.lastname) AS NAME, 'partner', u.id, u.avatar, JSON_ARRAYAGG(role.name), '' AS keywords, lat, lng, 'blue' color, '#user' as reference, null, null
 FROM kloko_location kl, kloko_user_location ul, user u, user_role, role
 WHERE lat < ? AND lat > ? AND lng < ? AND lng > ? AND ul.user_id = u.id AND kl.id = ul.location_id AND showonmap = 1
 AND user_role.user_id = u.id AND user_role.role_id = role.id
