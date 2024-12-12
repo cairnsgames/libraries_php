@@ -185,7 +185,7 @@ JOIN kloko_location l ON ul.location_id = l.id",
             ]
         ]
     ],
-    "event_template" => [
+    "template" => [
         'tablename' => 'kloko_event_template',
         'key' => 'id',
         'select' => ['id', 'user_id', 'title', 'description', 'image', 'content_id', 'duration', 'location', 'lat', 'lng', 'max_participants', 'price', 'keywords', 'event_type'],
