@@ -8,11 +8,13 @@ include_once dirname(__FILE__) . "/../emailer/sendemail.php";
 include_once dirname(__FILE__) . "/../tenant/gettenant.php";
 include_once dirname(__FILE__) . "/../permissions/permissionfunctions.php";
 
-
-
 $appid = getAppId();
-$email = getParam("email", "");
+$email = getParam("code", "");
 $deviceid = getParam("deviceid", "");
+
+// echo "Email: $email\n";
+// echo "DeviceId: $deviceid\n";
+// echo "AppId: $appid\n";
 
 $errors = [];
 $out = [];
@@ -33,7 +35,7 @@ if (count($errors) == 0) {
         // echo  $homeurl;
         // echo "==================\n";
         $magiccode = createMagicLink($email, $appid, $deviceid, $_SERVER['REMOTE_ADDR']);
-        $out["magiccode"] = $magiccode;
+        $out["result"] = "Magic code has been emailed to you.";
 
         $htmlContent = '<div>Welcome to <strong style="color:purple">' . $tenant["name"] . '</strong>
                             <div>Click on this link to access the system</div>

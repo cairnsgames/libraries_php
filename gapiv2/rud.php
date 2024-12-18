@@ -55,6 +55,10 @@ function CreateData($config, $data)
 
         $stmt->bind_param($types, ...$values);
 
+        // echo "Query: ", $query, "\n";
+        // echo "Types: ", $types, "\n";
+        // echo "Values: ", json_encode($values), "\n";
+
         try {
             $stmt->execute();
         } catch (Exception $e) {
