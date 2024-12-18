@@ -40,7 +40,7 @@ if (count($errors) == 0) {
         $htmlContent = '<div>Welcome to <strong style="color:purple">' . $tenant["name"] . '</strong>
                             <div>Click on this link to access the system</div>
                             <div><a href="' . $homeurl . '#magic?code=' . $magiccode . '">Login</a></div>
-                            <div>DEVELOPER: <a href="http://localhost:3000#magic?code=' . $magiccode . '">Login to DEV</a></div>
+                            <div>DEVELOPER: <a href="http://localhost:3001#magic?code=' . $magiccode . '">Login to DEV</a></div>
                         </div>';
 
         sendEmailWithSendGrid($appid, $email, "Login to " . $tenant["name"], $htmlContent);
