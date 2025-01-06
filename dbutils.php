@@ -46,43 +46,57 @@ function PrepareExecSQL($sql, $pars = '', $params = [])
 }
 
 // https://stackoverflow.com/questions/24363755/mysqli-bind-results-to-an-array
-function db_query($dbconn, $sql, $params_types, $params)
-{ // pack dynamic number of remaining arguments into array
-  // GET QUERY TYPE
-  $query_type = strtoupper(substr(trim($sql), 0, 4));
+function db_query($dbconn, $sql, $params_types = '', $params = [])
+{
+    // Determine query type
+    $query_type = strtoupper(substr(trim($sql), 0, 4));
 
-  $stmt = mysqli_stmt_init($dbconn);
-  if (mysqli_stmt_prepare($stmt, $sql)) {
-    if ($params_types != "") {
-      mysqli_stmt_bind_param($stmt, $params_types, ...$params); // unpack
+    $stmt = mysqli_stmt_init($dbconn);
+    if (!mysqli_stmt_prepare($stmt, $sql)) {
+        throw new Exception("Failed to prepare statement: " . mysqli_error($dbconn));
     }
-    mysqli_stmt_execute($stmt) or die("Failed: " . mysqli_error($dbconn));
 
-    if ('SELE' == $query_type || '(SEL' == $query_type) {
-      $result = mysqli_stmt_result_metadata($stmt);
-      list($columns, $columns_vars) = array(array(), array());
-      while ($field = mysqli_fetch_field($result)) {
-        $columns[] = $field->name;
-        $columns_vars[] = &${$field->name};
-      }
-      call_user_func_array('mysqli_stmt_bind_result', array_merge(array($stmt), $columns_vars));
-      $return_array = array();
-      while (mysqli_stmt_fetch($stmt)) {
-        $row = array();
-        foreach ($columns as $col) {
-          $row[$col] = ${$col};
+    if (!empty($params_types)) {
+        if (!is_array($params) || strlen($params_types) !== count($params)) {
+            throw new Exception("Parameter types and parameter count mismatch");
         }
-        $return_array[] = $row;
-      }
-
-      return $return_array;
-    } // end query_type SELECT
-    else if ('INSE' == $query_type) {
-      return mysqli_insert_id($dbconn);
+        mysqli_stmt_bind_param($stmt, $params_types, ...$params);
     }
-    return 1;
-  }
+
+    if (!mysqli_stmt_execute($stmt)) {
+        throw new Exception("Query execution failed: " . mysqli_error($dbconn));
+    }
+
+    if ($query_type === 'SELE' || $query_type === '(SEL') {
+        $result = mysqli_stmt_result_metadata($stmt);
+        $columns = [];
+        $row = [];
+        $return_array = [];
+
+        while ($field = mysqli_fetch_field($result)) {
+            $columns[] = $field->name;
+            $row[] = null;
+        }
+
+        // Bind results to the array
+        mysqli_stmt_bind_result($stmt, ...$row);
+
+        while (mysqli_stmt_fetch($stmt)) {
+            $assoc_row = [];
+            foreach ($columns as $index => $col) {
+                $assoc_row[$col] = $row[$index];
+            }
+            $return_array[] = $assoc_row;
+        }
+
+        return $return_array;
+    } elseif ($query_type === 'INSE') {
+        return mysqli_insert_id($dbconn);
+    } else {
+        return mysqli_stmt_affected_rows($stmt);
+    }
 }
+
 
 
 ?>
