@@ -60,6 +60,15 @@ $cvoptimizerconfigs = [
         'update' => ['cv_text'],
         'delete' => true,
         'where' => [], // Add default where clauses if needed
+        'subkeys' => [
+          'review' => [
+              'tablename' => 'cvoptimizer_CVReview',
+              'key' => 'person_cv_id',
+              'select' => ['id', 'person_cv_id', 'review', 'created_at'],
+              'beforeselect' => '',
+              'afterselect' => ''
+          ],
+        ],
         'beforeselect' => '',
         'beforecreate' => '',
         'beforeupdate' => '',
