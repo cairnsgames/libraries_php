@@ -98,6 +98,7 @@ function runAPI($configs)
             switch ($method) {
                 case 'GET':
                     $response = SelectData($config, $id);
+                    
                     // var_dump($response);
                     break;
                 case 'POST':
@@ -160,7 +161,12 @@ function runAPI($configs)
         }
 
         header('Content-Type: application/json');
-        echo json_encode($response);
+        $json = json_encode($response, JSON_UNESCAPED_UNICODE);
+        if ($json === false) {
+            echo json_encode(['error' => json_last_error_msg()]);
+            exit;
+        }
+        echo $json;
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(["error" => $e->getMessage()]);

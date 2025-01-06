@@ -15,15 +15,15 @@ $cvoptimizerconfigs = [
         'afterselect' => '',
         'subkeys' => [
             // Subkey for PersonCV
-            'personcv' => [
+            'cv' => [
                 'tablename' => 'cvoptimizer_PersonCV',
-                'key' => 'userid',
-                'select' => ['id', 'userid', 'cv_text', 'created_at', 'updated_at'],
-                'beforeselect' => 'validateUserAccess',
+                'key' => 'user_id',
+                'select' => ['id', 'user_id', 'cv_text', 'created_at', 'updated_at'],
+                'beforeselect' => '',
                 'afterselect' => ''
             ],
             // Subkey for JobAdvert
-            'jobadvert' => [
+            'advert' => [
                 'tablename' => 'cvoptimizer_JobAdvert',
                 'key' => 'user_id',
                 'select' => [
