@@ -42,7 +42,7 @@ $cvoptimizerconfigs = [
                     'source',
                     'status',
                     'date_applied',
-                    'suggested_cv_id',
+                    'suggested_cv',
                     'created_at'
                 ],
                 'beforeselect' => '',
@@ -100,12 +100,12 @@ $cvoptimizerconfigs = [
             'source',
             'status',
             'date_applied',
-            'suggested_cv_id',
+            'suggested_cv',
             'user_id',
             'created_at'
         ],
-        'create' => ['title', 'company', 'company_website', 'description', 'source', 'status', 'date_applied', 'suggested_cv_id', 'user_id'],
-        'update' => ['title', 'company', 'company_website', 'description', 'source', 'status', 'date_applied', 'suggested_cv_id'],
+        'create' => ['title', 'company', 'company_website', 'description', 'source', 'status', 'date_applied', 'suggested_cv', 'user_id'],
+        'update' => ['title', 'company', 'company_website', 'description', 'source', 'status', 'date_applied', 'suggested_cv'],
         'delete' => true,
         'where' => [], // Add default where clauses if needed
         'beforeselect' => '',
