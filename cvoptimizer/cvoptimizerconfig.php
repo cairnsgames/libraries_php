@@ -52,7 +52,7 @@ $cvoptimizerconfigs = [
     ],
 
     // Configuration for PersonCV
-    "personcv" => [
+    "cv" => [
         'tablename' => 'cvoptimizer_PersonCV',
         'key' => 'id',
         'select' => ['id', 'userid', 'cv_text', 'created_at', 'updated_at'],
@@ -70,7 +70,7 @@ $cvoptimizerconfigs = [
     ],
 
     // Configuration for CVReview
-    "cvreview" => [
+    "review" => [
         'tablename' => 'cvoptimizer_CVReview',
         'key' => 'id',
         'select' => ['id', 'person_cv_id', 'review', 'created_at'],
@@ -88,7 +88,7 @@ $cvoptimizerconfigs = [
     ],
 
     // Configuration for JobAdvert
-    "jobadvert" => [
+    "advert" => [
         'tablename' => 'cvoptimizer_JobAdvert',
         'key' => 'id',
         'select' => [
