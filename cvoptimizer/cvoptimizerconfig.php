@@ -22,6 +22,13 @@ $cvoptimizerconfigs = [
                 'beforeselect' => '',
                 'afterselect' => ''
             ],
+            'review' => [
+                'tablename' => 'cvoptimizer_CVReview',
+                'key' => 'person_cv_id',
+                'select' => ['id', 'person_cv_id', 'review', 'created_at'],
+                'beforeselect' => '',
+                'afterselect' => ''
+            ],
             // Subkey for JobAdvert
             'advert' => [
                 'tablename' => 'cvoptimizer_JobAdvert',
