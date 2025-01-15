@@ -7,7 +7,7 @@ include_once dirname(__FILE__) . "/../utils.php";
 include_once dirname(__FILE__) . "/../auth/authfunctions.php";
 
 // A booking results in a cart item - so include breezo.php
-    include_once dirname(__FILE__) . "/../breezo/breezo.php";
+include_once dirname(__FILE__) . "/../breezo/breezo.php";
 
 /* Find
 Lat, Lng (center of search), type (event_type), distance (radius of search), userid current user
@@ -17,11 +17,16 @@ Lat, Lng (center of search), type (event_type), distance (radius of search), use
 $appId = getAppId();
 $token = getToken();
 
-if (!hasValue($token)) {
-    sendUnauthorizedResponse("Invalid token");
-}
-if (!hasValue($appId)) {
-    sendUnauthorizedResponse("Invalid tenant");
+function klokoSecure()
+{
+    global $token, $appId;
+
+    if (!hasValue($token)) {
+        sendUnauthorizedResponse("Invalid token");
+    }
+    if (!hasValue($appId)) {
+        sendUnauthorizedResponse("Invalid tenant");
+    }
 }
 
 $userid = getUserId($token);
@@ -94,12 +99,13 @@ function afterCreateBooking($config, $data, $new_record)
     return [$config, $data, $new_record];
 }
 
-function afterDeleteLocation($config, $id) {
+function afterDeleteLocation($config, $id)
+{
     $sql = "delete from kloko_user_location where location_id = ? ";
     $params = [$id];
     $sss = "s";
     PrepareExecSQL($sql, $sss, $params);
-    
+
 }
 
 function klokoselect($endpoint, $id = null, $subkey = null, $where = [], $orderBy = '', $page = null, $limit = null)
