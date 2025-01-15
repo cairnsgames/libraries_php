@@ -1,6 +1,6 @@
 <?php
 
-$EVENT_FIELDS = ['id', 'calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'currency', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time', 'show_as_news', 'enable_bookings'];
+$EVENT_FIELDS = ['id', 'calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'currency', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time', 'show_as_news', 'overlay_text','enable_bookings'];
 
 // Define the configurations
 $klokoconfigs = [
@@ -31,9 +31,9 @@ $klokoconfigs = [
     "event" => [
         'tablename' => 'kloko_event',
         'key' => 'id',
-        'select' => ['id', 'calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'currency', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time','show_as_news', 'enable_bookings'],
-        'create' => ['calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'currency', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time','show_as_news', 'enable_bookings'],
-        'update' => ['title', 'description', 'currency', 'price', 'image', 'content_id', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time','show_as_news', 'enable_bookings'],
+        'select' => ['id', 'calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'currency', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time','show_as_news', 'overlay_text','enable_bookings'],
+        'create' => ['calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'currency', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time','show_as_news', 'overlay_text','enable_bookings'],
+        'update' => ['title', 'description', 'currency', 'price', 'image', 'content_id', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time','show_as_news', 'overlay_text','enable_bookings'],
         'delete' => true,
         'beforeselect' => '',
         'afterselect' => '',
