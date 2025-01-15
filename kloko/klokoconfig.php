@@ -1,6 +1,6 @@
 <?php
 
-$EVENT_FIELDS = ['id', 'calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time'];
+$EVENT_FIELDS = ['id', 'calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'currency', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time', 'show_as_news', 'enable_bookings'];
 
 // Define the configurations
 $klokoconfigs = [
@@ -31,9 +31,9 @@ $klokoconfigs = [
     "event" => [
         'tablename' => 'kloko_event',
         'key' => 'id',
-        'select' => ['id', 'calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time'],
-        'create' => ['calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time'],
-        'update' => ['title', 'description', 'price', 'image', 'content_id', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time'],
+        'select' => ['id', 'calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'currency', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time','show_as_news', 'enable_bookings'],
+        'create' => ['calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'currency', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time','show_as_news', 'enable_bookings'],
+        'update' => ['title', 'description', 'currency', 'price', 'image', 'content_id', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time','show_as_news', 'enable_bookings'],
         'delete' => true,
         'beforeselect' => '',
         'afterselect' => '',
@@ -75,7 +75,7 @@ FROM kloko_booking b, kloko_event ev WHERE b.event_id = ev.id",
             "templates" => [
                 'tablename' => 'kloko_event_template',
                 'key' => 'user_id',
-                'select' => ['id', 'user_id', 'title', 'description', 'image', 'content_id', 'duration', 'location', 'lat', 'lng', 'max_participants', 'price', 'keywords', 'event_type'],
+                'select' => ['id', 'user_id', 'title', 'description', 'image', 'content_id', 'duration', 'location', 'lat', 'lng', 'max_participants', 'currency', 'price', 'keywords', 'event_type'],
             ],
             "locations" => [
                 'tablename' => 'kloko_user_location',
@@ -188,9 +188,9 @@ JOIN kloko_location l ON ul.location_id = l.id",
     "template" => [
         'tablename' => 'kloko_event_template',
         'key' => 'id',
-        'select' => ['id', 'user_id', 'title', 'description', 'image', 'content_id', 'duration', 'location', 'lat', 'lng', 'max_participants', 'price', 'keywords', 'event_type'],
-        'create' => ['user_id', 'title', 'description', 'image', 'content_id', 'duration', 'location', 'lat', 'lng', 'max_participants', 'price', 'keywords', 'event_type'],
-        'update' => ['title', 'description', 'duration', 'image', 'content_id', 'location', 'lat', 'lng', 'max_participants', 'price', 'keywords', 'event_type'],
+        'select' => ['id', 'user_id', 'title', 'description', 'image', 'content_id', 'duration', 'location', 'lat', 'lng', 'max_participants', 'currency', 'price', 'keywords', 'event_type'],
+        'create' => ['user_id', 'title', 'description', 'image', 'content_id', 'duration', 'location', 'lat', 'lng', 'max_participants', 'currency', 'price', 'keywords', 'event_type'],
+        'update' => ['title', 'description', 'duration', 'image', 'content_id', 'location', 'lat', 'lng', 'max_participants', 'currency', 'price', 'keywords', 'event_type'],
         'delete' => true,
         'where' => ['user_id' => '22'],
         'beforeselect' => '',
@@ -214,7 +214,7 @@ JOIN kloko_location l ON ul.location_id = l.id",
         'tablename' => 'kloko_event',
         'key' => 'id',
         'select' => "SELECT ev.id, title, description, keywords, event_type, duration, location, 
-              lat, lng, max_participants, price, start_time, content_id, 
+              lat, lng, max_participants, price, start_time, content_id, show_as_news, enable_bookings,
               getDistance({lat}, {lng}, ev.lat, ev.lng) AS distance,
         ev.user_id, firstname, lastname, COALESCE(image, avatar) avatar, email, (SELECT COUNT(*) FROM kloko_booking bk WHERE bk.event_id = ev.id) bookings,
         (SELECT COUNT(*) FROM kloko_booking bk WHERE bk.event_id = ev.id AND bk.user_id = {userid}) booked,
@@ -233,7 +233,7 @@ JOIN kloko_location l ON ul.location_id = l.id",
         "tablename" => "kloko_event",
         "key" => "id",
         "select" => "SELECT ev.id, title, description, duration, location, lat, lng, max_participants, price, start_time,
-        getDistance({lat},{lng}, ev.lat, ev.lng) AS distance, content_id,
+        getDistance({lat},{lng}, ev.lat, ev.lng) AS distance, content_id, show_as_news, enable_bookings,
         ev.user_id, firstname, lastname, COALESCE(image, avatar) avatar, email,
         (SELECT COUNT(*) FROM kloko_booking bk WHERE bk.event_id = ev.id) AS bookings,
         (SELECT COUNT(*) FROM kloko_booking bk WHERE bk.event_id = ev.id AND bk.user_id = {userid}) AS booked,
@@ -244,7 +244,6 @@ JOIN kloko_location l ON ul.location_id = l.id",
             AND start_time > NOW() 
             ORDER BY RAND()
             LIMIT 3",
-
         'beforeselect' => 'beforesearch',
         'afterselect' => ''
     ]
