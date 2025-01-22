@@ -134,3 +134,16 @@ function klokodelete($endpoint, $id)
     return GAPIdelete($klokoconfigs, $endpoint, $id);
 }
 
+
+
+
+function getUpcomingEvents($data) {
+    global $appId, $EVENT_FIELDS;
+    $fields = implode(",", $EVENT_FIELDS);
+    $sql = "select $fields from kloko_event where end_time > ? and app_id = ? order by start_time limit 10";
+    $params = [date("Y-m-d H:i:s"), $appId];
+    $sss = "ss";
+    $result = PrepareExecSQL($sql, $sss, $params);
+    // var_dump($result);
+    return $result;
+}

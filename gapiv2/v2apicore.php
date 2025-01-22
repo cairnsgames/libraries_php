@@ -8,6 +8,7 @@ include_once dirname(__FILE__) . "/gapifunctions.php";
 
 function runAPI($configs)
 {
+    // var_dump($configs['post']);
     try {
         // Rest Endpoint Handler
         $path = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
