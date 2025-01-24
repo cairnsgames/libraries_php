@@ -36,6 +36,9 @@ function CreateData($config, $data)
 
         // Extract values from $data based on the keys in $config['create']
         $values = array_map(function ($field) use ($data) {
+            if (!isset($data[$field])) {
+                return "";
+            }
             return $data[$field];
         }, $config['create']);
 
