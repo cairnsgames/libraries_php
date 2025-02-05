@@ -237,5 +237,34 @@ function updateOrderStatus($orderId, $status)
 
     $data = ["status" => $status];
     breezoupdate("order", $orderId, $data);
-    return true;
+return true;
+}
+
+function subscribeOrder($app_id, $option, $price)
+{
+    global $token;
+    $userId = getUserId($token);
+    $orderData = [
+        "user_id" => $userId,
+        "order_details" => $option,
+        "total_price" => $price,
+        "status" => "pending",
+    ];
+    $order = breezocreate("order", $orderData);
+    $order = $order[0];
+    $orderId = $order["id"];
+
+    $orderItemData = [
+        "order_id" => $orderId,
+        "item_type_id" => 1,
+        "item_id" => 0,
+        "item_description" => $option,
+        "supplier_id" => 0,
+        "price" => $price,
+        "commission_rate" => 10,
+        "quantity" => 1,
+        "booking_id" => null,
+    ];
+    breezocreate("order_item", $orderItemData);
+    return $order;
 }
