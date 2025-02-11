@@ -52,6 +52,20 @@ $klokoconfigs = [
                 'select' => ['id', 'event_id', 'user_id', 'participant_email', 'booking_time', 'status'],
                 'beforeselect' => '',
                 'afterselect' => ''
+            ],
+            'tickets' => [
+                'tablename' => 'kloko_ticket_types',
+                'key' => 'event_id',
+                'select' => ['id', 'event_id', 'name', 'description', 'price'],
+                'beforeselect' => '',
+                'afterselect' => ''
+            ],
+            'options' => [
+                'tablename' => 'kloko_ticket_options',
+                'key' => 'event_id',
+                'select' => ['id', 'event_id', 'name', 'description', 'price'],
+                'beforeselect' => '',
+                'afterselect' => ''
             ]
         ]
     ],
@@ -145,6 +159,36 @@ JOIN kloko_location l ON ul.location_id = l.id",
                 'afterselect' => ''
             ]
         ]
+    ],
+    'tickettype' => [
+        'tablename' => 'kloko_ticket_types',
+        'key' => 'id',
+        'select' => ['id', 'event_id', 'name', 'description', 'price'],
+        'create' => ['event_id', 'name', 'description', 'price'],
+        'update' => ['name', 'description', 'price'],
+        'delete' => true,
+        'beforeselect' => '',
+        'afterselect' => '',
+        'beforecreate' => '',
+        'aftercreate' => '',
+        'beforeupdate' => '',
+        'afterupdate' => '',
+        'beforedelete' => ''
+    ],
+    'ticketoption' => [
+        'tablename' => 'kloko_ticket_options',
+        'key' => 'id',
+        'select' => ['id', 'event_id', 'name', 'description', 'price'],
+        'create' => ['event_id', 'name', 'description', 'price'],
+        'update' => ['name', 'description', 'price'],
+        'delete' => true,
+        'beforeselect' => '',
+        'afterselect' => '',
+        'beforecreate' => '',
+        'aftercreate' => '',
+        'beforeupdate' => '',
+        'afterupdate' => '',
+        'beforedelete' => ''
     ],
     "notification" => [
         'tablename' => 'kloko_notification',

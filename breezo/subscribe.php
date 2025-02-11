@@ -19,4 +19,6 @@ if(empty($price)) {
     sendBadRequestResponse("Invalid price");
 }
 
-subscribeOrder($app_id, $option, $price);
+$order = subscribeOrder($app_id, $option, $price);
+header("Content-Type: application/json");
+echo json_encode($order);

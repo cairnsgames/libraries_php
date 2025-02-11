@@ -249,6 +249,7 @@ function subscribeOrder($app_id, $option, $price)
         "order_details" => $option,
         "total_price" => $price,
         "status" => "pending",
+        "order_month" => date("Y-m-d")
     ];
     $order = breezocreate("order", $orderData);
     $order = $order[0];
@@ -266,5 +267,7 @@ function subscribeOrder($app_id, $option, $price)
         "booking_id" => null,
     ];
     breezocreate("order_item", $orderItemData);
+    $orderItems = breezoselect("order", $orderId, "items");
+    $order["items"] = $orderItems;
     return $order;
 }
