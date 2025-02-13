@@ -24,4 +24,5 @@ $sql = "SELECT * FROM application_property ap
         )))";
 
 $settings = PrepareExecSQL($sql, "ssss", [$appid, $domain, $appid, $domain]);
+$settings[] = ["domain" => $domain];
 echo json_encode($settings);
