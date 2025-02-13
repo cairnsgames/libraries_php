@@ -11,7 +11,7 @@ if ($appid === "NONE") {
 	die("No app_id provided");
 } 
 
-$domain = $_SERVER['HTTP_HOST'];
+$domain = explode(':', $_SERVER['HTTP_HOST'])[0];
 
 $sql = "SELECT * FROM application_property ap
         WHERE app_id = ? 

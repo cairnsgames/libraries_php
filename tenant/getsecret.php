@@ -15,7 +15,7 @@ function getSecret($appid = null, $domain = null) {
     }
     
     if ($domain === null) {
-        $domain = $_SERVER['HTTP_HOST'];
+        $domain = explode(':', $_SERVER['HTTP_HOST'])[0];
     }
     
     $sql = "SELECT * FROM application_secret ap
