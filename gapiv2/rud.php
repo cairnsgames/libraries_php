@@ -34,6 +34,8 @@ function CreateData($config, $data)
 
         $stmt = $conn->prepare($query);
 
+        echo "Query: ", $query, "\n";
+
         // Extract values from $data based on the keys in $config['create']
         $values = array_map(function ($field) use ($data) {
             if (!isset($data[$field])) {
