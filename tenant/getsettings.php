@@ -11,7 +11,17 @@ if ($appid === "NONE") {
 	die("No app_id provided");
 } 
 
-$domain = explode(':', $_SERVER['HTTP_ORIGIN'])[0];
+if (!empty($_SERVER['HTTP_ORIGIN'])) {
+    // Get the domain from the Origin header (best option)
+    $clientDomain = parse_url($_SERVER['HTTP_ORIGIN'], PHP_URL_HOST);
+} elseif (!empty($_SERVER['HTTP_REFERER'])) {
+    // Fallback to the Referer header
+    $clientDomain = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST);
+} else {
+    // No origin or referer found
+    $clientDomain = 'Unknown';
+}
+$domain = $clientDomain;
 
 $sql = "SELECT * FROM application_property ap
         WHERE app_id = ? 
