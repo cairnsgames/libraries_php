@@ -62,7 +62,7 @@ $breezoconfigs = [
             'items' => [
                 'tablename' => 'breezo_cart_item',
                 'key' => 'supplier_id',
-                'select' => ['id', 'cart_id', 'item_type_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id', 'created', 'modified'],
+                'select' => ['id', 'cart_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id', 'created', 'modified'],
                 'beforeselect' => '',
                 'afterselect' => ''
             ]
@@ -91,6 +91,7 @@ $breezoconfigs = [
                 breezo_cart_item.price,
                 item_type_id,
                 ifnull(breezo_cart_item.title, kloko_event.title) title,
+                parent_id,
                 item_id, 'item_description',
                 booking_id,
                 supplier_id,
@@ -203,8 +204,8 @@ $breezoconfigs = [
     "cart_item" => [
         'tablename' => 'breezo_cart_item',
         'key' => 'id',
-        'select' => ['id', 'cart_id', 'item_type_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id', 'created', 'modified'],
-        'create' => ['cart_id', 'item_type_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id'],
+        'select' => ['id', 'cart_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id', 'created', 'modified'],
+        'create' => ['cart_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id'],
         'update' => ['price', 'title', 'item_description', 'quantity', 'commission_rate', 'booking_id'],
         'delete' => true,
         'beforeselect' => '',
