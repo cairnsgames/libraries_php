@@ -42,6 +42,13 @@ function checksecurity($config, $data)
     return [$config, $data];
 }
 
+function setUserId($config, $data)
+{
+    global $userid;
+    $data["user_id"] = $userid;
+    return [$config, $data];
+}
+
 function getCartForUser($userid)
 {
     $cart = breezoselect("user", $userid, "cart");
