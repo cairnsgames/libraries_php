@@ -97,6 +97,7 @@ function convertCartToOrder($data)
 
     // Create the order
     $orderData = [
+        "order_details" => "Cart",
         "user_id" => $cart['user_id'],
         "total_price" => $totalPrice,
         "status" => "pending",
@@ -219,9 +220,9 @@ function processOrderPayment($orderId) {
             
             $insertTicketSQL = "INSERT INTO kloko_tickets 
                                (user_id, event_id, ticket_type_id, ticket_option_id, title, description, quantity, currency, price, order_item_id) 
-                               VALUES (?, ?, ?, ?, ?, ?, ?, 'ZAR', ?)";
+                               VALUES (?, ?, ?, ?, ?, ?, ?, 'ZAR', ?, ?)";
             
-            PrepareExecSQL($insertTicketSQL, 'iiiissid', [
+            PrepareExecSQL($insertTicketSQL, 'iiiissidd', [
                 $item['user_id'],
                 $item['parent_id'],
                 $ticketTypeId,
