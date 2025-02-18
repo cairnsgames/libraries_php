@@ -110,12 +110,15 @@ function convertCartToOrder($data)
         $orderItemData = [
             "order_id" => $orderId,
             "item_type_id" => $item['item_type_id'],
+            "parent_id" => $item['parent_id'],
             "item_id" => $item['item_id'],
             "supplier_id" => $item['supplier_id'],
             "price" => $item['price'],
             "commission_rate" => $item['commission_rate'],
             "quantity" => $item['quantity'],
             "booking_id" => $item['booking_id'],
+            "title" => $item['title'],
+            "item_description" => $item['item_description'],
         ];
         breezocreate("order_item", $orderItemData);
 
@@ -215,18 +218,19 @@ function processOrderPayment($orderId) {
             $ticketOptionId = $item['item_type_id'] == 4 ? $item['item_id'] : 0;
             
             $insertTicketSQL = "INSERT INTO kloko_tickets 
-                               (user_id, event_id, ticket_type_id, ticket_option_id, title, description, quantity, currency, price) 
+                               (user_id, event_id, ticket_type_id, ticket_option_id, title, description, quantity, currency, price, order_item_id) 
                                VALUES (?, ?, ?, ?, ?, ?, ?, 'ZAR', ?)";
             
             PrepareExecSQL($insertTicketSQL, 'iiiissid', [
                 $item['user_id'],
-                $item['item_id'],
+                $item['parent_id'],
                 $ticketTypeId,
                 $ticketOptionId,
                 $item['title'],
                 $item['item_description'],
                 $item['quantity'],
-                $item['price']
+                $item['price'],
+                $item['id']
             ]);
         }
     }

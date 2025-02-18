@@ -128,14 +128,14 @@ $breezoconfigs = [
             'order_items' => [
                 'tablename' => 'breezo_order_item',
                 'key' => 'order_id',
-                'select' => ['id', 'order_id', 'item_type_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id', 'created', 'modified'],
+                'select' => ['id', 'order_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id', 'created', 'modified'],
                 'beforeselect' => '',
                 'afterselect' => ''
             ],
             'items' => [
                 'tablename' => 'breezo_order_item',
                 'key' => 'order_id',
-                'select' => ['id', 'order_id', 'item_type_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id', 'created', 'modified'],
+                'select' => ['id', 'order_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id', 'created', 'modified'],
                 'beforeselect' => '',
                 'afterselect' => ''
             ]
@@ -219,8 +219,8 @@ $breezoconfigs = [
     "order_item" => [
         'tablename' => 'breezo_order_item',
         'key' => 'id',
-        'select' => ['id', 'order_id', 'item_type_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id', 'created', 'modified'],
-        'create' => ['order_id', 'item_type_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id'],
+        'select' => ['id', 'order_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id', 'created', 'modified'],
+        'create' => ['order_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id'],
         'update' => ['title', 'item_description', 'price', 'quantity', 'commission_rate', 'booking_id'],
         'delete' => true,
         'beforeselect' => '',
