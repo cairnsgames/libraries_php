@@ -148,7 +148,7 @@ function getUpcomingEvents($data) {
     return $result;
 }
 
-function getUserTickets($data)
+function getKlokoUserTickets($data)
 {
     $userId = $data["user"];
     $sql = "SELECT e.app_id,  e.id event_id, 
