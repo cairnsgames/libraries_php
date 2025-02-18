@@ -147,3 +147,16 @@ function getUpcomingEvents($data) {
     // var_dump($result);
     return $result;
 }
+
+function getUserTickets($data)
+{
+    $userId = $data["user"];
+    $sql = "SELECT e.app_id,  e.id event_id, 
+            t.id ticket_id, t.ticket_type_id, t.ticket_option_id, e.title event_title, e.description event_description, 
+            t.description, t.quantity, t.currency, t.price, 
+            e.keywords, e.duration, e.location, e.lat, e.lng, e.start_time, e.end_time
+        FROM kloko_tickets t, kloko_event e
+        WHERE t.event_id = e.id
+        AND t.user_id = ?";
+    return PrepareExecSQL($sql, 'i', [$userId]);
+}

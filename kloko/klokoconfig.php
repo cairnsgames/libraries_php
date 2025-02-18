@@ -5,7 +5,8 @@ $EVENT_FIELDS = ['id', 'calendar_id', 'user_id', 'event_template_id', 'content_i
 // Define the configurations
 $klokoconfigs = [
     "post" => [
-        "events" => "getUpcomingEvents"
+        "events" => "getUpcomingEvents",
+        "usertickets" => "getUserTickets",
     ],
     "calendar" => [
         'tablename' => 'kloko_calendar',
