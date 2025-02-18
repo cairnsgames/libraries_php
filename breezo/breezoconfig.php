@@ -4,7 +4,8 @@
 $breezoconfigs = [
     "post" => [
         "test" => "testFunction",
-        "placeorder" => "convertCartToOrder"
+        "placeorder" => "convertCartToOrder",
+        "usertickets" => "getUserTickets",
     ],
     "user" => [
         'tablename' => 'user',

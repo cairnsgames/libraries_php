@@ -139,23 +139,24 @@ function beforeInsertCartItem($config, $data)
     return [$config, $data];
 }
 
-function processOrderPayment($orderId) {
+function processOrderPayment($orderId)
+{
     $order = breezoselect("order", $orderId);
     if (empty($order)) {
         throw new Exception("Order not found.");
     }
     $order = $order[0];
-  
+
     $orderItems = breezoselect("order", $orderId, "items");
     if (empty($orderItems)) {
         throw new Exception("Order has no items.");
     }
-  
+
     $totalPrice = 0;
     foreach ($orderItems as $item) {
         $totalPrice += $item['price'];
     }
-  
+
     $supplierPayments = [];
     foreach ($orderItems as $item) {
         $supplierId = $item['supplier_id'];
@@ -164,7 +165,7 @@ function processOrderPayment($orderId) {
         }
         $supplierPayments[$supplierId] += $item['price'];
     }
-  
+
     foreach ($supplierPayments as $supplierId => $amount) {
         $paymentData = [
             "order_id" => $orderId,
@@ -176,34 +177,35 @@ function processOrderPayment($orderId) {
         ];
         breezocreate("supplier_payment", $paymentData);
     }
-  
+
     echo "Updating order status to paid";
     updateOrderStatus($orderId, 'paid');
     markBookingsByOrder($orderId, 'paid');
-  
+
     return $supplierPayments;
-  }
-  
-  function markBookingsByOrder($orderId, $newStatus) {
+}
+
+function markBookingsByOrder($orderId, $newStatus)
+{
     $updatedBookings = [];
-    
+
     $sql = "SELECT booking_id FROM breezo_order_item WHERE item_type_id = 1 and order_id = ? AND booking_id IS NOT NULL";
     $params = [$orderId];
-    
+
     $orderItems = PrepareExecSQL($sql, 'i', $params);
-  
+
     if (!empty($orderItems)) {
         $updateSQL = "UPDATE kloko_booking SET status = ? WHERE id = ?";
-        
+
         foreach ($orderItems as $item) {
             $bookingId = $item['booking_id'];
             PrepareExecSQL($updateSQL, 'si', [$newStatus, $bookingId]);
         }
-  
+
         $updatedBookingIds = array_column($orderItems, 'booking_id');
         $placeholders = implode(',', array_fill(0, count($updatedBookingIds), '?'));
         $fetchUpdatedSQL = "SELECT * FROM kloko_booking WHERE id IN ($placeholders)";
-        
+
         $updatedBookings = PrepareExecSQL($fetchUpdatedSQL, str_repeat('i', count($updatedBookingIds)), $updatedBookingIds);
     }
 
@@ -217,11 +219,11 @@ function processOrderPayment($orderId) {
         foreach ($ticketItems as $item) {
             $ticketTypeId = $item['item_type_id'] == 3 ? $item['item_id'] : 0;
             $ticketOptionId = $item['item_type_id'] == 4 ? $item['item_id'] : 0;
-            
+
             $insertTicketSQL = "INSERT INTO kloko_tickets 
                                (user_id, event_id, ticket_type_id, ticket_option_id, title, description, quantity, currency, price, order_item_id) 
                                VALUES (?, ?, ?, ?, ?, ?, ?, 'ZAR', ?, ?)";
-            
+
             PrepareExecSQL($insertTicketSQL, 'iiiissidd', [
                 $item['user_id'],
                 $item['parent_id'],
@@ -235,9 +237,9 @@ function processOrderPayment($orderId) {
             ]);
         }
     }
-  
+
     return $updatedBookings;
-  }
+}
 
 function breezoselect($endpoint, $id = null, $subkey = null, $where = [], $orderBy = '', $page = null, $limit = null)
 {
@@ -273,7 +275,7 @@ function updateOrderStatus($orderId, $status)
 
     $data = ["status" => $status];
     breezoupdate("order", $orderId, $data);
-return true;
+    return true;
 }
 
 function subscribeOrder($app_id, $option, $price)
@@ -306,4 +308,17 @@ function subscribeOrder($app_id, $option, $price)
     $orderItems = breezoselect("order", $orderId, "items");
     $order["items"] = $orderItems;
     return $order;
+}
+
+function getUserTickets($data)
+{
+    $userId = $data["user"];
+    $sql = "SELECT e.app_id,  e.id event_id, 
+            t.id ticket_id, t.ticket_type_id, t.ticket_option_id, e.title event_title, e.description event_description, 
+            t.description, t.quantity, t.currency, t.price, 
+            e.keywords, e.duration, e.location, e.lat, e.lng, e.start_time, e.end_time
+        FROM kloko_tickets t, kloko_event e
+        WHERE t.event_id = e.id
+        AND t.user_id = ?";
+    return PrepareExecSQL($sql, 'i', [$userId]);
 }
