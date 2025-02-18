@@ -181,17 +181,14 @@ function processOrderPayment($orderId) {
   }
   
   function markBookingsByOrder($orderId, $newStatus) {
-    // Initialize an array to store updated booking records
     $updatedBookings = [];
-  
-    // Step 1: Retrieve all booking IDs related to the order items with the specified orderId
+    
     $sql = "SELECT booking_id FROM breezo_order_item WHERE item_type_id = 1 and order_id = ? AND booking_id IS NOT NULL";
     $params = [$orderId];
     
     $orderItems = PrepareExecSQL($sql, 'i', $params);
   
     if (!empty($orderItems)) {
-        // Step 2: Update each booking's status in kloko_booking
         $updateSQL = "UPDATE kloko_booking SET status = ? WHERE id = ?";
         
         foreach ($orderItems as $item) {
@@ -199,12 +196,39 @@ function processOrderPayment($orderId) {
             PrepareExecSQL($updateSQL, 'si', [$newStatus, $bookingId]);
         }
   
-        // Step 3: Retrieve the updated records
         $updatedBookingIds = array_column($orderItems, 'booking_id');
         $placeholders = implode(',', array_fill(0, count($updatedBookingIds), '?'));
         $fetchUpdatedSQL = "SELECT * FROM kloko_booking WHERE id IN ($placeholders)";
         
         $updatedBookings = PrepareExecSQL($fetchUpdatedSQL, str_repeat('i', count($updatedBookingIds)), $updatedBookingIds);
+    }
+
+    $ticketSql = "SELECT boi.*, bo.user_id 
+                  FROM breezo_order_item boi 
+                  JOIN breezo_order bo ON bo.id = boi.order_id 
+                  WHERE boi.item_type_id IN (3, 4) AND boi.order_id = ?";
+    $ticketItems = PrepareExecSQL($ticketSql, 'i', [$orderId]);
+
+    if (!empty($ticketItems)) {
+        foreach ($ticketItems as $item) {
+            $ticketTypeId = $item['item_type_id'] == 3 ? $item['item_id'] : 0;
+            $ticketOptionId = $item['item_type_id'] == 4 ? $item['item_id'] : 0;
+            
+            $insertTicketSQL = "INSERT INTO kloko_tickets 
+                               (user_id, event_id, ticket_type_id, ticket_option_id, title, description, quantity, currency, price) 
+                               VALUES (?, ?, ?, ?, ?, ?, ?, 'ZAR', ?)";
+            
+            PrepareExecSQL($insertTicketSQL, 'iiiissid', [
+                $item['user_id'],
+                $item['item_id'],
+                $ticketTypeId,
+                $ticketOptionId,
+                $item['title'],
+                $item['item_description'],
+                $item['quantity'],
+                $item['price']
+            ]);
+        }
     }
   
     return $updatedBookings;
