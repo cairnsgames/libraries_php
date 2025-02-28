@@ -42,6 +42,10 @@ function getAppId()
 }
 function getToken()
 {
+	$authHeader = getHeader("Authorization", "");
+	if ($authHeader !== "" && strpos($authHeader, "Bearer ") === 0) {
+		return substr($authHeader, 7);
+	}
 	$token = getHeader("token", "");
 	return $token;
 }
@@ -92,11 +96,12 @@ function isLocalHost()
 	return false;
 }
 
-function hasValue($param) {
-    if (!isset($param) || $param === null || $param === "") {
-        return false;
-    }
-    return true;
+function hasValue($param)
+{
+	if (!isset($param) || $param === null || $param === "") {
+		return false;
+	}
+	return true;
 }
 
 try {

@@ -2,9 +2,9 @@
 include_once dirname(__FILE__)."/jwt.php";
 include_once dirname(__FILE__)."/../permissions/permissionfunctions.php";
 
-$issuer = getProperty("jwt_issuer", "cairnsgames.co.za");
-$subject = getProperty("jwt_subject", "cairnsgames token");
-$audience = getProperty("jwt_audience", "cairnsgames client");
+$issuer = getSecret("jwt_issuer", "cairnsgames.co.za");
+$subject = getSecret("jwt_subject", "cairnsgames token");
+$audience = getSecret("jwt_audience", "cairnsgames client");
 
 $defaultConfig = array("issuer"=>$issuer,"subject"=>$subject,"audience"=>$audience);
 
