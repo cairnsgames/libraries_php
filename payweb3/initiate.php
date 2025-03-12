@@ -1,4 +1,8 @@
 <?php
+// Display all PHP errors
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 include_once './config.php';
 include_once "../corsheaders.php";
@@ -25,18 +29,17 @@ $currency = $order['currency'];
 $amount = $order['total_price'];
 
 $data = array(
-    'PAYGATE_ID'        => $PAYGATE_ID,
-    'REFERENCE'         => $order_id, // Use order_id as the reference
-    'AMOUNT'            => $amount * 100, // cents
-    'CURRENCY'          => $currency,
-    'RETURN_URL'        => 'https://demo.juzt.dance/#orders',
-    'TRANSACTION_DATE'  => $DateTime->format('Y-m-d H:i:s'),
-    'LOCALE'            => 'en-za',
-    'COUNTRY'           => 'ZAF',
-    'EMAIL'             => 'customer@paygate.co.za',
-    'NOTIFY_URL'        => 'https://cairnsgames.co.za/php/payweb3/notify.php',
+    'PAYGATE_ID' => $PAYGATE_ID,
+    'REFERENCE' => $order_id, // Use order_id as the reference
+    'AMOUNT' => $amount * 100, // cents
+    'CURRENCY' => $currency,
+    'RETURN_URL' => 'https://demo.juzt.dance/#orders',
+    'TRANSACTION_DATE' => $DateTime->format('Y-m-d H:i:s'),
+    'LOCALE' => 'en-za',
+    'COUNTRY' => 'ZAF',
+    'EMAIL' => 'customer@paygate.co.za',
+    'NOTIFY_URL' => 'https://cairnsgames.co.za/php/payweb3/notify.php',
 );
-
 
 $checksum = md5(implode('', $data) . $encryptionKey);
 

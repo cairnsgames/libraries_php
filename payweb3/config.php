@@ -36,8 +36,27 @@ function executeQuery($sql, $params = []) {
 
     // Get results for SELECT statements
     if (strpos($sql, 'SELECT') === 0) {
-        $result = $stmt->get_result();
-        $data = $result->fetch_all(MYSQLI_ASSOC);
+        // Alternative approach without using get_result() (which requires mysqlnd)
+        $meta = $stmt->result_metadata();
+        $fields = array();
+        $parameters = array();
+        
+        while ($field = $meta->fetch_field()) {
+            $parameters[] = &$row[$field->name];
+            $fields[] = $field->name;
+        }
+        
+        call_user_func_array(array($stmt, 'bind_result'), $parameters);
+        
+        $data = array();
+        while ($stmt->fetch()) {
+            $rowData = array();
+            foreach ($row as $key => $val) {
+                $rowData[$key] = $val;
+            }
+            $data[] = $rowData;
+        }
+        
         $stmt->close();
         $conn->close();
         return $data;
