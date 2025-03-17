@@ -16,11 +16,9 @@ $timezone = new DateTimeZone("Africa/Johannesburg"); // SAST timezone
 $DateTime = new DateTime("now", $timezone);
 
 $returnURL = getSettingOrSecret($appid, 'returnURL');
-if (!isset($returnURL)) {
+if (!isset($returnURL) || empty($returnURL)) {
     $returnURL = "https://cairnsgames.co.za/php/payweb3/return.php";
 }
-
-// $returnURL = "https://cairnsgames.co.za/php/payweb3/return.php";
 
 $order_id = $_GET['order_id'];
 $encryptionKey = 'secret';
