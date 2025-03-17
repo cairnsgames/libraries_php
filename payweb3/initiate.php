@@ -5,10 +5,22 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 include_once './config.php';
+require_once __DIR__ . '/../utils.php';
 include_once "../corsheaders.php";
+include_once dirname(__FILE__)."/../settings/settingsfunctions.php";
+
+
+$appid = getAppId();
 
 $timezone = new DateTimeZone("Africa/Johannesburg"); // SAST timezone
 $DateTime = new DateTime("now", $timezone);
+
+$returnURL = getSettingOrSecret($appid, 'returnURL');
+if (!isset($returnURL)) {
+    $returnURL = "https://cairnsgames.co.za/php/payweb3/return.php";
+}
+
+// $returnURL = "https://cairnsgames.co.za/php/payweb3/return.php";
 
 $order_id = $_GET['order_id'];
 $encryptionKey = 'secret';
@@ -33,7 +45,7 @@ $data = array(
     'REFERENCE' => $order_id, // Use order_id as the reference
     'AMOUNT' => $amount * 100, // cents
     'CURRENCY' => $currency,
-    'RETURN_URL' => 'https://demo.juzt.dance/#orders',
+    'RETURN_URL' => $returnURL,
     'TRANSACTION_DATE' => $DateTime->format('Y-m-d H:i:s'),
     'LOCALE' => 'en-za',
     'COUNTRY' => 'ZAF',
@@ -44,16 +56,17 @@ $data = array(
 $checksum = md5(implode('', $data) . $encryptionKey);
 
 $data['CHECKSUM'] = $checksum;
-// echo "Payment Details <br/>", json_encode($data), "<br/>";
-// echo "Encryption Key: ", $encryptionKey, "<br/>";
+// echo "Payment Details: ", json_encode($data), "<br/>\n";
+// echo "Encryption Key: ", $encryptionKey, "<br/>\n";
+// echo "CHECKSUM: ", $checksum, "<br/>\n";
 
 $fieldsString = http_build_query($data);
 
 // Execute cURL request using the new function
 $result = executeCurlRequest('https://secure.paygate.co.za/payweb3/initiate.trans', 'POST', $fieldsString);
 
-// echo "CHECKSUM", $checksum, "<br/>";
-// echo "RESPONSE<br/>", $result, "<br/>";
+// echo "RESPONSE: ", $result, "<br/>\n";
+// echo "============================<br/>\n";
 // Process the response
 parse_str($result, $response); // Parse the query string response
 $eccode = $response['CHECKSUM'];

@@ -152,6 +152,11 @@ function processOrderPayment($orderId)
         throw new Exception("Order has no items.");
     }
 
+    $user = breezoselect("user", $order["user_id"]);
+    if (empty($user)) {
+        throw new Exception("User not found.");
+    }
+
     $totalPrice = 0;
     foreach ($orderItems as $item) {
         $totalPrice += $item['price'];

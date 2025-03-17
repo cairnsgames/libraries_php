@@ -1,6 +1,8 @@
 <?php
 include 'config.php'; // Include the configuration file
 include_once "../breezo/breezo.php";
+include_once "../subscriptions/processsubscriptions.php";
+require_once __DIR__ . '/../utils.php';
 
 $params = [];
 
@@ -34,6 +36,35 @@ $transactionStatuses = [
     "7" => "Settlement Voided"
 ];
 
+function processPayment($orderId)
+{
+    $order = breezoselect("order", $orderId);
+    if (empty($order)) {
+        throw new Exception("Order not found.");
+    }
+    $order = $order[0];
+
+    $user = breezoselect("user", $order['user_id']);
+    if (empty($user)) {
+        throw new Exception("User not found.");
+    }
+    $user = $user[0];
+
+    $orderItems = breezoselect("order", $orderId, "items");
+    if (empty($orderItems)) {
+        throw new Exception("Order has no items.");
+    }
+
+    /* Based on app_id decide which processing system to use */
+    /* TODO: move the appid check into a config so that we can add more apps at DB level */
+    if ($user["app_id"] == "950ef1d9-c657-11ed-95d1-f0a654c38aa6") {
+        processSubscriptionOrder($orderId, $order, $orderItems, $user);
+    } else {
+        processOrderPayment($orderId);
+    }
+}
+
+echo "Checking Status: ", $params['TRANSACTION_STATUS'], "<br/>\n";
 
 
 if (isset($params['TRANSACTION_STATUS'])) {
@@ -47,7 +78,7 @@ if (isset($params['TRANSACTION_STATUS'])) {
         case "5":
         case 5:
             $newStatus = "completed";
-            processOrderPayment($orderid);
+            processPayment($orderid);
             break;
         default:
             $newStatus = "failed";
@@ -67,9 +98,6 @@ echo "Status", $newStatus;
 if ($paymentId && $newStatus) {
     executeQuery("UPDATE payment_progress SET status = ?, webhook_data = ? WHERE payment_id = ?", [$newStatus, json_encode($params), $paymentId]);
 }
-
-
-
 
 ?>
 <!DOCTYPE html>

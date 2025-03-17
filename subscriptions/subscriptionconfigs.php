@@ -13,12 +13,14 @@ $userconfigs = [
             'subscriptions' => [
                 'tablename' => 'subscription_user',
                 'key' => 'user_id',
-                'select' => ['id', 'user_id', 'subscription_id', 'started', "date_started", "date_end", "active"],
+                'select' => 'select subscription_user.id, user_id, subscription_id, name, started, start_date, expiry_date, active from subscription_user, subscription
+                  WHERE subscription_user.subscription_id = subscription.id',
+                'select2' => ['id', 'user_id', 'subscription_id', 'started', "date_started", "date_end", "active"],
                 'beforeselect' => 'forUserId',
                 'afterselect' => ''
             ],
             'credits' => [
-                'tablename' => 'subscription_user_property',
+                'tablename' => 'subscription_user_credits',
                 'key' => 'user_id',
                 'select' => ['id', 'user_id', 'name', 'value'],
                 'beforeselect' => 'forUserId',
