@@ -19,6 +19,10 @@ $returnURL = getSettingOrSecret($appid, 'returnURL');
 if (!isset($returnURL) || empty($returnURL)) {
     $returnURL = "https://cairnsgames.co.za/php/payweb3/return.php";
 }
+$paygateid = getSettingOrSecret($appid, 'PaygateId');
+if (!isset($paygateid) || empty($paygateid)) {
+    $PAYGATE_ID = $PAYGATE_ID_DEFAULT;
+}
 
 $order_id = $_GET['order_id'];
 $encryptionKey = 'secret';

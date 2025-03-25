@@ -1,6 +1,11 @@
 <?php
 
+$appId = getAppId();
+$token = getToken();
+$userId = getUserId($token);
+
 $userconfigs = [
+    "post" => ["active" => "hasActiveSubscription"],
     "user" => [
         'tablename' => 'user',
         'key' => 'id',
@@ -61,3 +66,12 @@ function forUserId($config, $data)
     return [$config, $data];
 }
 
+function hasActiveSubscription($config)
+{
+    global $userId;
+    $sql = "select * from subscription_user where user_id = ? and active = 1";
+    $params = array($userId);
+    $subscriptions = PrepareExecSQL($sql, "i", $params);
+    $data["hasActiveSubscription"] = count($subscriptions) > 0;
+    return [$config, $data];
+}

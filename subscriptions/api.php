@@ -10,9 +10,7 @@ include_once "../utils.php";
 
 include_once dirname(__FILE__) . "/subscriptionconfigs.php";
 
-$appId = getAppId();
-$token = getToken();
-$userId = getUserId($token);
+
 
 $debugValues = [];
 $out = [];

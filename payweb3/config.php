@@ -3,7 +3,7 @@
 $PAYREQUESTID = "5CEA1629-858B-8D48-C6DD-FF66B717812C";
 $CHECKSUM = "d416087fc3c68b9d183d67060fe28d77";
 
-$PAYGATE_ID = 10011072130;
+$PAYGATE_ID_DEFAULT = 10011072130;
 $REFERENCE = 'pgtest_123456789';
 $host = 'cairns.co.za'; // Database host
 $user = 'cairnsco_cairnsgames'; // Database username
