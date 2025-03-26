@@ -22,18 +22,26 @@ $returnURL = getSettingOrSecret($appid, 'returnURL', $host);
 if (!isset($returnURL) || empty($returnURL)) {
     $returnURL = "https://cairnsgames.co.za/php/payweb3/return.php";
 }
+$paygateSecret = getSettingOrSecret($appid, 'PaygateSecret', $host);
+if (!isset($paygateSecret) || empty($paygateSecret)) {
+    $paygateSecret = $PAYGATE_SECRET;
+}
 $paygateid = getSettingOrSecret($appid, 'PaygateId', $host);
 if (!isset($paygateid) || empty($paygateid)) {
     $PAYGATE_ID = $PAYGATE_ID_DEFAULT;
 }
 
+// echo "Return URL: $returnURL<br/>\n";
+// echo "Paygate ID: $paygateid<br/>\n";
+
 $log[] = "Host: $host";
 $log[] = "Paygate ID: $paygateid";
+$log[] = "Paygate Secret: $paygateSecret";
 $log[] = "Return URL: $returnURL";
 $log[] = "App ID: $appid";
 
 $order_id = $_GET['order_id'];
-$encryptionKey = 'secret';
+$encryptionKey = $paygateSecret;
 
 $order_details_sql = "SELECT * FROM breezo_order WHERE id = ?";
 $order_details = executeQuery($order_details_sql, [$order_id]);
@@ -81,13 +89,19 @@ $result = executeCurlRequest('https://secure.paygate.co.za/payweb3/initiate.tran
 
 // echo "RESPONSE: ", $result, "<br/>\n";
 // echo "============================<br/>\n";
-// Process the response
-parse_str($result, $response); // Parse the query string response
-$eccode = $response['CHECKSUM'];
 
-$log[] = "Payweb Response:" . json_encode($response);
+
+
+$log[] = "Payweb Response:" . json_encode($result);
 
 PrepareExecSQL("insert into webhook_log (data) values (?)", "s", array(json_encode($log)));
+
+// Process the response
+parse_str($result, $response); // Parse the query string response
+if (!isset($response['CHECKSUM'])) {
+    $response['CHECKSUM'] = '';
+}
+$eccode = $response['CHECKSUM'];
 
 if (isset($response['PAY_REQUEST_ID'])) {
     $payment_id = $response['PAY_REQUEST_ID'];
