@@ -11,18 +11,26 @@ include_once dirname(__FILE__)."/../settings/settingsfunctions.php";
 
 
 $appid = getAppId();
+$log = [];
 
 $timezone = new DateTimeZone("Africa/Johannesburg"); // SAST timezone
 $DateTime = new DateTime("now", $timezone);
 
-$returnURL = getSettingOrSecret($appid, 'returnURL');
+$host = $_SERVER['HTTP_HOST'];
+
+$returnURL = getSettingOrSecret($appid, 'returnURL', $host);
 if (!isset($returnURL) || empty($returnURL)) {
     $returnURL = "https://cairnsgames.co.za/php/payweb3/return.php";
 }
-$paygateid = getSettingOrSecret($appid, 'PaygateId');
+$paygateid = getSettingOrSecret($appid, 'PaygateId', $host);
 if (!isset($paygateid) || empty($paygateid)) {
     $PAYGATE_ID = $PAYGATE_ID_DEFAULT;
 }
+
+$log[] = "Host: $host";
+$log[] = "Paygate ID: $paygateid";
+$log[] = "Return URL: $returnURL";
+$log[] = "App ID: $appid";
 
 $order_id = $_GET['order_id'];
 $encryptionKey = 'secret';
@@ -38,6 +46,9 @@ if (empty($order_details)) {
 } else {
     $order = $order_details[0];
 }
+
+
+$log[] = "order details:" . json_encode($order_details);
 
 $currency = $order['currency'];
 $amount = $order['total_price'];
@@ -55,6 +66,7 @@ $data = array(
     'NOTIFY_URL' => 'https://cairnsgames.co.za/php/payweb3/notify.php',
 );
 
+$log[] = "Payment Data: " . json_encode($data);
 $checksum = md5(implode('', $data) . $encryptionKey);
 
 $data['CHECKSUM'] = $checksum;
@@ -72,6 +84,10 @@ $result = executeCurlRequest('https://secure.paygate.co.za/payweb3/initiate.tran
 // Process the response
 parse_str($result, $response); // Parse the query string response
 $eccode = $response['CHECKSUM'];
+
+$log[] = "Payweb Response:" . json_encode($response);
+
+PrepareExecSQL("insert into webhook_log (data) values (?)", "s", array(json_encode($log)));
 
 if (isset($response['PAY_REQUEST_ID'])) {
     $payment_id = $response['PAY_REQUEST_ID'];

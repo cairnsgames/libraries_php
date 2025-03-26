@@ -3,11 +3,15 @@
 include_once dirname(__FILE__) . "/../dbconfig.php";
 include_once dirname(__FILE__) . "/../dbutils.php";
 
-function getSettingValue($appid, $keyname)
+function getSettingValue($appid, $keyname, $domain = null)
 {
-    $sql = "SELECT value FROM application_property WHERE app_id = ? AND name = ?";
-    $params = array($appid, $keyname);
-    $rows = PrepareExecSQL($sql, "ss", $params);
+    // Prefer domain-specific value
+    $sql = "SELECT value FROM application_property 
+            WHERE app_id = ? AND name = ? AND (domain = ? OR domain IS NULL OR domain = '')
+            ORDER BY domain IS NULL ASC LIMIT 1";
+    $params = array($appid, $keyname, $domain);
+    $rows = PrepareExecSQL($sql, "sss", $params);
+
     if (count($rows) > 0) {
         return $rows[0]["value"];
     }
@@ -15,12 +19,14 @@ function getSettingValue($appid, $keyname)
     return "";
 }
 
-function getSecretValue($appid, $keyname)
+function getSecretValue($appid, $keyname, $domain = null)
 {
+    $sql = "SELECT value FROM application_secret 
+            WHERE app_id = ? AND name = ? AND (domain = ? OR domain IS NULL OR domain = '')
+            ORDER BY domain IS NULL ASC LIMIT 1";
+    $params = array($appid, $keyname, $domain);
+    $rows = PrepareExecSQL($sql, "sss", $params);
 
-    $sql = "SELECT value FROM application_secret WHERE app_id = ? AND name = ?";
-    $params = array($appid, $keyname);
-    $rows = PrepareExecSQL($sql, "ss", $params);
     if (count($rows) > 0) {
         return $rows[0]["value"];
     }
@@ -28,11 +34,11 @@ function getSecretValue($appid, $keyname)
     return "";
 }
 
-function getSettingOrSecret($appid, $keyname)
+function getSettingOrSecret($appid, $keyname, $domain = null)
 {
-    $value = getSettingValue($appid, $keyname);
+    $value = getSettingValue($appid, $keyname, $domain);
     if ($value == "") {
-        $value = getSecretValue($appid, $keyname);
+        $value = getSecretValue($appid, $keyname, $domain);
     }
     return $value;
 }
@@ -51,7 +57,7 @@ function getSettingValueForUser($app_id, $profileid, $keyname)
     ";
 
     // Assuming the parameters are in this order: profileid, app_id, keyname
-    $value = PrepareExecSQL($sql, 'sss', [ $profileid, $app_id, $keyname]);
+    $value = PrepareExecSQL($sql, 'sss', [$profileid, $app_id, $keyname]);
     $setting = $value[0]["value"];
     return $setting;
 }
