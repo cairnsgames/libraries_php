@@ -43,7 +43,7 @@ $currency = $order['currency'];
 $amount = $order['total_price'];
 
 $data = array(
-    'PAYGATE_ID' => $PAYGATE_ID,
+    'PAYGATE_ID' => $paygateid,
     'REFERENCE' => $order_id, // Use order_id as the reference
     'AMOUNT' => $amount * 100, // cents
     'CURRENCY' => $currency,
