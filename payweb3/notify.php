@@ -57,7 +57,7 @@ function processPayment($orderId)
 
     /* Based on app_id decide which processing system to use */
     /* TODO: move the appid check into a config so that we can add more apps at DB level */
-    if ($user["app_id"] == "950ef1d9-c657-11ed-95d1-f0a654c38aa6") {
+    if ($user["app_id"] == "950ef1d9-c657-11ed-95d1-f0a654c38aa6" || $order["order_details"] == "Subscription") {
         processSubscriptionOrder($orderId, $order, $orderItems, $user);
     } else {
         processOrderPayment($orderId);
