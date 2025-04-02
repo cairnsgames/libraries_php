@@ -63,7 +63,7 @@ $breezoconfigs = [
             'items' => [
                 'tablename' => 'breezo_cart_item',
                 'key' => 'supplier_id',
-                'select' => ['id', 'cart_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id', 'created', 'modified'],
+                'select' => ['id', 'cart_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'currency', 'price', 'quantity', 'commission_rate', 'booking_id', 'created', 'modified'],
                 'beforeselect' => '',
                 'afterselect' => ''
             ]
@@ -89,6 +89,7 @@ $breezoconfigs = [
                 'key' => 'cart_id',
                 'select' => "SELECT 
                 breezo_cart_item.id, 
+                breezo_cart_item.currency,
                 breezo_cart_item.price,
                 item_type_id,
                 ifnull(breezo_cart_item.title, kloko_event.title) title,
@@ -129,7 +130,7 @@ $breezoconfigs = [
             'order_items' => [
                 'tablename' => 'breezo_order_item',
                 'key' => 'order_id',
-                'select' => ['id', 'order_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id', 'created', 'modified'],
+                'select' => ['id', 'order_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'currency', 'price', 'quantity', 'commission_rate', 'booking_id', 'created', 'modified'],
                 'beforeselect' => '',
                 'afterselect' => ''
             ],
@@ -205,9 +206,9 @@ $breezoconfigs = [
     "cart_item" => [
         'tablename' => 'breezo_cart_item',
         'key' => 'id',
-        'select' => ['id', 'cart_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id', 'created', 'modified'],
-        'create' => ['cart_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id'],
-        'update' => ['price', 'title', 'item_description', 'quantity', 'commission_rate', 'booking_id'],
+        'select' => ['id', 'cart_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'currency', 'price', 'quantity', 'commission_rate', 'booking_id', 'created', 'modified'],
+        'create' => ['cart_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'currency', 'price', 'quantity', 'commission_rate', 'booking_id'],
+        'update' => ['price', 'title', 'item_description', 'currency', 'quantity', 'commission_rate', 'booking_id'],
         'delete' => true,
         'beforeselect' => '',
         'afterselect' => '',
@@ -220,9 +221,9 @@ $breezoconfigs = [
     "order_item" => [
         'tablename' => 'breezo_order_item',
         'key' => 'id',
-        'select' => ['id', 'order_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id', 'created', 'modified'],
-        'create' => ['order_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'price', 'quantity', 'commission_rate', 'booking_id'],
-        'update' => ['title', 'item_description', 'price', 'quantity', 'commission_rate', 'booking_id'],
+        'select' => ['id', 'order_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'currency', 'price', 'quantity', 'commission_rate', 'booking_id', 'created', 'modified'],
+        'create' => ['order_id', 'item_type_id', 'parent_id', 'item_id', 'title', 'item_description', 'supplier_id', 'currency', 'price', 'quantity', 'commission_rate', 'booking_id'],
+        'update' => ['title', 'item_description', 'currency', 'price', 'quantity', 'commission_rate', 'booking_id'],
         'delete' => true,
         'beforeselect' => '',
         'afterselect' => '',

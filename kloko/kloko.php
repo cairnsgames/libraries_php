@@ -226,7 +226,7 @@ function getKlokoClasses($data)
             e.duration, 
             e.user_id AS instructor_id, 
             e.max_participants, 
-            0 AS currentEnrollment, 
+            (SELECT sum(quantity) FROM kloko_tickets WHERE event_id = e.id) AS currentEnrollment, 
             FALSE AS multiday, 
             e.lat, 
             e.lng,
