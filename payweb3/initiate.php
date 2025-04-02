@@ -12,6 +12,7 @@ include_once dirname(__FILE__)."/../settings/settingsfunctions.php";
 
 $appid = getAppId();
 $log = [];
+$error = [];
 
 $timezone = new DateTimeZone("Africa/Johannesburg"); // SAST timezone
 $DateTime = new DateTime("now", $timezone);
@@ -100,8 +101,12 @@ PrepareExecSQL("insert into webhook_log (data) values (?)", "s", array(json_enco
 parse_str($result, $response); // Parse the query string response
 if (!isset($response['CHECKSUM'])) {
     $response['CHECKSUM'] = '';
+    $error[] = "Checksum not found in response";
 }
 $eccode = $response['CHECKSUM'];
+
+$payment_id = null;
+$eccode = null;
 
 if (isset($response['PAY_REQUEST_ID'])) {
     $payment_id = $response['PAY_REQUEST_ID'];
@@ -115,8 +120,11 @@ if (isset($response['PAY_REQUEST_ID'])) {
 }
 
 $out = [
-    'payment_id' => $response['PAY_REQUEST_ID'],
+    'payment_id' => $payment_id,
     'checksum' => $eccode
 ];
+if (count($error)) {
+    $out['error'] = $error;
+}
 
 echo json_encode($out);
