@@ -6,18 +6,18 @@ $CHECKSUM = "d416087fc3c68b9d183d67060fe28d77";
 $PAYGATE_ID_DEFAULT = 10011072130;
 $PAYGATE_SECRET = "secret";
 $REFERENCE = 'pgtest_123456789';
-$host = 'cairns.co.za'; // Database host
-$user = 'cairnsco_cairnsgames'; // Database username
-$password = 'cairnsco_cairnsgames'; // Database password
-$database = 'cairnsco_cairnsgames'; // Database name
+$pwhost = 'cairns.co.za'; // Database host
+$pwuser = 'cairnsco_cairnsgames'; // Database username
+$pwpassword = 'cairnsco_cairnsgames'; // Database password
+$pwdatabase = 'cairnsco_cairnsgames'; // Database name
 $encryptionKey = 'secret';
 
 // Function to execute SQL statements
 function executeQuery($sql, $params = []) {
-    global $host, $user, $password, $database;
+    global $pwhost, $pwuser, $pwpassword, $pwdatabase;
 
     // Create connection
-    $conn = new mysqli($host, $user, $password, $database);
+    $conn = new mysqli($pwhost, $pwuser, $pwpassword, $pwdatabase);
 
     // Check connection
     if ($conn->connect_error) {
