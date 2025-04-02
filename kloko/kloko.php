@@ -229,7 +229,8 @@ function getKlokoClasses($data)
             FALSE AS multiday, 
             e.lat, 
             e.lng,
-            CONCAT(u.firstname, ' ', u.lastname) AS instructor
+            CONCAT(u.firstname, ' ', u.lastname) AS instructor,
+            currency, price,
             $selectDistance
         FROM kloko_event e
         JOIN user u ON e.user_id = u.id
