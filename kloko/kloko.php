@@ -164,9 +164,58 @@ function getKlokoUserTickets($data)
 
 function getKlokoClasses($data)
 {
-    $search = $data["search"];
+    $search = $data["search"] ?? null;
     $limit = $data["limit"] ?? 20;
     $offset = $data["offset"] ?? 0;
+    $lat = $data["lat"] ?? null;
+    $lng = $data["lng"] ?? null;
+    $distance = $data["distance"] ?? null;
+    $startDate = $data["start_date"] ?? null;
+    $endDate = $data["end_date"] ?? null;
+
+    $params = [];
+    $types = '';
+    $where = ["e.start_time > NOW()"];
+
+    // Optional full-text search — only if it's not empty or whitespace
+    if (!is_null($search) && trim($search) !== '') {
+        $where[] = "MATCH(e.title, e.keywords) AGAINST (? IN NATURAL LANGUAGE MODE)";
+        $params[] = $search;
+        $types .= 's';
+    }
+
+    // Optional date range filtering
+    if (!empty($startDate)) {
+        $where[] = "e.start_time >= ?";
+        $params[] = $startDate;
+        $types .= 's';
+    }
+    if (!empty($endDate)) {
+        $where[] = "e.end_time <= ?";
+        $params[] = $endDate;
+        $types .= 's';
+    }
+
+    // Optional location filtering
+    $selectDistance = '';
+    if (!empty($lat) && !empty($lng) && !empty($distance)) {
+        $selectDistance = ",
+            (6371 * acos(
+                cos(radians(?)) * cos(radians(e.lat)) *
+                cos(radians(e.lng) - radians(?)) +
+                sin(radians(?)) * sin(radians(e.lat))
+            )) AS distance";
+
+        $where[] = "(6371 * acos(
+                cos(radians(?)) * cos(radians(e.lat)) *
+                cos(radians(e.lng) - radians(?)) +
+                sin(radians(?)) * sin(radians(e.lat))
+            )) <= ?";
+
+        // Add parameters for both SELECT and WHERE
+        array_push($params, $lat, $lng, $lat, $lat, $lng, $lat, $distance);
+        $types .= 'dddddds';
+    }
 
     $sql = "
         SELECT 
@@ -181,14 +230,22 @@ function getKlokoClasses($data)
             e.lat, 
             e.lng,
             CONCAT(u.firstname, ' ', u.lastname) AS instructor
+            $selectDistance
         FROM kloko_event e
         JOIN user u ON e.user_id = u.id
-        WHERE MATCH(e.title, e.keywords) AGAINST (? IN NATURAL LANGUAGE MODE)
-          AND e.start_time > NOW()
+        WHERE " . implode(' AND ', $where) . "
         ORDER BY e.start_time ASC
         LIMIT ? OFFSET ?
     ";
 
-    return PrepareExecSQL($sql, 'sii', [$search, $limit, $offset]);
+    // echo $sql;
+
+    $params[] = $limit;
+    $params[] = $offset;
+    $types .= 'ii';
+
+    return PrepareExecSQL($sql, $types, $params);
 }
+
+
 
