@@ -204,7 +204,7 @@ function getKlokoClasses($data)
                 cos(radians(?)) * cos(radians(e.lat)) *
                 cos(radians(e.lng) - radians(?)) +
                 sin(radians(?)) * sin(radians(e.lat))
-            )) AS distance";
+            )) AS distance,";
 
         $where[] = "(6371 * acos(
                 cos(radians(?)) * cos(radians(e.lat)) *
@@ -223,15 +223,16 @@ function getKlokoClasses($data)
             e.title, 
             e.start_time, 
             e.end_time, 
+            e.duration, 
             e.user_id AS instructor_id, 
             e.max_participants, 
             0 AS currentEnrollment, 
             FALSE AS multiday, 
             e.lat, 
             e.lng,
-            CONCAT(u.firstname, ' ', u.lastname) AS instructor,
-            currency, price,
+            currency, price, keywords, location, 
             $selectDistance
+            CONCAT(u.firstname, ' ', u.lastname) AS instructor
         FROM kloko_event e
         JOIN user u ON e.user_id = u.id
         WHERE " . implode(' AND ', $where) . "
