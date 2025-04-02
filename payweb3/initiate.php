@@ -19,15 +19,16 @@ $DateTime = new DateTime("now", $timezone);
 
 $host = $_SERVER['HTTP_HOST'];
 
-$domain = $_SERVER['HTTP_REFERER'] ?? null;
+$referer = $_SERVER['HTTP_REFERER'] ?? null;
 
-if ($domain) {
+if ($referer) {
     $parsedUrl = parse_url($referer);
     $hostWithPort = $parsedUrl['host'] ?? null;
 
     // Remove the port if present
-    $domain = explode(':', $hostWithPort)[0] ?? null;
+    $referer = explode(':', $hostWithPort)[0] ?? null;
 }
+$domain = $referer ?? $host;
 
 $returnURL = getSettingOrSecret($appid, 'returnURL', $domain);
 if (!isset($returnURL) || empty($returnURL)) {
