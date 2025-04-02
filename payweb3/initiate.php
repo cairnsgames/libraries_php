@@ -32,8 +32,8 @@ if (!isset($paygateid) || empty($paygateid)) {
     $PAYGATE_ID = $PAYGATE_ID_DEFAULT;
 }
 
-// echo "Return URL: $returnURL<br/>\n";
-// echo "Paygate ID: $paygateid<br/>\n";
+$log[]=  "Return URL: $returnURL";
+$log[]=  "Paygate ID: $paygateid";
 
 $log[] = "Host: $host";
 $log[] = "Paygate ID: $paygateid";
@@ -79,18 +79,16 @@ $log[] = "Payment Data: " . json_encode($data);
 $checksum = md5(implode('', $data) . $encryptionKey);
 
 $data['CHECKSUM'] = $checksum;
-// echo "Payment Details: ", json_encode($data), "<br/>\n";
-// echo "Encryption Key: ", $encryptionKey, "<br/>\n";
-// echo "CHECKSUM: ", $checksum, "<br/>\n";
+$log[]= "Payment Details: ". json_encode($data);
+$log[]=  "Encryption Key: ". $encryptionKey;
+$log[]=  "CHECKSUM: ". $checksum;
 
 $fieldsString = http_build_query($data);
 
 // Execute cURL request using the new function
 $result = executeCurlRequest('https://secure.paygate.co.za/payweb3/initiate.trans', 'POST', $fieldsString);
 
-// echo "RESPONSE: ", $result, "<br/>\n";
-// echo "============================<br/>\n";
-
+$log[]=  "RESPONSE: ". $result;
 
 
 $log[] = "Payweb Response:" . json_encode($result);
@@ -123,6 +121,7 @@ $out = [
     'payment_id' => $payment_id,
     'checksum' => $eccode
 ];
+$out['debug'] = $log;
 if (count($error)) {
     $out['error'] = $error;
 }
