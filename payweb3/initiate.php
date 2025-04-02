@@ -37,6 +37,7 @@ $log[]=  "Return URL: $returnURL";
 $log[]=  "Paygate ID: $paygateid";
 
 $log[] = "Host: $host";
+$log[] = "Domain: $domain";
 $log[] = "Paygate ID: $paygateid";
 $log[] = "Paygate Secret: $paygateSecret";
 $log[] = "Return URL: $returnURL";
