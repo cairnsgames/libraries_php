@@ -137,7 +137,8 @@ function klokodelete($endpoint, $id)
 
 
 
-function getUpcomingEvents($data) {
+function getUpcomingEvents($data)
+{
     global $appId, $EVENT_FIELDS;
     $fields = implode(",", $EVENT_FIELDS);
     $sql = "select $fields from kloko_event where end_time > ? and app_id = ? order by start_time limit 10";
@@ -160,3 +161,34 @@ function getKlokoUserTickets($data)
         AND t.user_id = ?";
     return PrepareExecSQL($sql, 'i', [$userId]);
 }
+
+function getKlokoClasses($data)
+{
+    $search = $data["search"];
+    $limit = $data["limit"] ?? 20;
+    $offset = $data["offset"] ?? 0;
+
+    $sql = "
+        SELECT 
+            e.id, 
+            e.title, 
+            e.start_time, 
+            e.end_time, 
+            e.user_id AS instructor_id, 
+            e.max_participants, 
+            0 AS currentEnrollment, 
+            FALSE AS multiday, 
+            e.lat, 
+            e.lng,
+            CONCAT(u.firstname, ' ', u.lastname) AS instructor
+        FROM kloko_event e
+        JOIN user u ON e.user_id = u.id
+        WHERE MATCH(e.title, e.keywords) AGAINST (? IN NATURAL LANGUAGE MODE)
+          AND e.start_time > NOW()
+        ORDER BY e.start_time ASC
+        LIMIT ? OFFSET ?
+    ";
+
+    return PrepareExecSQL($sql, 'sii', [$search, $limit, $offset]);
+}
+

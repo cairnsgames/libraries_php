@@ -9,6 +9,7 @@ $audience = getSecret("jwt_audience", "cairnsgames client");
 $defaultConfig = array("issuer"=>$issuer,"subject"=>$subject,"audience"=>$audience);
 
 $JWTSECRET = getSecret("SECURE_SECRET","cairnsgameSUPERsecretPASSWORD");
+// echo "SECRET:".$JWTSECRET;"<br/>\n";
 $SSLSECRET = $JWTSECRET;
 $PASSWORDHASH = $JWTSECRET;
 
@@ -21,6 +22,7 @@ function createToken($payload) {
 }
 function validateJwt($token,$time=false,$aud=NULL) {
     global $JWTSECRET;
+    if (!isset($J))
     jwt_set_secret($JWTSECRET);
     return validate_jwt($token,$time,$aud);
 }
