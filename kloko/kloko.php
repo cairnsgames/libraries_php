@@ -58,8 +58,16 @@ function beforecreate($config, $data)
 
 function beforeCreateEvent($config, $data)
 {
-    // var_dump($config, $data);
     global $appId, $userid;
+    if (!isset($appId) || empty($appId) ) {
+        throw new Exception("App ID is not set or empty.");
+    }
+    $dateTime = new DateTime($data["start_time"]);
+    $dateTime->setTimezone(new DateTimeZone(date_default_timezone_get()));
+    $data["start_time"] = $dateTime->format('Y-m-d H:i:s');
+    $dateTime = new DateTime($data["end_time"]);
+    $dateTime->setTimezone(new DateTimeZone(date_default_timezone_get()));
+    $data["end_time"] = $dateTime->format('Y-m-d H:i:s');
     $data["app_id"] = $appId;
     $data["user_id"] = $userid;
     return [$config, $data];
