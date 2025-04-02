@@ -18,16 +18,17 @@ $timezone = new DateTimeZone("Africa/Johannesburg"); // SAST timezone
 $DateTime = new DateTime("now", $timezone);
 
 $host = $_SERVER['HTTP_HOST'];
+$domain = parse_url("http://$host", PHP_URL_HOST);
 
-$returnURL = getSettingOrSecret($appid, 'returnURL', $host);
+$returnURL = getSettingOrSecret($appid, 'returnURL', $domain);
 if (!isset($returnURL) || empty($returnURL)) {
     $returnURL = "https://cairnsgames.co.za/php/payweb3/return.php";
 }
-$paygateSecret = getSettingOrSecret($appid, 'PaygateSecret', $host);
+$paygateSecret = getSettingOrSecret($appid, 'PaygateSecret', $domain);
 if (!isset($paygateSecret) || empty($paygateSecret)) {
     $paygateSecret = $PAYGATE_SECRET;
 }
-$paygateid = getSettingOrSecret($appid, 'PaygateId', $host);
+$paygateid = getSettingOrSecret($appid, 'PaygateId', $domain);
 if (!isset($paygateid) || empty($paygateid)) {
     $PAYGATE_ID = $PAYGATE_ID_DEFAULT;
 }
