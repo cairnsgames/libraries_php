@@ -18,7 +18,13 @@ $timezone = new DateTimeZone("Africa/Johannesburg"); // SAST timezone
 $DateTime = new DateTime("now", $timezone);
 
 $host = $_SERVER['HTTP_HOST'];
-$domain = parse_url("http://$host", PHP_URL_HOST);
+
+$domain = $_SERVER['HTTP_REFERER'] ?? null;
+
+if ($domain) {
+    $parsedUrl = parse_url($domain);
+    $refererHost = $parsedUrl['host'] ?? null;
+}
 
 $returnURL = getSettingOrSecret($appid, 'returnURL', $domain);
 if (!isset($returnURL) || empty($returnURL)) {
