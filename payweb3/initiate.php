@@ -22,8 +22,11 @@ $host = $_SERVER['HTTP_HOST'];
 $domain = $_SERVER['HTTP_REFERER'] ?? null;
 
 if ($domain) {
-    $parsedUrl = parse_url($domain);
-    $refererHost = $parsedUrl['host'] ?? null;
+    $parsedUrl = parse_url($referer);
+    $hostWithPort = $parsedUrl['host'] ?? null;
+
+    // Remove the port if present
+    $domain = explode(':', $hostWithPort)[0] ?? null;
 }
 
 $returnURL = getSettingOrSecret($appid, 'returnURL', $domain);
