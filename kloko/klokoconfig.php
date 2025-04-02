@@ -8,6 +8,7 @@ $klokoconfigs = [
         "events" => "getUpcomingEvents",
         "usertickets" => "getKlokoUserTickets",
         "classes" => "getKlokoClasses",
+        "myclasses" => "getKlokoMyClasses",
     ],
     "calendar" => [
         'tablename' => 'kloko_calendar',

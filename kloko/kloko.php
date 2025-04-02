@@ -250,5 +250,11 @@ function getKlokoClasses($data)
     return PrepareExecSQL($sql, $types, $params);
 }
 
+function getKlokoMyClasses($data) {
+    global $userid;
+    $data["user_id"] = $userid;
+    return getKlokoClasses($data);
+}
+
 
 
