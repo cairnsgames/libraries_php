@@ -22,9 +22,7 @@ $newsconfigs = [
                     news n
                 JOIN 
                     user u ON n.user_id = u.id
-                WHERE 
-                    n.date <= NOW()
-                    AND n.expires > NOW()",
+                WHERE n.expires > NOW()",
         'where' => [],
         'create' => ["title", "body", "image_url", "overlay_text", "date", "expires"],
         'update' => ["title", "body", "image_url", "overlay_text", "date", "expires","deleted"],
