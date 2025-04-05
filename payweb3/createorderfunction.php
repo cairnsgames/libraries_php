@@ -49,7 +49,10 @@ function createOrder() {
 
     try {
         // Begin transaction (manually handling since executeQuery doesn't support transactions)
-        $conn = new mysqli($GLOBALS['host'], $GLOBALS['user'], $GLOBALS['password'], $GLOBALS['database']);
+        global $pwhost, $pwuser, $pwpassword, $pwdatabase;
+
+        // Create connection
+        $conn = new mysqli($pwhost, $pwuser, $pwpassword, $pwdatabase);
         if ($conn->connect_error) {
             throw new Exception("Connection failed: " . $conn->connect_error);
         }
