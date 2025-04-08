@@ -9,6 +9,7 @@ $klokoconfigs = [
         "usertickets" => "getKlokoUserTickets",
         "classes" => "getKlokoClasses",
         "myclasses" => "getKlokoMyClasses",
+        "setUserDefaultLocation" => "setUserDefaultLocation"
     ],
     "calendar" => [
         'tablename' => 'kloko_calendar',
@@ -100,7 +101,7 @@ FROM kloko_booking b, kloko_event ev WHERE b.event_id = ev.id",
             "locations" => [
                 'tablename' => 'kloko_user_location',
                 'key' => 'user_id',
-                'select' => "SELECT l.id, ul.user_id, l.name, l.address_line1, l.address_line2, l.showonmap, l.town, l.lat, l.lng
+                'select' => "SELECT l.id, ul.user_id, l.name, l.address_line1, l.address_line2, l.showonmap, l.town, l.lat, l.lng, ul.default 
 FROM kloko_user_location ul
 JOIN kloko_location l ON ul.location_id = l.id",
                 'beforeselect' => '',
@@ -130,7 +131,8 @@ JOIN kloko_location l ON ul.location_id = l.id",
         'tablename' => 'kloko_user_location',
         'key' => 'id',
         'select' => ['id', 'user_id', 'location_id', 'created', 'modified'],
-        'create' => ['user_id', 'location_id'],
+        'create' => ['user_id', 'location_id', 'default'],
+        'update' => ['default'],
         'delete' => true,
         'beforeselect' => '',
         'afterselect' => '',

@@ -59,7 +59,7 @@ function beforecreate($config, $data)
 function beforeCreateEvent($config, $data)
 {
     global $appId, $userid;
-    if (!isset($appId) || empty($appId) ) {
+    if (!isset($appId) || empty($appId)) {
         throw new Exception("App ID is not set or empty.");
     }
     $dateTime = new DateTime($data["start_time"]);
@@ -258,7 +258,8 @@ function getKlokoClasses($data)
     return PrepareExecSQL($sql, $types, $params);
 }
 
-function getKlokoMyClasses($data) {
+function getKlokoMyClasses($data)
+{
     global $userid;
     $data["user_id"] = $userid;
     return getKlokoClasses($data);
@@ -266,3 +267,23 @@ function getKlokoMyClasses($data) {
 
 
 
+function setUserDefaultLocation($data)
+{
+    global $appId, $userid;
+    if (!isset($appId) || empty($appId)) {
+        throw new Exception("App ID is not set or empty.");
+    }
+
+    $id = $data["id"];
+    $default = $data["default"];
+
+    // Update all locations in one statement
+    $sql = "UPDATE kloko_user_location 
+                SET `default` = CASE WHEN id = ? THEN ? ELSE 0 END 
+                WHERE user_id = ?";
+    $params = [$id, $default, $userid];
+    PrepareExecSQL($sql, "iii", $params);
+
+
+    return $data;
+}
