@@ -284,6 +284,9 @@ function setUserDefaultLocation($data)
     $params = [$id, $default, $userid];
     PrepareExecSQL($sql, "iii", $params);
 
+    $data["in"] = $data;
+    $data["user"] = $userid;
+    $data["app_id"] = $appId;
 
     return $data;
 }
