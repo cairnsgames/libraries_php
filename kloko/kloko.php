@@ -279,16 +279,16 @@ function setUserDefaultLocation($data)
 
     // Update all locations in one statement
     $sql = "UPDATE kloko_user_location 
-                SET `default` = CASE WHEN id = ? THEN ? ELSE 0 END 
+                SET `default` = CASE WHEN location_id = ? THEN ? ELSE 0 END 
                 WHERE user_id = ?";
     $params = [$id, $default, $userid];
     PrepareExecSQL($sql, "iii", $params);
 
-    $data["in"] = $data;
-    $data["user"] = $userid;
-    $data["app_id"] = $appId;
-    $data["sql"] = $sql;
-    $data["params"] = $params;
+    // $data["in"] = $data;
+    // $data["user"] = $userid;
+    // $data["app_id"] = $appId;
+    // $data["sql"] = $sql;
+    // $data["params"] = $params;
 
     return $data;
 }
