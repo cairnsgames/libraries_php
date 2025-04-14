@@ -1,6 +1,23 @@
 <?php
 
 include_once dirname(__FILE__)."/../settings/settingsfunctions.php";
+
+function renderEmailTemplate($appId, $templateName, $params) {
+    // 1. Load template from DB
+    $template = getEmailTemplate($appId, $templateName);
+    $subject = $template["subject"];
+    $body = $template["body"];
+
+    // 2. Replace placeholders
+    foreach ($params as $key => $value) {
+        $placeholder = '{{' . $key . '}}';
+        $subject = str_replace($placeholder, $value, $subject);
+        $body = str_replace($placeholder, $value, $body);
+    }
+
+    return ["subject" => $subject, "body" => $body];
+}
+
 function sendEmailWithSendGrid($appid, $toEmail, $subject, $htmlContent) {
     $url = 'https://api.sendgrid.com/v3/mail/send';
     $apiKey = getSettingOrSecret($appid, 'sendgrid');

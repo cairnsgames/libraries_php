@@ -24,9 +24,9 @@ if ($email == "") {
 } else
     try {
         // Check if email exists
-        $sql = "SELECT * FROM user WHERE email = ?";
-        $params = array($email);
-        $row = PrepareExecSQL($sql, "s", $params);
+        $sql = "SELECT * FROM user WHERE app_id = ? and email = ?";
+        $params = [$appid, $email];
+        $row = PrepareExecSQL($sql, "ss", $params);
         if ($row[0]["id"] == 0) {
             throw new Exception('EMail does not exist.');
         }
@@ -59,16 +59,29 @@ if ($email == "") {
             $homeurl = getProperty("url", null);
             $color = $tenant["color"] ?? "black";
             $name = $tenant["name"] ?? "Juzt Dance";
+            $templateName = "ChangePassword";
 
-            $htmlContent = '<div>Welcome to <strong style="color:' . $color . '">' . $name . '</strong>
-                <div>Click on this set a new password</div>
-                <div><a href="' . $homeurl . '#reset?code=' . $key . '">Reset Password</a></div>
-                <div>DEVELOPER: <a href="http://localhost:3000#reset?code=' . $key . '">Reset Password DEV</a></div>
-            </div>';
+            // echo "Sending email to $email<br>";
+            // echo "Template: $templateName<br>";
+            // echo "Color: $color<br>";
+            // echo "Name: $name<br>";
+            // echo "Home URL: $homeurl<br>";
+            // echo "Reset URL: " . $homeurl . '#reset?code=' . $key . "<br>";
+
+            $template = renderEmailTemplate(
+                $appid,
+                $templateName,
+                ["color" => $color, "name" => $name, 
+                "reset_url" => $homeurl . '#reset?code=' . $key, 
+                "dev_reset_url" => "http://localhost:3000#reset?code=" . $key]
+            );
+
+            // echo "template: " . json_encode($template) . "<br>";
+
+            $subject = $template["subject"];
+            $htmlContent = $template["body"];
 
             sendEmailWithSendGrid($appid, $email, "Reset password for " . $name, $htmlContent);
-            //sendEMail($email,"Password reset","Hi ".$row["first_name"]."<br/><br/>Your new password is '".$password."<br/><br/>from<br/>Juzt.Dance");
-            // sendEMail($email, "Password reset", "Hi <br/><br/>Please follow this link to <a href='https://juzt.dance/#force?force=" . $key . "'>reset your password</a><br/><br/>from<br/>Juzt.Dance");
             http_response_code(200);
             $res = json_encode(array("message" => "Change password link was sent.", "token" => $key));
         } else {
