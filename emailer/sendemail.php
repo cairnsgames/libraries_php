@@ -4,6 +4,9 @@ include_once dirname(__FILE__)."/../settings/settingsfunctions.php";
 function sendEmailWithSendGrid($appid, $toEmail, $subject, $htmlContent) {
     $url = 'https://api.sendgrid.com/v3/mail/send';
     $apiKey = getSettingOrSecret($appid, 'sendgrid');
+    if ($apiKey == "") {
+        return ['response' => 'API key not found', 'http_code' => 401];
+    }
     $fromEmail = getSettingOrSecret($appid, 'SendGrid-fromAddress');
 
     $data = [
