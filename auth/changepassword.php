@@ -11,6 +11,7 @@ $old = getParam("old", "");
 $password = getParam("password", "");
 $password2 = getParam("password2", "");
 $deviceid = getParam("deviceid", "");
+$hash = getParam("hash", "");
 
 $debugValues = array();
 $errors = array();

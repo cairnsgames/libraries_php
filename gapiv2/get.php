@@ -9,7 +9,7 @@ function getLimitAndOrderBy()
     $orderBy = '';
 
     $page = getParam('page', 1);
-    $pageSize = getParam('pageSize', 20);
+    $pageSize = getParam('pageSize', 2000);
     $order = getParam('order', null);
 
     if ($page && $pageSize) {
