@@ -37,6 +37,15 @@ $config = array(
 		"update" => array("name", "value"),
 		"delete" => false,
 		"beforeselect" => "beforeSelectProperty"
+	),
+	"user" => array(
+		"key" => "id",
+		"tablename" => "user",
+		"select" => array("id", "username", "firstname", "lastname", "avatar"),
+		"create" => true,
+		"update" => true,
+		"delete" => true,
+		"beforeselect" => "beforeSelectUser"
 	)
 );
 
