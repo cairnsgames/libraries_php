@@ -58,7 +58,7 @@ function getTokenForUser($id, $appid, $mastertoken = "", $permissions = null)
     global $out, $debugValues, $errors;
     $jwt = "";
     try {
-        $sql = "select id, email, firstname, lastname, avatar, role_id from user where app_id = ? and id = ?";
+        $sql = "select id, username, email, firstname, lastname, avatar, role_id from user where app_id = ? and id = ?";
 
         $params = array($appid, $id);
         $row = PrepareExecSQL($sql, "ss", $params);
@@ -68,7 +68,7 @@ function getTokenForUser($id, $appid, $mastertoken = "", $permissions = null)
         if (empty($row)) {
             array_push($errors, array("message" => "Invalid user email or application."));
         } else {
-
+            $username = $row[0]["username"];
             $firstname = $row[0]["firstname"];
             $lastname = $row[0]["lastname"];
             $avatar = $row[0]["avatar"];
@@ -97,6 +97,7 @@ function getTokenForUser($id, $appid, $mastertoken = "", $permissions = null)
                     "message" => "Login succeded.",
                     "id" => $profileid,
                     "email" => $email,
+                    "username" => $username,
                     "firstname" => $firstname,
                     "lastname" => $lastname,
                     "avatar" => $avatar,
@@ -117,7 +118,7 @@ function getLoginToken($email, $password, $appid)
 {
     global $out, $debugValues, $errors, $PASSWORDHASH;
     try {
-        $sql = "select id, email, firstname, lastname, avatar, role_id from user where app_id = ? and email = ? and password = ?  ";
+        $sql = "select id, username, email, firstname, lastname, avatar, role_id from user where app_id = ? and email = ? and password = ?  ";
 
         $password_hash = crypt($password, $PASSWORDHASH);
         $params = array($appid, $email, $password_hash);
@@ -268,7 +269,7 @@ class UserNotFoundException extends Exception {
 
 function getUser($id, $appid)
 {
-    $sql = "select id, email, firstname, lastname, avatar, role_id from user where app_id = ? and id = ?";
+    $sql = "select id, username, email, firstname, lastname, avatar, role_id from user where app_id = ? and id = ?";
     $params = array($appid, $id);
     $row = PrepareExecSQL($sql, "ss", $params);
 
