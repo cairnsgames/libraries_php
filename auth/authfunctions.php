@@ -82,6 +82,7 @@ function getTokenForUser($id, $appid, $mastertoken = "", $permissions = null)
 
             $tokenfields = array(
                 "id" => $profileid,
+                "username" => $username,
                 "firstname" => $firstname,
                 "lastname" => $lastname,
                 "role" => $role_id,
