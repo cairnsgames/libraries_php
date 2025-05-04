@@ -36,7 +36,7 @@ function createOrUpdateOrderForStamps($user_id, $order_month, $stamp_quantity)
   $app_id = getAppId();
 
   // Retrieve stamp price from settings
-  $stamp_price = getSettingValueForUser($app_id, $user_id, 'stamp_price');
+  $stamp_price = getPropertyValueForUser($app_id, $user_id, 'stamp_price');
   if (!$stamp_price) {
     $stamp_price = 3; // Default price if setting is not found
   }

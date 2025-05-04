@@ -20,12 +20,12 @@ function getEmailTemplate($app_id, $name)
     return ["subject" => "", "body" => ""];
 }
 
-function getSettingValue($appid, $keyname, $domain = null)
+function getPropertyValue($appid, $keyname, $domain = null)
 {
     // Prefer domain-specific value
     $sql = "SELECT value FROM application_property 
             WHERE app_id = ? AND name = ? AND (domain = ? OR domain IS NULL OR domain = '')
-            ORDER BY domain IS NULL ASC LIMIT 1";
+            ORDER BY (domain IS NULL OR domain = '') ASC LIMIT 1";
     $params = array($appid, $keyname, $domain);
     $rows = PrepareExecSQL($sql, "sss", $params);
 
@@ -40,7 +40,7 @@ function getSecretValue($appid, $keyname, $domain = null)
 {
     $sql = "SELECT value FROM application_secret 
             WHERE app_id = ? AND name = ? AND (domain = ? OR domain IS NULL OR domain = '')
-            ORDER BY domain IS NULL ASC LIMIT 1";
+            ORDER BY (domain IS NULL OR domain = '') ASC LIMIT 1";
     $params = array($appid, $keyname, $domain);
     $rows = PrepareExecSQL($sql, "sss", $params);
 
@@ -53,14 +53,14 @@ function getSecretValue($appid, $keyname, $domain = null)
 
 function getSettingOrSecret($appid, $keyname, $domain = null)
 {
-    $value = getSettingValue($appid, $keyname, $domain);
+    $value = getPropertyValue($appid, $keyname, $domain);
     if ($value == "") {
         $value = getSecretValue($appid, $keyname, $domain);
     }
     return $value;
 }
 
-function getSettingValueForUser($app_id, $profileid, $keyname)
+function getPropertyValueForUser($app_id, $profileid, $keyname)
 {
     $sql = "
         SELECT COALESCE(o.val, s.val) AS value
