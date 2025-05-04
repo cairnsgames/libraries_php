@@ -34,11 +34,11 @@ $stmt = $mysqli->prepare("
 ");
 $stmt->bind_param("s", $date);
 $stmt->execute();
-$result = $stmt->get_result();
+$stmt->bind_result($currency, $rate);
 
 $eurRates = [];
-while ($row = $result->fetch_assoc()) {
-    $eurRates[$row['target_currency']] = floatval($row['rate']);
+while ($stmt->fetch()) {
+    $eurRates[$currency] = floatval($rate);
 }
 $stmt->close();
 
@@ -57,12 +57,11 @@ if ($base === 'EUR') {
     }
 
     $baseRate = $eurRates[$base];
-    foreach ($eurRates as $code => $rate) {
-        $rates[$code] = round($rate / $baseRate, 6);
+    foreach ($eurRates as $code => $value) {
+        $rates[$code] = round($value / $baseRate, 6);
     }
 
-    // Optional: include base to base conversion as 1.0
-    $rates[$base] = 1.0;
+    $rates[$base] = 1.0; // optional: include base->base = 1
 }
 
 ksort($rates);
