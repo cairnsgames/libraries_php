@@ -58,7 +58,7 @@ function getTokenForUser($id, $appid, $mastertoken = "", $permissions = null)
     global $out, $debugValues, $errors;
     $jwt = "";
     try {
-        $sql = "select id, username, email, firstname, lastname, avatar, role_id from user where app_id = ? and id = ?";
+        $sql = "select id, username, email, username, firstname, lastname, avatar, role_id from user where app_id = ? and id = ?";
 
         $params = array($appid, $id);
         $row = PrepareExecSQL($sql, "ss", $params);
@@ -71,6 +71,7 @@ function getTokenForUser($id, $appid, $mastertoken = "", $permissions = null)
             $username = $row[0]["username"];
             $firstname = $row[0]["firstname"];
             $lastname = $row[0]["lastname"];
+            $username = $row[0]["username"];
             $avatar = $row[0]["avatar"];
             $profileid = $row[0]["id"];
             $role_id = $row[0]["role_id"];
