@@ -58,6 +58,18 @@ function createOrUpdateOrderForStamps($user_id, $order_month, $stamp_quantity)
   // Calculate total price based on retrieved or default price per stamp
   $total_price = $stamp_quantity * $stamp_price;
 
+  if ($total_price <= 0) {
+    echo json_encode([
+      "status" => "success",
+      "message" => "No invoice required, no stamps or price.",
+      "user_id" => $user_id,
+      "price" => $stamp_price,
+      "quantity" => $stamp_quantity,
+      "total_price" => $total_price
+    ]);
+    return;
+  }
+
   if ($existingOrder) {
     // Update existing order if it exists and status is not "paid" or "completed"
     $order_id = $existingOrder[0]['id'];
