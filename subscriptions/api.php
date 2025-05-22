@@ -15,4 +15,4 @@ include_once dirname(__FILE__) . "/subscriptionconfigs.php";
 $debugValues = [];
 $out = [];
 
-runAPI($userconfigs);
+runAPI($subscriptionconfigs);

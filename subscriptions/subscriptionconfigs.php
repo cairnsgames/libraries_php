@@ -4,7 +4,7 @@ $appId = getAppId();
 $token = getToken();
 $userId = getUserId($token);
 
-$userconfigs = [
+$subscriptionconfigs = [
     "post" => ["active" => "hasActiveSubscription"],
     "user" => [
         'tablename' => 'user',
@@ -18,7 +18,7 @@ $userconfigs = [
             'subscriptions' => [
                 'tablename' => 'subscription_user',
                 'key' => 'user_id',
-                'select' => 'select subscription_user.id, user_id, subscription_id, name, started, start_date, expiry_date, active from subscription_user, subscription
+                'select' => 'select subscription_user.id, user_id, subscription_id, name, description, started, start_date, expiry_date, active from subscription_user, subscription
                   WHERE subscription_user.subscription_id = subscription.id',
                 'select2' => ['id', 'user_id', 'subscription_id', 'started', "date_started", "date_end", "active"],
                 'beforeselect' => 'forUserId',
@@ -36,7 +36,7 @@ $userconfigs = [
     "subscriptions" => [
         'tablename' => 'subscription',
         'key' => 'id',
-        'select' => ['id', 'app_id', 'name', 'currency', 'price'],
+        'select' => ['id', 'app_id', 'name', 'description', 'currency', 'price'],
         'beforeselect' => 'forAppId',
         'subkeys' => [
             'properties' => [
