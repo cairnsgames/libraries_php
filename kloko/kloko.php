@@ -151,6 +151,7 @@ function getUpcomingEvents($data)
     $fields = implode(",", $EVENT_FIELDS);
     $sql = "select $fields from kloko_event where end_time > ? and app_id = ?  and event_type = 'event' order by start_time limit 10";
     $params = [date("Y-m-d H:i:s"), $appId];
+    // var_dump($params);
     $sss = "ss";
     $result = PrepareExecSQL($sql, $sss, $params);
     // var_dump($result);

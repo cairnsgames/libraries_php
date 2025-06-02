@@ -6,6 +6,21 @@ include_once dirname(__FILE__) . "/get.php";
 include_once dirname(__FILE__) . "/generateopenapi.php";
 include_once dirname(__FILE__) . "/gapifunctions.php";
 
+function utf8ize($mixed)
+{
+    if (is_array($mixed)) {
+        foreach ($mixed as $key => $value) {
+            $mixed[$key] = utf8ize($value);
+        }
+    } elseif (is_string($mixed)) {
+        // Convert only if not already UTF-8
+        if (!mb_check_encoding($mixed, 'UTF-8')) {
+            return mb_convert_encoding($mixed, 'UTF-8', 'ISO-8859-1');
+        }
+    }
+    return $mixed;
+}
+
 function runAPI($configs)
 {
     // var_dump($configs['post']);
@@ -61,7 +76,12 @@ function runAPI($configs)
                         // Call the function with the data
                         $response = $functionName($data);
                         header('Content-Type: application/json');
-                        echo json_encode($response);
+                        $response = utf8ize($response);
+                        $json = json_encode($response, JSON_UNESCAPED_UNICODE);
+                        if ($json === false) {
+                            echo "JSON Error: " . json_last_error_msg();
+                        }
+                        echo $json;
                         exit;
                     }
                 }
@@ -99,7 +119,7 @@ function runAPI($configs)
             switch ($method) {
                 case 'GET':
                     $response = SelectData($config, $id);
-                    
+
                     // var_dump($response);
                     break;
                 case 'POST':
