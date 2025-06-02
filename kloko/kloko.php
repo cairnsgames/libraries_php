@@ -167,7 +167,8 @@ function getKlokoUserTickets($data)
             e.keywords, e.duration, e.location, e.lat, e.lng, e.start_time, e.end_time
         FROM kloko_tickets t, kloko_event e
         WHERE t.event_id = e.id
-        AND t.user_id = ?";
+        AND t.user_id = ?
+        AND e.end_time > NOW()";
     return PrepareExecSQL($sql, 'i', [$userId]);
 }
 
