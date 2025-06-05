@@ -10,8 +10,6 @@ include_once "../utils.php";
 
 include_once dirname(__FILE__) . "/subscriptionconfigs.php";
 
-
-
 $debugValues = [];
 $out = [];
 
