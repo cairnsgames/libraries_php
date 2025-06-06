@@ -5,24 +5,28 @@ $newsconfigs = [
         'tablename' => 'news',
         'key' => 'id',
         'select' => "SELECT 
-                    n.id AS id,
-                    n.app_id,
-                    n.title,
-                    n.body,
-                    n.image_url,
-                    n.overlay_text,
-                    n.date,
-                    n.expires,
-                    CONCAT(u.firstname, ' ', u.lastname) AS author,
-                    u.id as user_id,
-                    n.created_at,
-                    n.updated_at,
-                    n.deleted
-                FROM 
-                    news n
-                JOIN 
-                    user u ON n.user_id = u.id
-                WHERE n.expires > NOW()",
+    n.id AS id,
+    n.app_id,
+    n.title,
+    n.body,
+    n.image_url,
+    n.overlay_text,
+    n.date,
+    n.expires,
+    CONCAT(u.firstname, ' ', u.lastname) AS author,
+    u.id as user_id,
+    up.value AS phone,
+    n.created_at,
+    n.updated_at,
+    n.deleted
+FROM 
+    news n
+JOIN 
+    user u ON n.user_id = u.id
+LEFT JOIN 
+    user_property up ON up.user_id = u.id AND up.name = 'phone'
+WHERE 
+    n.expires > NOW();",
         'where' => [],
         'create' => ["title", "body", "image_url", "overlay_text", "date", "expires"],
         'update' => ["title", "body", "image_url", "overlay_text", "date", "expires","deleted"],
