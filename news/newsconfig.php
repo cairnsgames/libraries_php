@@ -26,7 +26,7 @@ JOIN
 LEFT JOIN 
     user_property up ON up.user_id = u.id AND up.name = 'phone'
 WHERE 
-    n.expires > NOW();",
+    n.expires > NOW()",
         'where' => [],
         'create' => ["title", "body", "image_url", "overlay_text", "date", "expires"],
         'update' => ["title", "body", "image_url", "overlay_text", "date", "expires","deleted"],
