@@ -2,12 +2,27 @@
 require_once '../dbutils.php';
 
 function fetchApi($url) {
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FAILONERROR, true);
+    $response = curl_exec($ch);
+    if ($response === false) {
+        $error = curl_error($ch);
+        curl_close($ch);
+        throw new Exception("Failed to fetch from: $url. CURL error: $error");
+    }
+    curl_close($ch);
+    return json_decode($response, true);
+}
+
+function fetchApiWithFileGetContents($url) {
     $response = file_get_contents($url);
     if (!$response) {
         throw new Exception("Failed to fetch from: $url");
     }
     return json_decode($response, true);
 }
+
 
 function storeCurrencies($symbols) {
     global $mysqli;
