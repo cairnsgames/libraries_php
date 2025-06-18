@@ -32,7 +32,7 @@ if ($user) {
     
     // Send welcome email
     $welcomeMessage = "Welcome to Juzt.Dance! Join us to get access to all your dance needs. Click here to change your password: [Change Password](http://yourwebsite.com/changepassword?user_id=$user_id)";
-    // sendEmailWithSendGrid($appid, $email, "Welcome to Juzt.Dance!", $welcomeMessage);
+    // sendEmail($appid, $email, "Welcome to Juzt.Dance!", $welcomeMessage);
 }
 
 // Insert booking directly into kloko_booking table
@@ -40,7 +40,7 @@ $insertBookingQuery = "INSERT INTO kloko_booking (event_id, user_id, participant
 if (PrepareExecSQL($insertBookingQuery, 'iisss', [$event_id, $user_id, $email, $status, $booking_time])) {
     // Send booking confirmation email
     $eventDetails = "You have successfully booked for the event. Event Details: Event Name - $event_id";
-    // sendEmailWithSendGrid($appid, $email, "Your Booking Confirmation", $eventDetails);
+    // sendEmail($appid, $email, "Your Booking Confirmation", $eventDetails);
     
     echo json_encode(['success' => true, 'message' => 'Booking successful']);
 } else {

@@ -1,0 +1,4 @@
+### Get voices with API key header
+GET https://localhost/cairnsgames/php/openai/11labsvoices.php
+Accept: application/json
+app_id: cfbc5487-b6bd-11ef-ac8e-1a220d8ac2c9

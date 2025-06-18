@@ -1,57 +1,31 @@
 <?php
+include_once dirname(__FILE__) . "/../settings/settingsfunctions.php";
 
-include_once dirname(__FILE__)."/../settings/settingsfunctions.php";
+function sendEmail($appid, $toEmail, $subject, $htmlContent) {
+    $apiUrl = 'https://api.resend.com/emails';
+    $apiKey = getSettingOrSecret($appid, 'resend_apikey');
+    $fromEmail = getSettingOrSecret($appid, 'resend_sender');
 
-function renderEmailTemplate($appId, $templateName, $params) {
-    // 1. Load template from DB
-    $template = getEmailTemplate($appId, $templateName);
-    $subject = $template["subject"];
-    $body = $template["body"];
+    // echo "Sending email with Resend API: From: $fromEmail, To: $toEmail, Subject: $subject, Content: $htmlContent";
 
-    // 2. Replace placeholders
-    foreach ($params as $key => $value) {
-        $placeholder = '{{' . $key . '}}';
-        $subject = str_replace($placeholder, $value, $subject);
-        $body = str_replace($placeholder, $value, $body);
+    if ($apiKey == "" || $fromEmail == "") {
+        return ['response' => 'API key or sender not found', 'http_code' => 401];
     }
-
-    return ["subject" => $subject, "body" => $body];
-}
-
-function sendEmailWithSendGrid($appid, $toEmail, $subject, $htmlContent) {
-    $url = 'https://api.sendgrid.com/v3/mail/send';
-    $apiKey = getSettingOrSecret($appid, 'sendgrid');
-    if ($apiKey == "") {
-        return ['response' => 'API key not found', 'http_code' => 401];
-    }
-    $fromEmail = getSettingOrSecret($appid, 'SendGrid-fromAddress');
 
     $data = [
-        'personalizations' => [
-            [
-                'to' => [
-                    ['email' => $toEmail]
-                ]
-            ]
-        ],
-        'from' => ['email' => $fromEmail],
+        'from' => $fromEmail,
+        'to' => [$toEmail],
         'subject' => $subject,
-        'content' => [
-            [
-                'type' => 'text/html',
-                'value' => $htmlContent
-            ]
-        ]
+        'html' => $htmlContent
     ];
 
     $jsonData = json_encode($data);
 
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
+    $ch = curl_init($apiUrl);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer ' . $apiKey,
+        "Authorization: Bearer {$apiKey}",
         'Content-Type: application/json'
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
@@ -60,18 +34,20 @@ function sendEmailWithSendGrid($appid, $toEmail, $subject, $htmlContent) {
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
+    $decodedResponse = json_decode($response, true);
+
+    // var_dump($response);
+
     try {
-        // write the details to table email_log
-        $sql = "insert into email_log (app_id,email,subject,body) values (?,?,?,?)";
-        $params = array($appid, $toEmail, $subject, $htmlContent);
-        PrepareExecSQL($sql, "ssss", $params);
+        // Write the details to table email_log
+        $sql = "INSERT INTO email_log (app_id, email, subject, body, ref_id) VALUES (?, ?, ?, ?, ?)";
+        $refId = isset($decodedResponse['id']) ? $decodedResponse['id'] : null;
+        $params = [$appid, json_encode($toEmail), $subject, $htmlContent, $refId];
+        PrepareExecSQL($sql, "sssss", $params);
     } catch (Exception $e) {
-        // do nothing
+        // Do nothing
+        $response = 'Error logging email: ' . $e->getMessage();
     }
 
-    return ['response' => $response, 'http_code' => $httpCode];
-
+    return ['response' => $decodedResponse, 'http_code' => $httpCode];
 }
-
-
-?>

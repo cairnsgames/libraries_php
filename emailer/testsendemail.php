@@ -1,5 +1,4 @@
 <?php
-die();
 include_once dirname(__FILE__) . "/sendemail.php";
 
 // Example usage:
@@ -12,7 +11,7 @@ $htmlContent = '<div>There is a new booking for the <strong>Love Fest</strong>
   <div>Phone: 1234567890</div>
 </div>';
 
-$result = sendEmailWithSendGrid($appid, $toEmail, $subject, $htmlContent);
+$result = sendEmail($appid, $toEmail, $subject, $htmlContent);
 
 
 http_response_code(200);

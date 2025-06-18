@@ -43,7 +43,7 @@ if (count($errors) == 0) {
                             <div>DEVELOPER: <a href="http://localhost:3001#magic?code=' . $magiccode . '">Login to DEV</a></div>
                         </div>';
 
-        sendEmailWithSendGrid($appid, $email, "Login to " . $tenant["name"], $htmlContent);
+        sendEmail($appid, $email, "Login to " . $tenant["name"], $htmlContent);
 
     } catch (Exception $e) {
         array_push($errors, array("message" => $e->getMessage()));

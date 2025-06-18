@@ -1,0 +1,3 @@
+GET http://localhost/cairnsgames/php/emailer/resend.php
+Accept: application/json
+app_id: b0181e17-e5c6-11ee-bb99-1a220d8ac2c9

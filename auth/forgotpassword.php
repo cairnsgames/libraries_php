@@ -59,14 +59,7 @@ if ($email == "") {
             $homeurl = getProperty("url", null);
             $color = $tenant["color"] ?? "black";
             $name = $tenant["name"] ?? "Juzt Dance";
-            $templateName = "ChangePassword";
-
-            // echo "Sending email to $email<br>";
-            // echo "Template: $templateName<br>";
-            // echo "Color: $color<br>";
-            // echo "Name: $name<br>";
-            // echo "Home URL: $homeurl<br>";
-            // echo "Reset URL: " . $homeurl . '#reset?code=' . $key . "<br>";
+            $templateName = "ForgotPassword";
 
             $template = renderEmailTemplate(
                 $appid,
@@ -81,7 +74,7 @@ if ($email == "") {
             $subject = $template["subject"];
             $htmlContent = $template["body"];
 
-            sendEmailWithSendGrid($appid, $email, "Reset password for " . $name, $htmlContent);
+            sendEmail($appid, $email, "Reset password for " . $name, $htmlContent);
             http_response_code(200);
             $res = json_encode(array("message" => "Change password link was sent.", "token" => $key));
         } else {
