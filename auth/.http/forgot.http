@@ -1,0 +1,7 @@
+POST https://localhost/cairnsgames/php/auth/forgotpassword.php?debug=true
+app_id: b0181e17-e5c6-11ee-bb99-1a220d8ac2c9
+Content-Type: application/json
+
+{
+    "email": "cairnswm@gmail.com"
+}

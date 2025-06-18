@@ -6,6 +6,7 @@ include_once dirname(__FILE__) . "/../corsheaders.php";
 include_once dirname(__FILE__) . "/../security/security.config.php";
 include_once dirname(__FILE__) . "/authfunctions.php";
 include_once dirname(__FILE__) . "/../emailer/sendemail.php";
+include_once dirname(__FILE__) . "/../emailer/template.php";
 include_once dirname(__FILE__) . "/../tenant/gettenant.php";
 include_once dirname(__FILE__) . "/../permissions/permissionfunctions.php";
 

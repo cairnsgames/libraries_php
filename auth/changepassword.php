@@ -1,17 +1,26 @@
 <?php
+include_once dirname(__FILE__)."/../corsheaders.php";
+include_once dirname(__FILE__)."/../dbutils.php";
+include_once dirname(__FILE__)."/../utils.php";
+include_once dirname(__FILE__)."/../security/security.config.php";
+include_once dirname(__FILE__)."/authfunctions.php";
 
-include_once "./corsheaders.php";
-include_once "./dbutils.php";
-include_once "./utils.php";
-include_once "security.config.php";
-
-$appid = getHeader("APP_ID", $appid = getHeader("app_id", $appid = getHeader("App_id", "")));
+$appid = getAppId();
 $userid = getParam("userid", "");
-$old = getParam("old", "");
+$old = getParam("oldpassword", "");
 $password = getParam("password", "");
 $password2 = getParam("password2", "");
 $deviceid = getParam("deviceid", "");
 $hash = getParam("hash", "");
+
+if ($userid == "") {
+    $sql = "SELECT user_id FROM auth_forgot WHERE forcekey = ? AND app_id = ?";
+    $params = array($old, $appid);
+    $result = PrepareExecSQL($sql, "ss", $params);
+    if (count($result) > 0 && isset($result[0]['user_id'])) {
+        $userid = $result[0]['user_id'];
+    }
+}
 
 $debugValues = array();
 $errors = array();
