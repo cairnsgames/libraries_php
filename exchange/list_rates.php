@@ -70,6 +70,6 @@ ksort($rates);
 echo json_encode([
     'success' => true,
     'base' => $base,
-    'date' => $date,
+    'date' => $date ?: date('Y-m-d'), // Show actual date if not provided
     'rates' => $rates
 ]);

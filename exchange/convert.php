@@ -26,8 +26,8 @@ try {
         'from' => $from,
         'to' => $to,
         'amount' => $amount,
-        'converted' => round($result, 6),
-        'date' => $date ?: 'latest'
+        'converted' => round($result["result"], 6),
+        'date' => $date ?: $result["date"]
     ]);
 } catch (Exception $e) {
     http_response_code(500);

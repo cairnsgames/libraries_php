@@ -18,8 +18,8 @@
  *       Also, verify that the script has the necessary permissions to execute.
  */
 
-require_once '../dbutils.php';
-require_once './exchange_functions.php';
+include_once __DIR__ . '/../dbutils.php';
+include_once __DIR__ . '/exchange_functions.php';
 
 try {
     $access_key = '98d16f4753dc30947ea68aabfeb4a1d8';
