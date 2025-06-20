@@ -23,12 +23,15 @@ function getEmailTemplate($app_id, $name)
 }
 
 function renderEmailTemplate($appId, $templateName, $params) {
-    // 1. Load template from DB
     $template = getEmailTemplate($appId, $templateName);
+    
     $subject = $template["subject"];
     $body = $template["body"];
 
-    // 2. Replace placeholders
+    if (empty($subject) || empty($body)) {
+        throw new Exception("Email template subject or body is empty.");
+    }
+
     foreach ($params as $key => $value) {
         $placeholder = '{{' . $key . '}}';
         $subject = str_replace($placeholder, $value, $subject);

@@ -16,7 +16,8 @@ function getParam($key, $default = null) {
 }
 
 $base = strtoupper(trim(getParam('base', 'EUR')));
-$date = trim(getParam('date'));
+$date = getParam('date', null);
+$date = $date !== null ? trim($date) : '';
 
 if (!$date) {
     $stmt = $mysqli->prepare("SELECT MAX(date) FROM exchange_rates");
