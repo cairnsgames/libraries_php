@@ -105,7 +105,7 @@ $log[]=  "RESPONSE: ". $result;
 
 $log[] = "Payweb Response:" . json_encode($result);
 
-PrepareExecSQL("insert into webhook_log (data) values (?)", "s", array(json_encode($log)));
+PrepareExecSQL("insert into webhook_logs (data) values (?)", "s", array(json_encode($log)));
 
 // Process the response
 parse_str($result, $response); // Parse the query string response

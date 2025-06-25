@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Conversion API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .endpoint {
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+    <h1>Currency Conversion API</h1>
+    <p>The <code>convert.php</code> file provides an API endpoint for converting currency amounts between different currencies. It uses exchange rates stored in the database to perform the conversion.</p>
+
+    <h2>Endpoint</h2>
+    <p><code class="endpoint">https://cairnsgames.co.za/php/exchange/convert.php</code></p>
+
+    <h2>Parameters</h2>
+    <ul>
+        <li><code>from</code> (required): The source currency code (e.g., <code>USD</code>).</li>
+        <li><code>to</code> (required): The target currency code (e.g., <code>ZAR</code>).</li>
+        <li><code>amount</code> (required): The amount to convert (e.g., <code>1000</code>).</li>
+        <li><code>date</code> (optional): The date for historical exchange rates (format: <code>YYYY-MM-DD</code>). If not provided, the latest available date is used.</li>
+    </ul>
+
+    <h2>Example Usage</h2>
+    <p>To convert 1000 USD to ZAR:</p>
+    <code>https://cairnsgames.co.za/php/exchange/convert.php?from=USD&to=ZAR&amount=1000</code>
+
+    <h2>Response</h2>
+    <p>The API returns a JSON response:</p>
+    <pre>{
+    "success": true,
+    "from": "USD",
+    "to": "ZAR",
+    "amount": 1000,
+    "converted": 18500.123456,
+    "date": "2025-06-20"
+}</pre>
+
+    <h2>Error Handling</h2>
+    <p>If required parameters are missing or an error occurs, the API returns an error response:</p>
+    <pre>{
+    "success": false,
+    "error": "Missing required parameters: from, to, amount"
+}</pre>
+
+    <h2>Notes</h2>
+    <ul>
+        <li>Ensure the <code>from</code> and <code>to</code> currency codes are valid.</li>
+        <li>The <code>amount</code> should be a positive number.</li>
+        <li>Historical rates are only available if stored in the database.</li>
+    </ul>
+</body>
+</html>

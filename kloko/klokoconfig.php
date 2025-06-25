@@ -110,7 +110,8 @@ JOIN kloko_location l ON ul.location_id = l.id",
             "events" => [
                 'tablename' => 'kloko_event',
                 'key' => 'user_id',
-                'select' => ['id', 'user_id', 'title', 'description', 'start_time', 'end_time', 'location', 'lat', 'lng', 'max_participants', 'currency', 'price', 'keywords', 'event_type']
+                'select' => ['id', 'user_id', 'title', 'description', 'image', 'event_type', 'keywords', 'duration', 'start_time', 'end_time', 'location', 'lat', 'lng', 
+                             'max_participants', 'currency', 'price', 'keywords', 'event_type', 'show_as_news', 'enable_bookings', 'overlay_text'],
             ]
         ]
     ],
