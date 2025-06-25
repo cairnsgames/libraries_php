@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $jsonData = json_encode($params);
 
-executeQuery("INSERT INTO webhook (data) VALUES (?)", [$jsonData]);
+executeQuery("INSERT INTO webhook_logs (request_payload) VALUES (?)", [$jsonData]);
 
 $paymentId = $params['PAY_REQUEST_ID'] ?? null;
 $orderid = $params['REFERENCE'] ?? null;
