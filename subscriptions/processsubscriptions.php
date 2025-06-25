@@ -46,6 +46,6 @@ function processSubscriptionOrder($orderId, $order, $orderitems, $user)
   updateOrderStatus($orderId, "completed");
   $log[] = "Order marked as completed";
 
-  PrepareExecSQL("insert into webhook_logs (data) values (?)", "s", array(json_encode($log)));
+  PrepareExecSQL("insert into zz_data (script, input, data) values (?,?,?)", "sss", array('processsubscriptions.php', json_encode($order), json_encode($log)));
 
 }
