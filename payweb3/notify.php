@@ -1,23 +1,20 @@
 <?php
-include 'config.php'; // Include the configuration file
+include 'config.php'; 
 include_once "../breezo/breezo.php";
 include_once "../subscriptions/processsubscriptions.php";
 require_once __DIR__ . '/../utils.php';
 
 $params = [];
 
-// Handle POST data
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $params = $_POST;
 }
 
-// Handle GET query string parameters
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     $queryString = $_SERVER['QUERY_STRING'];
     parse_str($queryString, $params);
 }
 
-// Convert parameters to JSON
 $jsonData = json_encode($params);
 
 executeQuery("INSERT INTO webhook (data) VALUES (?)", [$jsonData]);

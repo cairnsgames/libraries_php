@@ -89,6 +89,9 @@ function db_query($dbconn, $sql, $params_types = '', $params = [])
             $return_array[] = $assoc_row;
         }
 
+        // Sanitize data to ensure UTF-8 encoding
+        $return_array = utf8ize($return_array);
+
         return $return_array;
     } elseif ($query_type === 'INSE') {
         return mysqli_insert_id($dbconn);
