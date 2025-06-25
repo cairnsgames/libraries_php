@@ -100,6 +100,21 @@ function db_query($dbconn, $sql, $params_types = '', $params = [])
     }
 }
 
+function utf8ize($mixed)
+{
+    if (is_array($mixed)) {
+        foreach ($mixed as $key => $value) {
+            $mixed[$key] = utf8ize($value);
+        }
+    } elseif (is_string($mixed)) {
+        // Convert only if not already UTF-8
+        if (!mb_check_encoding($mixed, 'UTF-8')) {
+            return mb_convert_encoding($mixed, 'UTF-8', 'ISO-8859-1');
+        }
+    }
+    return $mixed;
+}
+
 
 
 ?>
