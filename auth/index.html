@@ -1,48 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Authentication Endpoints</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        h2 {
-            color: #555;
-        }
-        p {
-            margin-bottom: 10px;
-        }
-        .endpoint {
-            margin-bottom: 20px;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        margin: 20px;
+      }
+      h1 {
+        color: #333;
+      }
+      h2 {
+        color: #555;
+      }
+      p {
+        margin-bottom: 10px;
+      }
+      .endpoint {
+        margin-bottom: 20px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Authentication Endpoints</h1>
-    <p>This document describes the purpose and functionality of the authentication endpoints available in the system. Developers can use this information to build a front-end application that interacts with these endpoints.</p>
-    <p><strong>Note:</strong> All endpoints require the <code>app_id</code> parameter to be sent. The <code>app_id</code> is a tenant-specific value that supports a multi-tenanted authentication platform.</p>
-    <p><strong>Authentication Endpoint:</strong> <a href="https://cairnsgames.co.za/php/auth/">https://cairnsgames.co.za/ph/auth/</a></p>
+    <p>
+      This document describes the purpose and functionality of the
+      authentication endpoints available in the system. Developers can use this
+      information to build a front-end application that interacts with these
+      endpoints.
+    </p>
+    <p>
+      <strong>Note:</strong> All endpoints require the
+      <code>app_id</code> parameter to be sent. The <code>app_id</code> is a
+      tenant-specific value that supports a multi-tenanted authentication
+      platform.
+    </p>
+    <p>
+      <strong>Authentication Endpoint:</strong>
+      <a href="https://cairnsgames.co.za/php/auth/"
+        >https://cairnsgames.co.za/ph/auth/</a
+      >
+    </p>
 
     <h2>User Type Description</h2>
     <p>A user is defined as:</p>
     <ul>
-        <li><strong>id:</strong> Unique identifier for the user.</li>
-        <li><strong>username:</strong> User's username.</li>
-        <li><strong>firstname:</strong> User's first name.</li>
-        <li><strong>lastname:</strong> User's last name.</li>
-        <li><strong>email:</strong> User's email address.</li>
-        <li><strong>avatar:</strong> URL or identifier for the user's avatar.</li>
+      <li><strong>id:</strong> Unique identifier for the user.</li>
+      <li><strong>username:</strong> User's username.</li>
+      <li><strong>firstname:</strong> User's first name.</li>
+      <li><strong>lastname:</strong> User's last name.</li>
+      <li><strong>email:</strong> User's email address.</li>
+      <li><strong>avatar:</strong> URL or identifier for the user's avatar.</li>
     </ul>
 
     <h2>Token Response</h2>
-    <p>The login and validateToken endpoints return a token in the response. Example:</p>
+    <p>
+      The login and validateToken endpoints return a token in the response.
+      Example:
+    </p>
     <pre>
 {
     "message": "Login succeeded.",
@@ -60,69 +78,121 @@
     </pre>
 
     <div class="endpoint">
-        <h2>Login Endpoint</h2>
-        <p><strong>File:</strong> login.php</p>
-        <p>The login endpoint validates user credentials (email and password) and generates a login token for authenticated users. It requires the following parameters:</p>
-        <ul>
-            <li><strong>email:</strong> User's email address.</li>
-            <li><strong>password:</strong> User's password.</li>
-            <li><strong>deviceid:</strong> (Optional) Device identifier.</li>
-            <li><strong>app_id:</strong> Tenant-specific value sent as a header.</li>
-        </ul>
-        <p>Response includes a login token or error messages if validation fails.</p>
+      <h2>Login Endpoint</h2>
+      <p><strong>File:</strong> login.php</p>
+      <p>
+        The login endpoint validates user credentials (email and password) and
+        generates a login token for authenticated users. It requires the
+        following parameters:
+      </p>
+      <ul>
+        <li><strong>email:</strong> User's email address.</li>
+        <li><strong>password:</strong> User's password.</li>
+        <li><strong>deviceid:</strong> (Optional) Device identifier.</li>
+        <li>
+          <strong>app_id:</strong> Tenant-specific value sent as a header.
+        </li>
+      </ul>
+      <p>
+        Response includes a login token or error messages if validation fails.
+      </p>
     </div>
 
     <div class="endpoint">
-        <h2>Register Endpoint</h2>
-        <p><strong>File:</strong> registration.php</p>
-        <p>The register endpoint allows new users to create an account. It requires the following parameters:</p>
-        <ul>
-            <li><strong>email:</strong> User's email address.</li>
-            <li><strong>password:</strong> User's password.</li>
-            <li><strong>confirm:</strong> Confirmation of the password.</li>
-            <li><strong>deviceid:</strong> (Optional) Device identifier.</li>
-            <li><strong>app_id:</strong> Tenant-specific value sent as a header.</li>
-        </ul>
-        <p>Response includes a success message or error messages if validation fails.</p>
+      <h2>Register Endpoint</h2>
+      <p><strong>File:</strong> registration.php</p>
+      <p>The register endpoint allows new users to create an account.</p>
+      <p>HTTP headers</p>
+      <ul>
+        <li>
+          <strong>app_id:</strong> Tenant-specific value sent as a header.
+          (REQUIRED)
+        </li>
+      </ul>
+      <p>It requires the following parameters:</p>
+      <ul>
+        <li><strong>email:</strong> User's email address.</li>
+        <li><strong>password:</strong> User's password.</li>
+        <li><strong>confirm:</strong> Confirmation of the password.</li>
+        <li><strong>deviceid:</strong> (Optional) Device identifier.</li>
+      </ul>
+      <p>
+        Response includes a success message or error messages if validation
+        fails.
+      </p>
     </div>
 
     <div class="endpoint">
-        <h2>Change Password Endpoint</h2>
-        <p><strong>File:</strong> changepassword.php</p>
-        <p>The change password endpoint allows users to update their password. It requires the following parameters:</p>
-        <ul>
-            <li><strong>userid:</strong> User's ID.</li>
-            <li><strong>oldpassword:</strong> User's current password.</li>
-            <li><strong>password:</strong> New password.</li>
-            <li><strong>password2:</strong> Confirmation of the new password.</li>
-            <li><strong>deviceid:</strong> (Optional) Device identifier.</li>
-            <li><strong>app_id:</strong> Tenant-specific value sent as a header.</li>
-        </ul>
-        <p>Response includes a success message or error messages if validation fails.</p>
+      <h2>Change Password Endpoint</h2>
+      <p><strong>File:</strong> changepassword.php</p>
+      <p>The change password endpoint allows users to update their password.</p>
+      <p>HTTP headers</p>
+      <ul>
+        <li>
+          <strong>app_id:</strong> Tenant-specific value sent as a header.
+          (REQUIRED)
+        </li>
+      </ul>
+      <p>It requires the following parameters:</p>
+      <ul>
+        <li><strong>userid:</strong> User's ID.</li>
+        <li><strong>oldpassword:</strong> User's current password.</li>
+        <li><strong>password:</strong> New password.</li>
+        <li><strong>password2:</strong> Confirmation of the new password.</li>
+        <li><strong>deviceid:</strong> (Optional) Device identifier.</li>
+      </ul>
+      <p>
+        Response includes a success message or error messages if validation
+        fails.
+      </p>
     </div>
 
     <div class="endpoint">
-        <h2>Forgot Password Endpoint</h2>
-        <p><strong>File:</strong> forgotpassword.php</p>
-        <p>The forgot password endpoint generates a reset link and sends it to the user's email. It requires the following parameters:</p>
-        <ul>
-            <li><strong>email:</strong> User's email address.</li>
-            <li><strong>deviceid:</strong> (Optional) Device identifier.</li>
-            <li><strong>app_id:</strong> Tenant-specific value sent as a header.</li>
-        </ul>
-        <p>Response includes a success message or error messages if validation fails.</p>
+      <h2>Forgot Password Endpoint</h2>
+      <p><strong>File:</strong> forgotpassword.php</p>
+      <p>
+        The forgot password endpoint generates a reset link and sends it to the
+        user's email. </p>
+      <p>HTTP headers</p>
+      <ul>
+        <li>
+          <strong>app_id:</strong> Tenant-specific value sent as a header.
+          (REQUIRED)
+        </li>
+      </ul>
+      <p>It requires the following parameters:</p>
+      <ul>
+        <li><strong>email:</strong> User's email address.</li>
+        <li><strong>deviceid:</strong> (Optional) Device identifier.</li>
+      </ul>
+      <p>
+        Response includes a success message or error messages if validation
+        fails.
+      </p>
     </div>
 
     <div class="endpoint">
-        <h2>Validate Token Endpoint</h2>
-        <p><strong>File:</strong> validateToken.php</p>
-        <p>The validate token endpoint checks the validity of a user's authentication token. It requires the following parameters:</p>
-        <ul>
-            <li><strong>token:</strong> User's authentication token.</li>
-            <li><strong>deviceid:</strong> (Optional) Device identifier.</li>
-            <li><strong>app_id:</strong> Tenant-specific value sent as a header.</li>
-        </ul>
-        <p>Response includes token validation status or error messages if validation fails.</p>
+      <h2>Validate Token Endpoint</h2>
+      <p><strong>File:</strong> validateToken.php</p>
+      <p>
+        The validate token endpoint checks the validity of a user's
+        authentication token. </p>
+      <p>HTTP headers</p>
+      <ul>
+        <li>
+          <strong>app_id:</strong> Tenant-specific value sent as a header.
+          (REQUIRED)
+        </li>
+      </ul>
+      <p>It requires the following parameters:</p>
+      <ul>
+        <li><strong>token:</strong> User's authentication token.</li>
+        <li><strong>deviceid:</strong> (Optional) Device identifier.</li>
+      </ul>
+      <p>
+        Response includes token validation status or error messages if
+        validation fails.
+      </p>
     </div>
-</body>
+  </body>
 </html>
