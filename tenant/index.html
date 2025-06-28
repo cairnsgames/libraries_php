@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenant API Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #555;
+        }
+        .endpoint {
+            margin-bottom: 20px;
+        }
+        .endpoint h3 {
+            margin: 0;
+            color: #666;
+        }
+        .endpoint p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tenant API Documentation</h1>
+
+    <div class="endpoint">
+        <h2>Endpoints</h2>
+
+        <h3>GET /gettenant</h3>
+        <p>Description: Retrieves tenant information based on the application ID.</p>
+        <p>Parameters:</p>
+        <ul>
+            <li><strong>appid</strong>: Application ID (UUID)</li>
+        </ul>
+
+        <h3>GET /getsettings</h3>
+        <p>Description: Retrieves application settings based on the application ID and domain. The <strong>domain</strong> field is the hostname of the source application, allowing different settings based on the server the front end is deployed to.</p>
+        <p>Parameters:</p>
+        <ul>
+            <li><strong>appid</strong>: Application ID (UUID)</li>
+            <li><strong>domain</strong>: Client domain (optional)</li>
+        </ul>
+
+        <h3>GET /getsecret</h3>
+        <p>Description: Retrieves application secrets based on the application ID and domain. The <strong>domain</strong> field is the hostname of the source application, allowing different settings based on the server the front end is deployed to.</p>
+        <p>Parameters:</p>
+        <ul>
+            <li><strong>appid</strong>: Application ID (UUID)</li>
+            <li><strong>domain</strong>: Client domain (optional)</li>
+        </ul>
+
+        <h3>GET /api.php/params</h3>
+        <p>Description: Retrieves application properties based on the application ID.</p>
+        <p>Parameters:</p>
+        <ul>
+            <li><strong>appid</strong>: Application ID (UUID)</li>
+        </ul>
+
+        <h3>GET /api.php/tenant</h3>
+        <p>Description: Retrieves tenant details such as ID, UUID, name, and description.</p>
+        <p>Parameters:</p>
+        <ul>
+            <li><strong>appid</strong>: Application ID (UUID)</li>
+        </ul>
+    </div>
+</body>
+</html>
