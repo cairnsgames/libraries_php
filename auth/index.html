@@ -28,6 +28,36 @@
     <h1>Authentication Endpoints</h1>
     <p>This document describes the purpose and functionality of the authentication endpoints available in the system. Developers can use this information to build a front-end application that interacts with these endpoints.</p>
     <p><strong>Note:</strong> All endpoints require the <code>app_id</code> parameter to be sent. The <code>app_id</code> is a tenant-specific value that supports a multi-tenanted authentication platform.</p>
+    <p><strong>Authentication Endpoint:</strong> <a href="https://cairnsgames.co.za/php/auth/">https://cairnsgames.co.za/ph/auth/</a></p>
+
+    <h2>User Type Description</h2>
+    <p>A user is defined as:</p>
+    <ul>
+        <li><strong>id:</strong> Unique identifier for the user.</li>
+        <li><strong>username:</strong> User's username.</li>
+        <li><strong>firstname:</strong> User's first name.</li>
+        <li><strong>lastname:</strong> User's last name.</li>
+        <li><strong>email:</strong> User's email address.</li>
+        <li><strong>avatar:</strong> URL or identifier for the user's avatar.</li>
+    </ul>
+
+    <h2>Token Response</h2>
+    <p>The login and validateToken endpoints return a token in the response. Example:</p>
+    <pre>
+{
+    "message": "Login succeeded.",
+    "id": 5678,
+    "email": "exampleuser@gmail.com",
+    "username": "exampleuser",
+    "firstname": "John",
+    "lastname": "Doe",
+    "avatar": "AVATAR-5678-2025-06-28-07-17-27.webp",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOm51bGwsInN1YiI6bnVsbCwiYXVkIjpudWxsLCJleHAiOjE4MTE2MDEwOTAsIm5iZiI6MTc1MTEyMTA5MCwiaWF0IjoxNzUxMTIxMDkwLCJqdGkiOiJ7NzNEMEEzMDgtMjY4OS0wQTMyLUFDRjgtOEVFNjYyNzlDOUE2fSIsImRhdGEiOnsiaWQiOjU2NzgsInVzZXJuYW1lIjoiZXhhbXBsZXVzZXIiLCJmaXJzdG5hbWUiOiJKb2huIiwibGFzdG5hbWUiOiJEb2UiLCJyb2xlIjpudWxsLCJwZXJtaXNzaW9ucyI6W119fQ.YzI5ZjI3ZWFkYzZiNGQyNGI1Yzc3ZmNmNDgzZGFkZDllNTBhZmZkN2Q3YjI2YWRiN2Y0NWZlMmNkYzdhM2EyOA",
+    "role": null,
+    "app_id": "12345678-90ab-cdef-1234-567890abcdef",
+    "permissions": []
+}
+    </pre>
 
     <div class="endpoint">
         <h2>Login Endpoint</h2>
