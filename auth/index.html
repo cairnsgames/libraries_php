@@ -82,16 +82,19 @@
       <p><strong>File:</strong> login.php</p>
       <p>
         The login endpoint validates user credentials (email and password) and
-        generates a login token for authenticated users. It requires the
-        following parameters:
-      </p>
+        generates a login token for authenticated users. </p>
+      <p>HTTP headers</p>
+      <ul>
+        <li>
+          <strong>app_id:</strong> Tenant-specific value sent as a header.
+          (REQUIRED)
+        </li>
+      </ul>
+      <p>It requires the following parameters:</p>
       <ul>
         <li><strong>email:</strong> User's email address.</li>
         <li><strong>password:</strong> User's password.</li>
         <li><strong>deviceid:</strong> (Optional) Device identifier.</li>
-        <li>
-          <strong>app_id:</strong> Tenant-specific value sent as a header.
-        </li>
       </ul>
       <p>
         Response includes a login token or error messages if validation fails.
@@ -192,6 +195,34 @@
       <p>
         Response includes token validation status or error messages if
         validation fails.
+      </p>
+    </div>
+
+    <div class="endpoint">
+      <h2>Update User Profile Endpoint</h2>
+      <p><strong>File:</strong> api.php</p>
+      <p>
+        The update user profile endpoint allows users to update their profile
+        information. This endpoint is typically used in a user's profile screen.
+      </p>
+      <p>HTTP headers</p>
+      <ul>
+        <li>
+          <strong>app_id:</strong> Tenant-specific value sent as a header.
+          (REQUIRED)
+        </li>
+      </ul>
+      <p>It requires the following parameters:</p>
+      <ul>
+        <li><strong>username:</strong> User's username.</li>
+        <li><strong>firstname:</strong> User's first name.</li>
+        <li><strong>lastname:</strong> User's last name.</li>
+        <li><strong>email:</strong> User's email address.</li>
+        <li><strong>avatar:</strong> URL or identifier for the user's avatar.</li>
+      </ul>
+      <p>
+        Response includes a success message or error messages if validation
+        fails.
       </p>
     </div>
   </body>
