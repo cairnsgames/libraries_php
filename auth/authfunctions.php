@@ -58,7 +58,24 @@ function getTokenForUser($id, $appid, $mastertoken = "", $permissions = null)
     global $out, $debugValues, $errors;
     $jwt = "";
     try {
-        $sql = "select id, username, email, username, firstname, lastname, avatar, role_id from user where app_id = ? and id = ?";
+        $sql = "SELECT 
+    u.id, 
+    u.username, 
+    u.email, 
+    u.username, 
+    u.firstname, 
+    u.lastname, 
+    u.avatar, 
+    u.role_id, 
+    r.name AS role_name
+FROM 
+    user u
+LEFT JOIN 
+    role r 
+    ON u.role_id = r.id AND r.app_id = u.app_id
+WHERE 
+    u.app_id = ? 
+    AND u.id = ?";
 
         $params = array($appid, $id);
         $row = PrepareExecSQL($sql, "ss", $params);
@@ -75,6 +92,11 @@ function getTokenForUser($id, $appid, $mastertoken = "", $permissions = null)
             $avatar = $row[0]["avatar"];
             $profileid = $row[0]["id"];
             $role_id = $row[0]["role_id"];
+            if (isset($row[0]["role_name"])) {
+                $role_name = $row[0]["role_name"];
+            } else {
+                $role_name = "User";
+            }
             $email = $row[0]["email"];
 
             if (!isset($permisisons)) {
@@ -86,7 +108,8 @@ function getTokenForUser($id, $appid, $mastertoken = "", $permissions = null)
                 "username" => $username,
                 "firstname" => $firstname,
                 "lastname" => $lastname,
-                "role" => $role_id,
+                "roleid" => $role_id,
+                "role" => $role_name,
                 "permissions" => $permissions
             );
             if ($mastertoken != "") {
@@ -104,7 +127,8 @@ function getTokenForUser($id, $appid, $mastertoken = "", $permissions = null)
                     "lastname" => $lastname,
                     "avatar" => $avatar,
                     "token" => $jwt,
-                    "role" => $role_id,
+                    "roleid" => $role_id,
+                    "role" => $role_name,
                     "app_id" => $appid,
                     "permissions" => $permissions,
                 );
