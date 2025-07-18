@@ -23,12 +23,16 @@ if (!isset($appid)) {
     exit;
 }
 
+echo "App ID: $appid\n";
+
 $email = getParam("email","");
 $password = getParam("password","");
 $confirm = getParam("confirm","");
 $deviceid = getParam("deviceid", "");
 
 $canRegister = true;
+
+
 
 if ($email == "") {
     array_push($errors, array("message" => "Email is Required."));
@@ -61,6 +65,8 @@ try {
 } catch (Exception $e) {
     array_push($errors, array("message" => $e->getMessage()));
 }
+
+echo "Can Register: $canRegister\n";
 
 getLoginToken($email, $password, $appid);
 

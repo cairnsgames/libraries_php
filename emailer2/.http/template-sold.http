@@ -1,0 +1,20 @@
+POST http://localhost/cairnsgames/php/emailer2/tester.php HTTP/1.1
+app_id: e671937d-54c9-11f0-9ec0-1a220d8ac2c9
+
+{
+  "template_name": "thank_you_for_buying_tickets",
+  "data": {
+    "event": {
+      "name": "Cairns Games Festival",
+      "date": "2023-10-15",
+      "location": "Cairns Convention Centre"
+    },
+    "tickets": [{
+      "type": "VIP Pass",
+      "price": 99.99,
+      "quantity": 2
+    }],
+    "user_name": "John Doe",
+    "reset_link": "https://cairnsgames.com/reset-password?token=abc123"
+  }
+}

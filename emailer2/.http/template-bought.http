@@ -1,0 +1,21 @@
+POST http://localhost/cairnsgames/php/emailer2/tester.php HTTP/1.1
+app_id: e671937d-54c9-11f0-9ec0-1a220d8ac2c9
+
+{
+  "template_name": "someone_bought_tickets",
+  "data": {
+    "event": {
+      "name": "Eletsa Launch Event",
+      "date": "2025-10-15",
+      "location": "Cairns Convention Centre"
+    },
+    "tickets": [{
+      "type": "VIP Pass",
+      "price": 99.99,
+      "quantity": 2
+    }],
+    "user_name": "William Cairns",
+    "seller_name": "Martin",
+    "reset_link": "https://cairnsgames.com/reset-password?token=abc123"
+  }
+}
