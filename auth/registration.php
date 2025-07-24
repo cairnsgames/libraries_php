@@ -61,6 +61,7 @@ try {
         $id = PrepareExecSQL($sql, "sss", $params);
 
         // TODO send verification email
+        sendEmailUsingTemplate($email, $appid, "welcome_email", json_encode(array("user_name" => $email)), "en");
     }
 } catch (Exception $e) {
     array_push($errors, array("message" => $e->getMessage()));

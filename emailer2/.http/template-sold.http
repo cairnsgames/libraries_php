@@ -1,7 +1,9 @@
 POST http://localhost/cairnsgames/php/emailer2/emailbytemplate.php HTTP/1.1
-app_id: e671937d-54c9-11f0-9ec0-1a220d8ac2c9
+app_id: {{app_id}}
+apikey: {{apikey}}
 
 {
+  "to": "cairnswm@gmail.com",
   "template_name": "thank_you_for_buying_tickets",
   "data": {
     "event": {

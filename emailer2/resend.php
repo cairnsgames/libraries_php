@@ -1,6 +1,8 @@
 <?php
 include_once dirname(__FILE__) . "/sendemail.php";
 
+die();
+
 $appid = $headers['app_id'] ?? null;
 
 $headers = getallheaders();

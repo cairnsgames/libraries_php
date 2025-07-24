@@ -1,4 +1,7 @@
 <?php
+
+die();
+
 include_once dirname(__FILE__) . "/sendemail.php";
 include_once dirname(__FILE__) . "/template.php";
 

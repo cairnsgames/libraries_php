@@ -144,12 +144,12 @@ function replaceParts(string $content, string $app_id, string $lang, array $data
  * @param array $data
  * @return string
  */
-function processLoops(string $content, array $data, $lang): string
+function processLoops(string $content, array $data, string $lang = "en"): string
 {
     // Regex pattern to find each loops
     $pattern = '/\{\{\#each\s+([a-zA-Z0-9_\.\-]+)\s+as\s+([a-zA-Z0-9_\-]+)\s*\}\}(.*?)\{\{\/each\}\}/s';
 
-    return preg_replace_callback($pattern, function ($matches) use ($data) {
+    return preg_replace_callback($pattern, function ($matches) use ($data, $lang) {
         $array_key = $matches[1];
         $item_name = $matches[2];
         $loop_block = $matches[3];
