@@ -49,6 +49,31 @@ if ($to_user_id != '') {
   } elseif (!empty($user['username'])) {
     $data["user_name"] = $user['username'];
   }
+  $sql = "SELECT name, value FROM user_property WHERE user_id = ?";
+  $params = [(int)$to_user_id];
+  $user_properties = executeSQL($sql, $params);
+
+  if (!empty($user_properties)) {
+    foreach ($user_properties as $prop) {
+      $data[$prop['name']] = $prop['value'];
+      if ($prop['name'] === 'language') {
+        switch (strtolower($prop['value'])) {
+          case 'portuguese':
+            $lang = 'pt';
+            break;
+          case 'french':
+            $lang = 'fr';
+            break;
+          case 'spanish':
+            $lang = 'sp';
+            break;
+          case 'english':
+            $lang = 'en';
+            break;
+        }
+      }
+    }
+  }
 }
 
 if ($to == '') {
