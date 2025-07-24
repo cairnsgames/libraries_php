@@ -18,6 +18,10 @@ $params = [$app_id, $apikey];
 $result = executeSQL($sql, $params);
 if (empty($result)) {
     http_response_code(403);
+    // echo "app_id:", $app_id, "\n";
+    // echo "apikey:", $apikey, "\n";
+    // echo json_encode($result);
+    // echo "\n";
     echo "Invalid API key or app ID.";
     exit;
 }
@@ -62,6 +66,7 @@ if (is_array($data_json)) {
 }
 
 $rendered_html = render((string) $app_id, $template_name, $data, $lang);
+// $rendered_html["content"] .= json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
 $subject = $rendered_html["subject"];
 $htmlContent = $rendered_html["content"];
