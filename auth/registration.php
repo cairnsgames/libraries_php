@@ -129,5 +129,6 @@ if (count($errors) > 0) {
     die(json_encode(array("errors" => $errors)));
 }
 
+http_response_code(200);
 die(json_encode($out));
 ?>
