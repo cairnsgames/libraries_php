@@ -1,5 +1,5 @@
 <?php
-require_once 'utils.php';
+require_once '../utils.php';
 
 /**
  * Load main template content by app_id and template name or ID.
