@@ -25,6 +25,10 @@ function sendEmailUsingTemplate($to, $app_id, $template_name, $data_json = '{}',
 
     $rendered_html = render((string) $app_id, $template_name, $data, $lang);
 
+    if (!isset($rendered_html["subject"]) || !isset($rendered_html["content"])) {
+        return;
+    }
+
     $subject = $rendered_html["subject"];
     $htmlContent = $rendered_html["content"];
 
