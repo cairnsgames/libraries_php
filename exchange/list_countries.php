@@ -9,6 +9,7 @@ require_once 'exchange_functions.php';
 global $mysqli;
 header('Content-Type: application/json');
 
+$latestDate = getLatestDate();
 $countries = getExchangeRateByCountry();
 
 if (empty($countries)) {
@@ -21,6 +22,7 @@ if (empty($countries)) {
 
 $response = [
     'success' => true,
+    'latest_date' => $latestDate,
     'countries' => $countries
 ];
 

@@ -51,14 +51,7 @@ function storeExchangeRates($data) {
 function convertCurrency($from, $to, $amount, $date = null) {
     global $mysqli;
     if (!$date) {
-        $date = date('Y-m-d');
-    }
-    if (!$date) {
-        $stmt = $mysqli->prepare("SELECT MAX(date) FROM exchange_rates");
-        $stmt->execute();
-        $stmt->bind_result($date);
-        $stmt->fetch();
-        $stmt->close();
+        $date = getLatestDate();
     }
 
     // Get EUR -> FROM rate
@@ -92,6 +85,16 @@ function convertCurrency($from, $to, $amount, $date = null) {
     $stmt3->close();
 
     return ["date" => $date, "result" => $result];
+}
+
+function getLatestDate() {
+    global $mysqli;
+    $stmt = $mysqli->prepare("SELECT MAX(date) FROM exchange_rates");
+    $stmt->execute();
+    $stmt->bind_result($date);
+    $stmt->fetch();
+    $stmt->close();
+    return $date;
 }
 
 function updateExchangeCurrencies($access_key) {

@@ -27,15 +27,48 @@ $biggestlng = max($lng_nw, $lng_se);
 
 // Fetch data from the database
 $query = "
-SELECT title, '' AS NAME, 'event' AS category, id, image, JSON_ARRAY(event_type) subcategory, keywords, lat, lng, 'blue' color, '#event' as reference, start_time, end_time
+SELECT id, title, '' AS name, 'event' AS category, id, image, JSON_ARRAY(event_type) subcategory, keywords, lat, lng, 'blue' color, '#event' as reference, start_time, end_time
 FROM kloko_event
 WHERE lat < ? AND lat > ? AND lng < ? AND lng > ?
 UNION
-SELECT kl.name, CONCAT(u.firstname, ' ', u.lastname) AS NAME, 'partner', u.id, u.avatar, JSON_ARRAYAGG(role.name), '' AS keywords, lat, lng, 'blue' color, '#user' as reference, null, null
-FROM kloko_location kl, kloko_user_location ul, user u, user_role, role
-WHERE lat < ? AND lat > ? AND lng < ? AND lng > ? AND ul.user_id = u.id AND kl.id = ul.location_id AND showonmap = 1
-AND user_role.user_id = u.id AND user_role.role_id = role.id
-";
+SELECT 
+    kl.id, 
+    kl.name, 
+    CONCAT(u.firstname, ' ', u.lastname) AS NAME, 
+    'partner' AS partner,
+    u.id, 
+    u.avatar, 
+    JSON_ARRAYAGG(DISTINCT r.name) AS roles,
+    '' AS keywords, 
+    lat, 
+    lng, 
+    'blue' AS color, 
+    '#user' AS reference, 
+    NULL, 
+    NULL
+FROM kloko_location kl
+JOIN kloko_user_location kul 
+    ON kl.id = kul.location_id
+JOIN user u 
+    ON kul.user_id = u.id
+LEFT JOIN user_role ur 
+    ON u.id = ur.user_id
+LEFT JOIN role r 
+    ON ur.role_id = r.id
+WHERE lat < ? 
+  AND lat > ? 
+  AND lng < ? 
+  AND lng > ? 
+  AND showonmap = 1
+GROUP BY 
+    kl.id, kl.name, u.id, u.firstname, u.lastname, u.avatar, lat, lng;
+    ";
+
+// SELECT kl.name, CONCAT(u.firstname, ' ', u.lastname) AS NAME, 'partner', u.id, u.avatar, JSON_ARRAYAGG(role.name), '' AS keywords, lat, lng, 'blue' color, '#user' as reference, null, null
+// FROM kloko_location kl, kloko_user_location ul, user u, user_role, role
+// WHERE lat < ? AND lat > ? AND lng < ? AND lng > ? AND ul.user_id = u.id AND kl.id = ul.location_id AND showonmap = 1
+// AND user_role.user_id = u.id AND user_role.role_id = role.id
+// ";
 
 $result = PrepareExecSQL($query, 'dddddddd', [$biggestlat, $smallestlat, $biggestlng, $smallestlng, $biggestlat, $smallestlat, $biggestlng, $smallestlng]);
 
