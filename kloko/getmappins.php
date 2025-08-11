@@ -27,7 +27,7 @@ $biggestlng = max($lng_nw, $lng_se);
 
 // Fetch data from the database
 $query = "
-SELECT id, title, '' AS name, 'event' AS category, id, image, JSON_ARRAY(event_type) subcategory, keywords, lat, lng, 'blue' color, '#event' as reference, start_time, end_time
+SELECT id as pinid, title, '' AS name, 'event' AS category, id, image, JSON_ARRAY(event_type) subcategory, keywords, lat, lng, 'blue' color, '#event' as reference, start_time, end_time
 FROM kloko_event
 WHERE lat < ? AND lat > ? AND lng < ? AND lng > ?
 UNION
