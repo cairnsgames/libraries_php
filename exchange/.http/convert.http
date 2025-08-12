@@ -1,0 +1,1 @@
+GET http://localhost/cairnsgames/php/exchange/convert.php?from=MZN&to=ZAR&amount=1000

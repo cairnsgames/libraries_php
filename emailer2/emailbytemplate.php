@@ -13,6 +13,9 @@ $data_json = getParam('data', '{}');
 $lang = getParam('lang', 'en');
 $apikey = getParam('apikey', '');
 
+    // echo "app_id:", $app_id, "\n";
+    // echo "apikey:", $apikey, "\n";
+
 $sql = "select * from email_apikey where app_id = ? and apikey = ?";
 $params = [$app_id, $apikey];
 $result = executeSQL($sql, $params);
@@ -99,21 +102,21 @@ $htmlContent = $rendered_html["content"];
 $toEmail = $to;
 $result = sendEmail($app_id, $toEmail, $subject, $htmlContent);
 
-// var_dump("EMAIL RESULT:",$result);
+$id = isset($result['response']['id']) ? $result['response']['id'] : null;
 
 $response = [
-    "success" => false,
-    "to" => $toEmail,
-    "subject" => $subject,
-    "content" => $htmlContent
+  "success" => false,
+  "to" => $toEmail,
+  "subject" => $subject,
+  "content" => $htmlContent
 ];
 
-if ($result === true) {
-    $response["success"] = true;
-    // echo json_encode($response);
-    echo "Email sent successfully.";
+if ($id !== null) {
+  $response["success"] = true;
+  $response["id"] = $id;
+  // echo "Email sent successfully.";
 } else {
-    http_response_code(500);
-    $response["error"] = is_array($result) && isset($result['response']) ? $result['response'] : "Failed to send email.";
-    echo json_encode($response);
+  http_response_code(500);
+  $response["error"] = is_array($result) && isset($result['response']) ? $result['response'] : "Failed to send email.";
+  echo json_encode($response);
 }
