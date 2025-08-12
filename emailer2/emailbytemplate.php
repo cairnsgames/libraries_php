@@ -1,6 +1,6 @@
 <?php
 require_once 'conn.php';
-require_once 'utils.php';
+require_once '../utils.php';
 require_once 'template_functions.php';
 include_once 'template_render.php';
 include_once dirname(__FILE__) . "/sendemail.php";
