@@ -1,10 +1,26 @@
 <?php
 
 $userconfigs = [
+    "admin" => [
+        'tablename' => 'user',
+        'key' => 'id',
+        'select' => 'adminGetUsers',
+        'create' => false,
+        'update' => false,
+        'delete' => false,
+        'beforeselect' => '',
+        'afterselect' => '',
+        'beforecreate' => '',
+        'aftercreate' => '',
+        'beforeupdate' => '',
+        'afterupdate' => 'calcToken',
+        'beforedelete' => '',
+    ],
     "user" => [
         'tablename' => 'user',
         'key' => 'id',
         'select' => ['id', 'username', 'firstname', 'lastname', 'email','avatar'],
+        'where' => ['app_id' => 'b0181e17-e5c6-11ee-bb99-1a220d8ac2c9'],
         'create' => false,
         'update' => ['username', 'firstname', 'lastname', 'email','avatar'],
         'delete' => false,
@@ -101,4 +117,48 @@ function calcToken($config, $updated_record) {
     $jwt = getTokenForUser($record["id"],$appId, null);
     $user["token"] = $jwt;
     return $user;
+}
+
+function adminGetUsers($config) {
+    global $appId;
+    $sql = "
+        SELECT
+            u.id,
+            u.app_id,
+            u.username,
+            u.firstname,
+            u.lastname,
+            u.email,
+            u.avatar,
+            u.active,
+            u.created,
+            u.modified,
+            COALESCE(
+                (
+                    SELECT JSON_ARRAYAGG(
+                        JSON_OBJECT('id', r.id, 'role', r.name)
+                    )
+                    FROM user_role ur
+                    JOIN role r ON r.id = ur.role_id
+                    WHERE ur.user_id = u.id
+                ),
+                JSON_ARRAY()
+            ) AS roles,
+            COALESCE(
+                (
+                    SELECT JSON_ARRAYAGG(
+                        JSON_OBJECT('id', up.id, 'name', up.name, 'value', up.value)
+                    )
+                    FROM user_property up
+                    WHERE up.user_id = u.id
+                ),
+                JSON_ARRAY()
+            ) AS properties
+        FROM `user` u
+        WHERE u.app_id = ?
+        ORDER BY u.id
+    ";
+
+    $users = executeSQL($sql, [$appId], ['JSON' => ['roles', 'properties']]);
+    return $users;
 }

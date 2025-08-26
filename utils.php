@@ -3,11 +3,12 @@
 function getHeader($name, $default = "12345")
 {
 	$headers = getallheaders();
-	if (isset($headers[$name])) {
-		return $headers[$name];
-	} else {
-		return $default;
+	foreach ($headers as $key => $value) {
+		if (strcasecmp($key, $name) === 0) {
+			return $value;
+		}
 	}
+	return $default;
 }
 
 function getParam($name, $default)
