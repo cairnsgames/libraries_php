@@ -16,7 +16,13 @@ if (!hasValue($appId)) {
     sendUnauthorizedResponse("Invalid tenant");
 }
 
-$userid = getUserId($token);
+// Admin use includes a user_id field - for personal role updates never send the user_id.
+// TODO: Add validation check that token is an admin
+
+$userid = getParam("user_id");
+if (!$userid) {
+    $userid = getUserId($token);
+}
 if (!$userid) {
     sendUnauthorizedResponse("User not found");
 }
@@ -53,11 +59,12 @@ foreach ($new_roles as $role) {
 }
 
 $placeholders = implode(',', array_fill(0, count($new_roles), '?'));
-$params = array_merge([$userid], $new_roles);
-$types = str_repeat('i', count($params));
-$delete_query = "DELETE FROM user_role WHERE user_id = ? AND role_id not in ($placeholders)";
-
-PrepareExecSQL($delete_query, $types, $params);
+if (count($new_roles) > 0) {
+    $params = array_merge([$userid], $new_roles);
+    $types = str_repeat('i', count($params));
+    $delete_query = "DELETE FROM user_role WHERE user_id = ? AND role_id NOT IN ($placeholders)";
+    PrepareExecSQL($delete_query, $types, $params);
+}
 
 // Handle payment method data (if any logic needs to be added here)
 // Example:

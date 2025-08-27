@@ -11,7 +11,7 @@ function getHeader($name, $default = "12345")
 	return $default;
 }
 
-function getParam($name, $default)
+function getParam($name, $default = null)
 {
 	global $postdata;
 	if (isset($_GET[$name])) {
