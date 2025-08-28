@@ -51,9 +51,9 @@ JOIN kloko_user_location kul
     ON kl.id = kul.location_id
 JOIN user u 
     ON kul.user_id = u.id
-LEFT JOIN user_role ur 
+JOIN user_role ur 
     ON u.id = ur.user_id
-LEFT JOIN role r 
+JOIN role r 
     ON ur.role_id = r.id
 WHERE lat < ? 
   AND lat > ? 
