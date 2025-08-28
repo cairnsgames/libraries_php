@@ -59,12 +59,10 @@ foreach ($new_roles as $role) {
 }
 
 $placeholders = implode(',', array_fill(0, count($new_roles), '?'));
-if (count($new_roles) > 0) {
     $params = array_merge([$userid], $new_roles);
     $types = str_repeat('i', count($params));
     $delete_query = "DELETE FROM user_role WHERE user_id = ? AND role_id NOT IN ($placeholders)";
     PrepareExecSQL($delete_query, $types, $params);
-}
 
 // Handle payment method data (if any logic needs to be added here)
 // Example:
