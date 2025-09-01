@@ -1,1 +1,1 @@
-GET http://cairnsgames.co.za/php/offerings/api.php/group
+GET http://localhost/cairnsgames/php/offerings/api.php/group

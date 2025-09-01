@@ -24,7 +24,7 @@ function getOfferings() {
     ) AS items
 FROM offeringgroup g
 LEFT JOIN offeringitem i 
-    ON g.id = i.groupod_id
+    ON g.id = i.group_id
 GROUP BY g.id, g.name, g.forrole;
 ";
   return executeSQL($sql, [], ["JSON" => ["items"]]);
