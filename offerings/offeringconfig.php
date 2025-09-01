@@ -8,6 +8,14 @@ $offeringconfigs = [
         'create' => false,
         'update' => false,
         'delete' => false        
+    ],
+    "item" => [
+        'tablename' => 'offeringitem',
+        'key' => 'id',
+        'select' => ["id", "group_id", "name", "sequence"],
+        'create' => ["group_id", "name", "sequence"],
+        'update' => ["name", "sequence"],
+        'delete' => true
     ]
 ];
 
