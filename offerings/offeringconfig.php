@@ -26,7 +26,7 @@ function getOfferings() {
     g.forrole,
     COALESCE(
         JSON_ARRAYAGG(
-            JSON_OBJECT('id', i.id, 'name', i.name)
+            JSON_OBJECT('id', i.id, 'name', i.name, 'sequence', i.sequence)
         ),
         JSON_ARRAY()
     ) AS items
