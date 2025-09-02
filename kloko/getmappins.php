@@ -27,13 +27,30 @@ $biggestlng = max($lng_nw, $lng_se);
 
 // Fetch data from the database
 $query = "
-SELECT id as pinid, title, '' AS name, 'event' AS category, id, image, JSON_ARRAY(event_type) subcategory, keywords, lat, lng, 'blue' color, '#event' as reference, start_time, end_time
+SELECT id as pinid, title, 
+    '[]' offerings, '' AS name, 'event' AS category, id, image, JSON_ARRAY(event_type) subcategory, keywords, lat, lng, 'blue' color, '#event' as reference, start_time, end_time
 FROM kloko_event
 WHERE lat < ? AND lat > ? AND lng < ? AND lng > ?
 UNION
 SELECT 
     kl.id, 
     kl.name, 
+    COALESCE(
+      JSON_ARRAYAGG(
+        DISTINCT
+        IF(
+          oi.id IS NULL, 
+          NULL, 
+          JSON_OBJECT(
+            'item_id',   oi.id,
+            'item_name', oi.name,
+            'group_id',  og.id,
+            'group_name',og.name
+          )
+        )
+      ),
+      JSON_ARRAY()
+    ) AS offerings,
     CONCAT(u.firstname, ' ', u.lastname) AS NAME, 
     'partner' AS partner,
     u.id, 
@@ -55,6 +72,13 @@ JOIN user_role ur
     ON u.id = ur.user_id
 JOIN role r 
     ON ur.role_id = r.id
+LEFT JOIN user_offerings uo 
+    ON uo.user_id = u.id 
+   AND uo.active = 1
+LEFT JOIN offeringitem oi 
+    ON oi.id = uo.offering_id
+LEFT JOIN offeringgroup og 
+    ON og.id = oi.group_id    
 WHERE lat < ? 
   AND lat > ? 
   AND lng < ? 
@@ -76,6 +100,24 @@ $result = PrepareExecSQL($query, 'dddddddd', [$biggestlat, $smallestlat, $bigges
 $data = array_filter($result, function($item) {
     return isset($item['id']) && is_numeric($item['id']);
 });
+foreach ($data as &$item) {
+    // Decode offerings
+    if (isset($item['offerings'])) {
+        $decoded = json_decode($item['offerings'], true);
+        // If decoded is not an array or is [null], set to []
+        if (!is_array($decoded) || (count($decoded) === 1 && is_null($decoded[0]))) {
+            $item['offerings'] = [];
+        } else {
+            $item['offerings'] = $decoded;
+        }
+    }
+    // Decode subcategory
+    if (isset($item['subcategory'])) {
+        $decoded = json_decode($item['subcategory'], true);
+        $item['subcategory'] = is_array($decoded) ? $decoded : [];
+    }
+}
+unset($item);
 
 header('Content-Type: application/json');
 echo json_encode($data);

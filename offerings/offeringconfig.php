@@ -16,6 +16,29 @@ $offeringconfigs = [
         'create' => ["group_id", "name", "sequence"],
         'update' => ["name", "sequence"],
         'delete' => true
+    ],
+    "offer" => [
+        "tablename" => "user_offerings",
+        "key" => "id",
+        "select" => ["id", "user_id", "offering_id", "active"],
+        "create" => ["user_id", "offering_id"],
+        "update" => ["offering_id","active"],
+        "delete" => true
+    ],
+    "user" => [
+        "tablename" => "users",
+        "key" => "id",
+        "select" => ["id", "username", "email", "role"],
+        "create" => false,
+        "update" => false,
+        "delete" => false,
+        "subkeys" => [
+            "offerings" => [
+                "tablename" => "user_offerings",
+                "key" => "user_id",
+                "select" => ["id", "user_id", "offering_id", "active"]
+            ]
+        ]
     ]
 ];
 
