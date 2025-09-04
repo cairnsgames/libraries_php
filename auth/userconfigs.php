@@ -121,44 +121,56 @@ function calcToken($config, $updated_record) {
 
 function adminGetUsers($config) {
     global $appId;
-    $sql = "
-        SELECT
-            u.id,
-            u.app_id,
-            u.username,
-            u.firstname,
-            u.lastname,
-            u.email,
-            u.avatar,
-            u.active,
-            u.created,
-            u.modified,
-            COALESCE(
-                (
-                    SELECT JSON_ARRAYAGG(
-                        JSON_OBJECT('id', r.id, 'role', r.name)
-                    )
-                    FROM user_role ur
-                    JOIN role r ON r.id = ur.role_id
-                    WHERE ur.user_id = u.id
-                ),
-                JSON_ARRAY()
-            ) AS roles,
-            COALESCE(
-                (
-                    SELECT JSON_ARRAYAGG(
-                        JSON_OBJECT('id', up.id, 'name', up.name, 'value', up.value)
-                    )
-                    FROM user_property up
-                    WHERE up.user_id = u.id
-                ),
-                JSON_ARRAY()
-            ) AS properties
-        FROM `user` u
+    $sql = "SELECT
+    u.id,
+    u.app_id,
+    u.username,
+    u.firstname,
+    u.lastname,
+    u.email,
+    u.avatar,
+    u.active,
+    u.created,
+    u.modified,
+    COALESCE(
+        (
+            SELECT JSON_ARRAYAGG(
+                JSON_OBJECT('id', r.id, 'role', r.name)
+            )
+            FROM user_role ur
+            JOIN role r ON r.id = ur.role_id
+            WHERE ur.user_id = u.id
+        ),
+        JSON_ARRAY()
+    ) AS roles,
+    COALESCE(
+        (
+            SELECT JSON_ARRAYAGG(
+                JSON_OBJECT('id', up.id, 'name', up.name, 'value', up.value)
+            )
+            FROM user_property up
+            WHERE up.user_id = u.id
+        ),
+        JSON_ARRAY()
+    ) AS properties,
+    COALESCE(
+        (
+            SELECT JSON_ARRAYAGG(
+                JSON_OBJECT('id', oi.id, 'name', oi.name)
+                ORDER BY COALESCE(oi.sequence, 0), oi.id
+            )
+            FROM user_offerings uo
+            JOIN offeringitem oi ON oi.id = uo.offering_id
+            WHERE uo.user_id = u.id
+              AND uo.active = 1
+        ),
+        JSON_ARRAY()
+    ) AS offerings
+FROM `user` u
         WHERE u.app_id = ?
         ORDER BY u.id
     ";
 
-    $users = executeSQL($sql, [$appId], ['JSON' => ['roles', 'properties']]);
+    $users = executeSQL($sql, [$appId], ['JSON' => ['roles', 'properties', 'offerings']]);
     return $users;
 }
