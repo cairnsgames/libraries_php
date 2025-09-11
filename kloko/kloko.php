@@ -147,15 +147,52 @@ function klokodelete($endpoint, $id)
 
 function getUpcomingEvents($data)
 {
-    global $appId, $EVENT_FIELDS;
-    $fields = implode(",", $EVENT_FIELDS);
-    $sql = "select $fields from kloko_event where end_time > ? and app_id = ?  and event_type = 'event' order by start_time";
-    $params = [date("Y-m-d H:i:s"), $appId];
-    // var_dump($params);
-    $sss = "ss";
-    $result = PrepareExecSQL($sql, $sss, $params);
-    // var_dump($result);
-    return $result;
+    global $userid, $appId;
+    // Use date from $data if provided, otherwise use current date
+    $date = isset($data['date']) && !empty($data['date']) ? $data['date'] : date("Y-m-d H:i:s");
+
+    // echo "User ID: $userid, App ID: $appId, Date: $date\n";
+    $sql = "
+        SELECT e.id,
+               e.calendar_id,
+               e.user_id,
+               e.event_template_id,
+               e.content_id,
+               e.app_id,
+               e.title,
+               e.description,
+               e.currency,
+               e.price,
+               e.image,
+               e.keywords,
+               e.event_type,
+               e.duration,
+               e.location,
+               e.lat,
+               e.lng,
+               e.max_participants,
+               e.period_type,
+               e.tickettypes,
+               e.options,
+               e.start_time,
+               e.end_time,
+               e.show_as_news,
+               e.overlay_text,
+               e.enable_bookings,
+               CASE WHEN uf.id IS NOT NULL THEN 1 ELSE 0 END AS favorite
+        FROM kloko_event e
+        LEFT JOIN user_favorites uf 
+               ON uf.event_id = e.id 
+              AND uf.user_id = ?
+        WHERE e.end_time > ?
+          AND e.app_id = ?
+          AND e.event_type = 'event'
+        ORDER BY e.start_time
+    ";
+
+    $params = [$userid, $date, $appId];
+    $types = "sss";
+    return PrepareExecSQL($sql, $types, $params);
 }
 
 function getKlokoUserTickets($data)

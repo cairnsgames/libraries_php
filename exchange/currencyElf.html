@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CurrencyElf Quick Convert</title>
+  <!-- Assuming currencyElf.js is in the same directory or adjust the path as needed -->
+  <script src="currencyElf.js"></script>
+</head>
+<body>
+  <h1>CurrencyElf Quick Convert</h1>
+  <form id="convertForm">
+    <label for="fromCurrency">From:</label>
+    <select id="fromCurrency"></select>
+    <label for="toCurrency">To:</label>
+    <select id="toCurrency"></select>
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount" min="0" step="any" required>
+    <button type="submit">Convert</button>
+  </form>
+  <div id="result"></div>
+
+  <script>
+    async function loadCurrencies() {
+      try {
+        const countries = await exchange.list_countries();
+        const fromSelect = document.getElementById('fromCurrency');
+        const toSelect = document.getElementById('toCurrency');
+
+        countries.forEach(country => {
+          const optionFrom = document.createElement('option');
+          optionFrom.value = country.currency_code;
+          optionFrom.textContent = `${country.currency_code} - ${country.currency_name}`;
+          fromSelect.appendChild(optionFrom);
+
+          const optionTo = document.createElement('option');
+          optionTo.value = country.currency_code;
+          optionTo.textContent = `${country.currency_code} - ${country.currency_name}`;
+          toSelect.appendChild(optionTo);
+        });
+      } catch (error) {
+        console.error('Error loading currencies:', error);
+        document.getElementById('result').textContent = 'Error loading currencies. Please try again later.';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadCurrencies);
+
+    document.getElementById('convertForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const fromSelect = document.getElementById('fromCurrency');
+      const toSelect = document.getElementById('toCurrency');
+      const from = fromSelect.value;
+      const to = toSelect.value;
+      const amount = parseFloat(document.getElementById('amount').value);
+
+      try {
+        const result = await exchange.quickConvert(amount, from, to);
+        document.getElementById('result').textContent = `Converted Amount: ${result.converted}`;
+      } catch (error) {
+        console.error('Error during conversion:', error);
+        document.getElementById('result').textContent = 'Error during conversion. Please try again later.';
+      }
+    });
+  </script>
+</body>
+</html>
