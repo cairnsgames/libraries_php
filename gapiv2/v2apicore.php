@@ -178,6 +178,7 @@ function runAPI($configs)
                     $response = UpdateData($config, $id, $data);
                     break;
                 case 'DELETE':
+                    // echo "ID FOR DELETE: " . json_encode($id) . "\n";
                     if ($id === null) {
                         http_response_code(400);
                         echo json_encode(["error" => "ID is required for delete"]);

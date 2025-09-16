@@ -252,10 +252,10 @@ $breezoconfigs = [
 
 function beforeDeleteCartItem($config, $id)
 {
-    $item = breezoselect("cart_item", $id);
-    // var_dump("Item", $item[0]);
-    klokoupdate("booking", $item[0]["booking_id"], ["status" => "pending"]);
-    // exit;
+    // $item = breezoselect("cart_item", $id);
+    // // var_dump("Item", $item[0]);
+    // klokoupdate("booking", $item[0]["booking_id"], ["status" => "pending"]);
+    // // exit;
     return [$config, $id];
 }
 
