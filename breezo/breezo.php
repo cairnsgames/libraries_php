@@ -51,6 +51,7 @@ function setUserId($config, $data)
 
 function getCartForUser($userid)
 {
+
     $cart = breezoselect("user", $userid, "cart");
     if (empty($cart)) {
         $cart = breezocreate("cart", ["user_id" => $userid]);
@@ -135,8 +136,58 @@ function beforeInsertCartItem($config, $data)
     global $userid;
     $cart = getCartForUser($userid);
     $data["cart_id"] = $cart["id"];
-    $data["commission_rate"] = getCommissionRate($data["supplier_id"], $data["item_type_id"]);
+    if (!isset($data["supplier_id"]) || !isset($data["item_type_id"])) {
+        $data["commission_rate"] = 10;
+    } else {
+        $data["commission_rate"] = getCommissionRate($data["supplier_id"], $data["item_type_id"]);
+    }
     return [$config, $data];
+}
+
+function insertCartItem($config, $data)
+{
+    $cartId = (int) ($data['cart_id'] ?? 0);
+    $itemTypeId = (int) ($data['item_type_id'] ?? 0);
+    $itemId = (int) ($data['item_id'] ?? 0);
+    $record = [
+        'cart_id' => $cartId,
+        'item_type_id' => $itemTypeId,
+        'parent_id' => $data['parent_id'] ?? null,              // nullable
+        'item_id' => $itemId,
+        'title' => $data['title'] ?? '',
+        'item_description' => $data['item_description'] ?? '',
+        'supplier_id' => $data['supplier_id'] ?? 0,                 // fallback if not provided
+        'price' => (float) ($data['price'] ?? 0),
+        'quantity' => (int) ($data['quantity'] ?? 1),
+        'currency' => $data['currency'] ?? 'ZAR',
+        'commission_rate' => (float) ($data['commission_rate'] ?? 10.00),
+        'booking_id' => $data['booking_id'] ?? null,              // nullable
+    ];
+
+    // Prepare INSERT ... ON DUPLICATE KEY UPDATE to handle both cases atomically
+    $columns = array_keys($record);
+    $placeholders = implode(',', array_fill(0, count($columns), '?'));
+    $params = array_values($record);
+
+    $sql = "
+        INSERT INTO breezo_cart_item (" . implode(',', $columns) . ")
+        VALUES ($placeholders)
+        ON DUPLICATE KEY UPDATE
+            quantity         = quantity + VALUES(quantity),
+            price            = VALUES(price),
+            title            = VALUES(title),
+            item_description = VALUES(item_description),
+            currency         = VALUES(currency),
+            parent_id        = VALUES(parent_id),
+            commission_rate  = VALUES(commission_rate),
+            booking_id       = VALUES(booking_id),
+            modified         = CURRENT_TIMESTAMP
+    ";
+
+    $result = executeSQL($sql, $params);
+
+    $data['cart'] = breezoselect("cart", $cartId, "items");
+    return $data['cart'];
 }
 
 function processOrderPayment($orderId)

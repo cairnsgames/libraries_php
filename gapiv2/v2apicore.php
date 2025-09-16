@@ -110,7 +110,16 @@ function runAPI($configs)
                 case 'POST':
                     if ($id === 'bulk') {
                         // Handle bulk insert
-                        $data = json_decode(file_get_contents('php://input'), true);
+                        $input = file_get_contents('php://input');
+                        echo "Input: " . $input . "\n";
+                        $data = json_decode($input, true);
+
+                        if (json_last_error() !== JSON_ERROR_NONE) {
+                            http_response_code(400);
+                            echo json_encode(["error" => "JSON decode error: " . json_last_error_msg()]);
+                            exit;
+                        }
+
                         if (!is_array($data)) {
                             http_response_code(400);
                             echo json_encode(["error" => "Invalid data format"]);
@@ -119,14 +128,32 @@ function runAPI($configs)
                         $response = CreateDataBulk($config, $data);
                     } else {
                         $data = [];
-                        foreach ($config['create'] as $field) {
-                            $value = getParam($field, null);
-
-                            if ($field != null) {
-                                $data[$field] = $value;
+                        if (!is_array($config['create'])) {
+                            if (function_exists($config['create'])) {
+                                $input = file_get_contents('php://input');
+                                $data = json_decode($input, true);
+                                if (json_last_error() !== JSON_ERROR_NONE) {
+                                    http_response_code(400);
+                                    echo json_encode(["error" => "JSON decode error: " . json_last_error_msg()]);
+                                    exit;
+                                }
+                                $response = $config['create']($config, $data);
+                            } else {
+                                http_response_code(405);
+                                echo json_encode(["error" => "Method not allowed for create"]);
+                                exit;
                             }
+                        } else {
+                            foreach ($config['create'] as $field) {
+                                $value = getParam($field, null);
+
+                                if ($field != null) {
+                                    $data[$field] = $value;
+                                }
+                            }
+                            echo "Data: " . json_encode($data) . "\n";
+                            $response = CreateData($config, $data);
                         }
-                        $response = CreateData($config, $data);
                     }
                     break;
                 case 'PUT':
