@@ -146,9 +146,13 @@ function beforeInsertCartItem($config, $data)
 
 function insertCartItem($config, $data)
 {
-    $cartId = (int) ($data['cart_id'] ?? 0);
+    global $userid;
+    $cart = getCartForUser($userid);
+    $cartId = $cart["id"];
     $itemTypeId = (int) ($data['item_type_id'] ?? 0);
     $itemId = (int) ($data['item_id'] ?? 0);
+
+    // echo "Cart ID: $cartId, Item Type ID: $itemTypeId, Item ID: $itemId\n";
     $record = [
         'cart_id' => $cartId,
         'item_type_id' => $itemTypeId,
