@@ -13,6 +13,7 @@ include_once dirname(__FILE__)."/../settings/settingsfunctions.php";
 $appid = getAppId();
 $log = [];
 $error = [];
+$control = getHeader("control");
 
 $timezone = new DateTimeZone("Africa/Johannesburg"); // SAST timezone
 $DateTime = new DateTime("now", $timezone);
@@ -28,7 +29,7 @@ if ($referer) {
     // Remove the port if present
     $referer = explode(':', $hostWithPort)[0] ?? null;
 }
-$domain = $referer ?? $host;
+$domain = $control ?? $referer ?? $host;
 
 $returnURL = getSettingOrSecret($appid, 'returnURL', $domain);
 if (!isset($returnURL) || empty($returnURL)) {
