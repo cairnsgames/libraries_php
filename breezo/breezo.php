@@ -194,6 +194,78 @@ function insertCartItem($config, $data)
     return $data['cart'];
 }
 
+function processCancelOrder($orderId)
+{
+    // Fetch order
+    $order = executeQuery("SELECT * FROM `breezo_order` WHERE id = ?", [$orderId]);
+    if (empty($order)) {
+        throw new Exception("Order not found.");
+    }
+    $order = $order[0];
+
+    // Fetch user
+    $user = executeQuery("SELECT * FROM `user` WHERE id = ?", [$order['user_id']]);
+    if (empty($user)) {
+        throw new Exception("User not found.");
+    }
+    $user = $user[0];
+
+    // fetch user's cart
+    $cart = getCartForUser($user['id']);
+
+    // Fetch order items
+    $orderItems = executeQuery("SELECT * FROM `breezo_order_item` WHERE order_id = ?", [$orderId]);
+    if (empty($orderItems)) {
+        throw new Exception("Order has no items.");
+    }
+
+    foreach ($orderItems as $item) {
+        $cartItemData = [
+            "cart_id" => $cart['id'],
+            "item_type_id" => $item['item_type_id'],
+            "parent_id" => $item['parent_id'],
+            "item_id" => $item['item_id'],
+            "supplier_id" => $item['supplier_id'],
+            "price" => $item['price'],
+            "commission_rate" => $item['commission_rate'],
+            "quantity" => $item['quantity'],
+            "booking_id" => $item['booking_id'],
+            "title" => $item['title'],
+            "item_description" => $item['item_description'],
+        ];
+        $sql = "INSERT INTO breezo_cart_item (cart_id, item_type_id, parent_id, item_id, supplier_id, price, commission_rate, quantity, currency, booking_id, title, item_description)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'ZAR', ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    quantity = quantity + VALUES(quantity),
+                    price = VALUES(price),
+                    title = VALUES(title),
+                    item_description = VALUES(item_description),
+                    parent_id = VALUES(parent_id),
+                    commission_rate = VALUES(commission_rate),
+                    booking_id = VALUES(booking_id),
+                    modified = CURRENT_TIMESTAMP";
+        $params = [
+            $cartItemData['cart_id'],
+            $cartItemData['item_type_id'],
+            $cartItemData['parent_id'],
+            $cartItemData['item_id'],
+            $cartItemData['supplier_id'],
+            $cartItemData['price'],
+            $cartItemData['commission_rate'],
+            $cartItemData['quantity'],
+            $cartItemData['booking_id'],
+            $cartItemData['title'],
+            $cartItemData['item_description']
+        ];
+        executeSQL($sql, $params);
+    }
+
+    echo "Updating order status to cancelled";
+    updateOrderStatus($orderId, 'cancelled');
+
+    return true;
+}
+
 function processOrderPayment($orderId)
 {
     // Fetch order

@@ -37,6 +37,7 @@ $transactionStatuses = [
     "7" => "Settlement Voided"
 ];
 
+
 function processPayment($orderId)
 {
     // Fetch order
@@ -84,6 +85,13 @@ if (isset($params['TRANSACTION_STATUS'])) {
             $newStatus = "completed";
             processPayment($orderid);
             break;
+        case "2":
+        case 2:
+            case "3":
+        case 3:
+            case "4":
+        case 4:
+            processCancelOrder($orderid);
         default:
             $newStatus = "failed";
             break;
