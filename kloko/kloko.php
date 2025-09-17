@@ -331,3 +331,53 @@ function setUserDefaultLocation($data)
 
     return $data;
 }
+
+function getUserTicketsForEvent($config, $data) {
+    global $userid;
+    // var_dump("Config", $config);
+    // var_dump("Data", $data);
+    $event_id = $config['where']['event_id'] ?? null;
+    // Expect event_id in $config or $data
+    if (!$event_id) {
+        throw new Exception("event_id is required");
+    }
+
+    // echo "User ID: $userid, Event ID: $event_id\n";
+
+    $sql = "
+        SELECT 
+            t.event_id, 
+            'ticket' AS itemtype, 
+            t.id, 
+            t.ticket_type_id, 
+            0 AS ticket_option_id, 
+            title, 
+            t.description AS event_name, 
+            tt.name AS ticket_name, 
+            quantity, 
+            t.currency, 
+            t.price 
+        FROM kloko_tickets t
+        JOIN kloko_ticket_types tt ON t.ticket_type_id = tt.id
+        WHERE t.user_id = ? AND t.event_id = ?
+        UNION
+        SELECT 
+            t.event_id, 
+            'ticket' AS itemtype, 
+            t.id, 
+            0 AS ticket_type_id, 
+            t.ticket_option_id, 
+            title, 
+            t.description AS event_name, 
+            tt.name AS ticket_name, 
+            quantity, 
+            t.currency, 
+            t.price 
+        FROM kloko_tickets t
+        JOIN kloko_ticket_options tt ON t.ticket_option_id = tt.id
+        WHERE t.user_id = ? AND t.event_id = ?
+    ";
+
+    $params = [$userid, $event_id, $userid, $event_id];
+    return PrepareExecSQL($sql, "iiii", $params);
+}

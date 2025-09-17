@@ -70,7 +70,14 @@ $klokoconfigs = [
                 'select' => ['id', 'event_id', 'name', 'description', 'currency', 'price'],
                 'beforeselect' => '',
                 'afterselect' => ''
-            ]
+            ],
+            'user' => [
+                'tablename' => 'kloko_tickets',
+                'key' => 'event_id',
+                'select' => 'getUserTicketsForEvent',
+                'beforeselect' => '',
+                'afterselect' => ''
+            ],
         ]
     ],
     "user" => [
