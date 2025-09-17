@@ -8,9 +8,13 @@ $params = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $params = $_POST;
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+} elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+    $input = file_get_contents('php://input');
+    $decoded = json_decode($input, true);
+    if (is_array($decoded)) {
+        $params = $decoded;
+    }
+} else {
     $queryString = $_SERVER['QUERY_STRING'];
     parse_str($queryString, $params);
 }
@@ -35,19 +39,22 @@ $transactionStatuses = [
 
 function processPayment($orderId)
 {
-    $order = breezoselect("order", $orderId);
+    // Fetch order
+    $order = executeQuery("SELECT * FROM `breezo_order` WHERE id = ?", [$orderId]);
     if (empty($order)) {
         throw new Exception("Order not found.");
     }
     $order = $order[0];
 
-    $user = breezoselect("user", $order['user_id']);
+    // Fetch user
+    $user = executeQuery("SELECT * FROM `user` WHERE id = ?", [$order['user_id']]);
     if (empty($user)) {
         throw new Exception("User not found.");
     }
     $user = $user[0];
 
-    $orderItems = breezoselect("order", $orderId, "items");
+    // Fetch order items
+    $orderItems = executeQuery("SELECT * FROM `breezo_order_item` WHERE order_id = ?", [$orderId]);
     if (empty($orderItems)) {
         throw new Exception("Order has no items.");
     }

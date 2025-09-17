@@ -196,20 +196,24 @@ function insertCartItem($config, $data)
 
 function processOrderPayment($orderId)
 {
-    $order = breezoselect("order", $orderId);
+    // Fetch order
+    $order = executeQuery("SELECT * FROM `breezo_order` WHERE id = ?", [$orderId]);
     if (empty($order)) {
         throw new Exception("Order not found.");
     }
     $order = $order[0];
 
-    $orderItems = breezoselect("order", $orderId, "items");
-    if (empty($orderItems)) {
-        throw new Exception("Order has no items.");
-    }
-
-    $user = breezoselect("user", $order["user_id"]);
+    // Fetch user
+    $user = executeQuery("SELECT * FROM `user` WHERE id = ?", [$order['user_id']]);
     if (empty($user)) {
         throw new Exception("User not found.");
+    }
+    $user = $user[0];
+
+    // Fetch order items
+    $orderItems = executeQuery("SELECT * FROM `breezo_order_item` WHERE order_id = ?", [$orderId]);
+    if (empty($orderItems)) {
+        throw new Exception("Order has no items.");
     }
 
     $totalPrice = 0;
