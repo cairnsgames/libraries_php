@@ -458,3 +458,9 @@ function getUserTickets($data)
         AND t.user_id = ?";
     return PrepareExecSQL($sql, 'i', [$userId]);
 }
+
+function latestOrderForUser($data)
+{global $userid;
+    $sql = "SELECT * FROM breezo_order WHERE user_id = ? ORDER BY id DESC LIMIT 1";
+    return PrepareExecSQL($sql, 'i', [$userid]);
+}
