@@ -51,6 +51,8 @@ function db_query($dbconn, $sql, $params_types = '', $params = [])
     // Determine query type
     $query_type = strtoupper(substr(trim($sql), 0, 4));
 
+    // echo "Query Type: $query_type\n";
+
     $stmt = mysqli_stmt_init($dbconn);
     if (!mysqli_stmt_prepare($stmt, $sql)) {
         throw new Exception("Failed to prepare statement: " . mysqli_error($dbconn));

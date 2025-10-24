@@ -381,3 +381,78 @@ function getUserTicketsForEvent($config, $data) {
     $params = [$userid, $event_id, $userid, $event_id];
     return PrepareExecSQL($sql, "iiii", $params);
 }
+
+function getMyCalendarEvents($data)
+{
+    global $userid, $appId;
+    $data["user_id"] = $userid;
+    $data["app_id"] = $appId;
+
+    // echo "User ID: $userid, App ID: $appId\n";
+        // Build and execute the UNION query that returns both favorited events and user's tickets
+        $sql = "SELECT
+        e.id AS event_id,
+        e.app_id,
+        e.title,
+        e.description,
+        e.currency,
+        e.price,
+        e.image,
+        e.keywords,
+        e.event_type,
+        e.duration,
+        e.location,
+        e.lat,
+        e.lng,
+        e.start_time,
+        e.end_time,
+        e.enable_bookings,
+        1 AS favorite,
+        'PH-ticket_id' AS ticket_id,
+        'PH-ticket_type_id' AS ticket_type_id,
+        'PH-ticket_description' AS ticket_description,
+        'PH-quantity' AS quantity
+    FROM kloko_event e
+    LEFT JOIN user_favorites uf
+        ON uf.event_id = e.id AND uf.user_id = ?
+    WHERE e.app_id = ?
+        AND e.event_type = 'event'
+        AND uf.id IS NOT NULL
+UNION ALL
+    SELECT
+        e.id AS event_id,
+        e.app_id,
+        e.title,
+        e.description,
+        t.currency,
+        t.price,
+        e.image,
+        e.keywords,
+        e.event_type,
+        e.duration,
+        e.location,
+        e.lat,
+        e.lng,
+        e.start_time,
+        e.end_time,
+        e.enable_bookings,
+        'PH-favorite' AS favorite,
+        t.id AS ticket_id,
+        t.ticket_type_id,
+        t.description AS ticket_description,
+        t.quantity
+    FROM kloko_tickets t
+    JOIN kloko_event e ON t.event_id = e.id
+    WHERE t.user_id = ?
+        AND t.ticket_option_id = 0
+ORDER BY start_time";
+
+        // Parameters: for the first SELECT we need uf.user_id and e.app_id, then for the second SELECT we need t.user_id
+        // PrepareExecSQL expects a types string matching the params count. userid is integer, appId is string.
+        $params = [$userid, $appId, $userid];
+        $types = "sss";
+
+        $result = PrepareExecSQL($sql, $types, $params);
+
+        return $result;
+}

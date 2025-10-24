@@ -372,6 +372,69 @@ function markBookingsByOrder($orderId, $newStatus)
                 $item['id']
             ]);
         }
+        // Send email to user after tickets are created
+        // Gather event and ticket info for email
+        $eventInfo = [
+            "name" => $ticketItems[0]["title"] ?? "Event",
+            "date" => date("Y-m-d"), // Replace with actual event date if available
+            "location" => "" // Replace with actual location if available
+        ];
+        $tickets = [];
+        foreach ($ticketItems as $item) {
+            $tickets[] = [
+                "type" => $item["title"],
+                "price" => $item["price"],
+                "quantity" => $item["quantity"]
+            ];
+        }
+        global $appId;
+        sendTicketPurchaseEmail($ticketItems[0]["user_id"], $eventInfo, $tickets, $appId);
+    }
+
+    $ticketSql = "SELECT boi.*, bo.user_id 
+                  FROM breezo_order_item boi 
+                  JOIN breezo_order bo ON bo.id = boi.order_id 
+                  WHERE boi.item_type_id IN (3, 4) AND boi.order_id = ?";
+    $ticketItems = PrepareExecSQL($ticketSql, 'i', [$orderId]);
+
+    if (!empty($ticketItems)) {
+        foreach ($ticketItems as $item) {
+            $ticketTypeId = $item['item_type_id'] == 3 ? $item['item_id'] : 0;
+            $ticketOptionId = $item['item_type_id'] == 4 ? $item['item_id'] : 0;
+
+            $insertTicketSQL = "INSERT INTO kloko_tickets 
+                               (user_id, event_id, ticket_type_id, ticket_option_id, title, description, quantity, currency, price, order_item_id) 
+                               VALUES (?, ?, ?, ?, ?, ?, ?, 'ZAR', ?, ?)";
+
+            PrepareExecSQL($insertTicketSQL, 'iiiissidd', [
+                $item['user_id'],
+                $item['parent_id'],
+                $ticketTypeId,
+                $ticketOptionId,
+                $item['title'],
+                $item['item_description'],
+                $item['quantity'],
+                $item['price'],
+                $item['id']
+            ]);
+        }
+        // Send email to user after tickets are created
+        // Gather event and ticket info for email
+        $eventInfo = [
+            "name" => $ticketItems[0]["title"] ?? "Event",
+            "date" => date("Y-m-d"), // Replace with actual event date if available
+            "location" => "" // Replace with actual location if available
+        ];
+        $tickets = [];
+        foreach ($ticketItems as $item) {
+            $tickets[] = [
+                "type" => $item["title"],
+                "price" => $item["price"],
+                "quantity" => $item["quantity"]
+            ];
+        }
+        global $appId;
+        sendTicketPurchaseEmail($ticketItems[0]["user_id"], $eventInfo, $tickets, $appId);
     }
 
     return $updatedBookings;
@@ -463,4 +526,55 @@ function latestOrderForUser($data)
 {global $userid;
     $sql = "SELECT * FROM breezo_order WHERE user_id = ? ORDER BY id DESC LIMIT 1";
     return PrepareExecSQL($sql, 'i', [$userid]);
+}
+
+function getEmailAPIKey($appId)
+{
+    $sql = "SELECT apikey FROM email_apikey WHERE app_id = ?";
+    $result = PrepareExecSQL($sql, 's', [$appId]);
+    if (!empty($result)) {
+        return $result[0]['apikey'];
+    }
+    return null;
+}
+
+function sendTicketPurchaseEmail($userId, $eventInfo, $tickets, $appId)
+{
+    // Fetch user info
+    $users = PrepareExecSQL("SELECT * FROM user WHERE id = ?", 'i', [$userId]);
+    $user = $users[0];
+    if (empty($user)) return false;
+    var_dump($user);
+    $appId = $user["app_id"];
+    $apikey = getEmailAPIKey($appId);
+
+    // Prepare email data
+    $data = [
+        "template_name" => "thank_you_for_buying_tickets",
+        "data" => [
+            "event" => $eventInfo,
+            "tickets" => $tickets,
+            "user_name" => $user["name"] ?? ($user["first_name"] ?? "User"),
+        ]
+    ];
+
+    $headers = [
+        "Content-Type: application/json",
+        "app_id: $appId",
+        "apikey: $apikey",
+        "to: " . $user["email"]
+    ];
+
+    echo "Send EMAIL TO: ", $user["email"], "\n";
+    echo "With DATA: ", json_encode($data, JSON_PRETTY_PRINT), "\n";
+
+    $ch = curl_init("https://cairnsgames.co.za/php/emailer2/emailbytemplate.php");
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    echo "Email response: ", $response, "\n";
+    return $response;
 }

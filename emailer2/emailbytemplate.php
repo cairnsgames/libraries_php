@@ -13,8 +13,13 @@ $data_json = getParam('data', '{}');
 $lang = getParam('lang', 'en');
 $apikey = getParam('apikey', '');
 
-    // echo "app_id:", $app_id, "\n";
-    // echo "apikey:", $apikey, "\n";
+// echo "Received parameters:\n";
+// echo "to:", $to, "\n";
+// echo "app_id:", $app_id, "\n";
+// echo "template_name:", $template_name, "\n";
+// echo "data:", $data_json, "\n";
+// echo "lang:", $lang, "\n";
+// echo "apikey:", $apikey, "\n";
 
 $sql = "select * from email_apikey where app_id = ? and apikey = ?";
 $params = [$app_id, $apikey];
@@ -28,6 +33,9 @@ if (empty($result)) {
     echo "Invalid API key or app ID.";
     exit;
 }
+
+
+    // echo "apikey:", $apikey, "\n";
 
 if ($app_id == '' || $template_name == '') {
   http_response_code(400);

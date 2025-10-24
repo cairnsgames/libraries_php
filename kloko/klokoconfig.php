@@ -311,5 +311,10 @@ JOIN kloko_location l ON ul.location_id = l.id",
             LIMIT 3",
         'beforeselect' => 'beforesearch',
         'afterselect' => ''
-    ]
+    ],
+            "mycalendar" => [
+                'tablename' => 'kloko_calendar',
+                'key' => 'user_id',
+                'select' => "getMyCalendarEvents",
+            ]
 ];
