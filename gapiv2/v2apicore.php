@@ -151,7 +151,7 @@ function runAPI($configs)
                                     $data[$field] = $value;
                                 }
                             }
-                            echo "Data: " . json_encode($data) . "\n";
+                            // echo "Data: " . json_encode($data) . "\n";
                             $response = CreateData($config, $data);
                         }
                     }
