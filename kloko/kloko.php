@@ -142,16 +142,60 @@ function klokodelete($endpoint, $id)
     return GAPIdelete($klokoconfigs, $endpoint, $id);
 }
 
-
-
-
 function getUpcomingEvents($data)
 {
     global $userid, $appId;
-    // Use date from $data if provided, otherwise use current date
-    $date = isset($data['date']) && !empty($data['date']) ? $data['date'] : date("Y-m-d H:i:s");
 
-    // echo "User ID: $userid, App ID: $appId, Date: $date\n";
+    // Defaults
+    $lat = null;
+    $lng = null;
+    $distance = 50; // km
+    $date = (!empty($data['date'])) ? $data['date'] : date("Y-m-d H:i:s");
+
+    if (isset($data['lat'])) $lat = $data['lat'];
+    if (isset($data['lng'])) $lng = $data['lng'];
+    if (isset($data['distance'])) $distance = $data['distance'];
+
+    // Safer checks (empty() treats 0 as "empty")
+    $hasCoords = is_numeric($lat) && is_numeric($lng);
+    $lat = $hasCoords ? (float)$lat : null;
+    $lng = $hasCoords ? (float)$lng : null;
+
+    $selectDistance = ", 0 AS distance";
+    $whereDistance  = "";
+
+    $selectParams = [];
+    $selectTypes  = "";
+
+    $whereParams = [];
+    $whereTypes  = "";
+
+    if ($hasCoords) {
+        $selectDistance = ",
+            ROUND(6371 * acos(
+                cos(radians(?)) * cos(radians(e.lat)) *
+                cos(radians(e.lng) - radians(?)) +
+                sin(radians(?)) * sin(radians(e.lat))
+            )) AS distance";
+        $selectParams = [$lat, $lng, $lat];
+        $selectTypes  = "ddd";
+
+        // Only add distance filter if > 0
+        if (is_numeric($distance) && (float)$distance > 0) {
+            $distance = (float)$distance;
+
+            $whereDistance = "
+              AND (6371 * acos(
+                    cos(radians(?)) * cos(radians(e.lat)) *
+                    cos(radians(e.lng) - radians(?)) +
+                    sin(radians(?)) * sin(radians(e.lat))
+                )) <= ?";
+
+            $whereParams = [$lat, $lng, $lat, $distance];
+            $whereTypes  = "dddd";
+        }
+    }
+
     $sql = "
         SELECT e.id,
                e.calendar_id,
@@ -180,6 +224,7 @@ function getUpcomingEvents($data)
                e.overlay_text,
                e.enable_bookings,
                CASE WHEN uf.id IS NOT NULL THEN 1 ELSE 0 END AS favorite
+               $selectDistance
         FROM kloko_event e
         LEFT JOIN user_favorites uf 
                ON uf.event_id = e.id 
@@ -187,13 +232,144 @@ function getUpcomingEvents($data)
         WHERE e.end_time > ?
           AND e.app_id = ?
           AND e.event_type = 'event'
+          $whereDistance
         ORDER BY e.start_time
     ";
 
-    $params = [$userid, $date, $appId];
-    $types = "sss";
+    // IMPORTANT: param order must match placeholder order in SQL:
+    // [SELECT distance params...] then uf.user_id, date, appId then [WHERE distance params...]
+    $params = array_merge(
+        $selectParams,
+        [$userid, $date, $appId],
+        $whereParams
+    );
+
+    // Types must match the params order above
+    // userid is usually int => "i", date/appId are strings => "ss"
+    $types = $selectTypes . "iss" . $whereTypes;
+
+    // Debug (optional)
+    // error_log($sql);
+    // error_log("Types: " . $types);
+    // error_log("Params: " . print_r($params, true));
+
     return PrepareExecSQL($sql, $types, $params);
 }
+
+
+
+// function getUpcomingEvents($data)
+// {
+//     $lat = null;
+//     $lng = null;
+//     $distance = 50;
+//     global $userid, $appId;
+//     // Use date from $data if provided, otherwise use current date
+//     $date = isset($data['date']) && !empty($data['date']) ? $data['date'] : date("Y-m-d H:i:s");
+
+//     if (isset($data)) {
+//         if (isset($data['lat'])) {
+//             $lat = $data['lat'];
+//         }
+//         if (isset($data['lng'])) {
+//             $lng = $data['lng'];
+//         }
+//         if (isset($data['distance'])) {
+//             $distance = $data['distance'];
+//         }
+//     }
+    
+//     // Debug output
+//     // var_dump("getUpcomingEvents - lat: " . var_export($lat, true) . ", lng: " . var_export($lng, true) . ", distance: " . var_export($distance, true));
+
+//     // Build distance calculation if lat/lng provided
+//     $selectDistance = '';
+//     $whereDistance = '';
+//     $distanceParams = [];
+//     $distanceTypes = '';
+    
+//     if (!empty($lat) && !empty($lng)) {
+//         $selectDistance = ",
+//             ROUND(6371 * acos(
+//                 cos(radians(?)) * cos(radians(e.lat)) *
+//                 cos(radians(e.lng) - radians(?)) +
+//                 sin(radians(?)) * sin(radians(e.lat))
+//             )) AS distance";
+
+//         // Parameters for SELECT distance calculation
+//         $distanceParams = [$lat, $lng, $lat];
+//         $distanceTypes = 'ddd';
+
+//         // Add WHERE clause only if distance filter is provided and > 0
+//         if (isset($distance) && $distance > 0) {
+//             error_log("Adding distance filter: distance = " . $distance);
+//             $whereDistance = "
+//           AND (6371 * acos(
+//                 cos(radians(?)) * cos(radians(e.lat)) *
+//                 cos(radians(e.lng) - radians(?)) +
+//                 sin(radians(?)) * sin(radians(e.lat))
+//             )) <= ?";
+
+//             // Parameters for WHERE distance filter
+//             array_push($distanceParams, $lat, $lng, $lat, $distance);
+//             $distanceTypes = 'ddddddd'; // 3 for SELECT + 4 for WHERE
+//         } else {
+//             error_log("NOT adding distance filter - distance: " . var_export($distance, true));
+//         }
+//     } else {
+//         // When lat/lng are not provided, return 0 as distance
+//         $selectDistance = ", 0 AS distance";
+//     }
+    
+//     error_log("SQL WHERE distance clause: " . $whereDistance);
+
+//     $sql = "
+//         SELECT e.id,
+//                e.calendar_id,
+//                e.user_id,
+//                e.event_template_id,
+//                e.content_id,
+//                e.app_id,
+//                e.title,
+//                e.description,
+//                e.currency,
+//                e.price,
+//                e.image,
+//                e.keywords,
+//                e.event_type,
+//                e.duration,
+//                e.location,
+//                e.lat,
+//                e.lng,
+//                e.max_participants,
+//                e.period_type,
+//                e.tickettypes,
+//                e.options,
+//                e.start_time,
+//                e.end_time,
+//                e.show_as_news,
+//                e.overlay_text,
+//                e.enable_bookings,
+//                CASE WHEN uf.id IS NOT NULL THEN 1 ELSE 0 END AS favorite
+//                $selectDistance
+//         FROM kloko_event e
+//         LEFT JOIN user_favorites uf 
+//                ON uf.event_id = e.id 
+//               AND uf.user_id = ?
+//         WHERE e.end_time > ?
+//           AND e.app_id = ?
+//           AND e.event_type = 'event'
+//           $whereDistance
+//         ORDER BY e.start_time
+//     ";
+
+//     echo $sql;
+
+//     $params = array_merge($distanceParams, [$userid, $date, $appId]);
+//     var_dump("Params:", $params);
+//     $types = $distanceTypes . "sss";
+//     return PrepareExecSQL($sql, $types, $params);
+// }
 
 function getKlokoUserTickets($data)
 {
@@ -332,7 +508,8 @@ function setUserDefaultLocation($data)
     return $data;
 }
 
-function getUserTicketsForEvent($config, $data) {
+function getUserTicketsForEvent($config, $data)
+{
     global $userid;
     // var_dump("Config", $config);
     // var_dump("Data", $data);
@@ -389,8 +566,8 @@ function getMyCalendarEvents($data)
     $data["app_id"] = $appId;
 
     // echo "User ID: $userid, App ID: $appId\n";
-        // Build and execute the UNION query that returns both favorited events and user's tickets
-        $sql = "SELECT
+    // Build and execute the UNION query that returns both favorited events and user's tickets
+    $sql = "SELECT
         e.id AS event_id,
         e.app_id,
         e.title,
@@ -447,12 +624,12 @@ UNION ALL
         AND t.ticket_option_id = 0
 ORDER BY start_time";
 
-        // Parameters: for the first SELECT we need uf.user_id and e.app_id, then for the second SELECT we need t.user_id
-        // PrepareExecSQL expects a types string matching the params count. userid is integer, appId is string.
-        $params = [$userid, $appId, $userid];
-        $types = "sss";
+    // Parameters: for the first SELECT we need uf.user_id and e.app_id, then for the second SELECT we need t.user_id
+    // PrepareExecSQL expects a types string matching the params count. userid is integer, appId is string.
+    $params = [$userid, $appId, $userid];
+    $types = "sss";
 
-        $result = PrepareExecSQL($sql, $types, $params);
+    $result = PrepareExecSQL($sql, $types, $params);
 
-        return $result;
+    return $result;
 }
