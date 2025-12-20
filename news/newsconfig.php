@@ -8,7 +8,7 @@ function getNews($data) {
     // If lat/lng are not provided, return all news ordered by date
     if ($lat === null || $lng === null) {
         $sql = "
-            SELECT n.*
+            SELECT n.*, 0 as distance
             FROM news n
             WHERE n.date <= NOW() AND n.expires > NOW()
             ORDER BY n.date DESC
