@@ -27,7 +27,7 @@ function getNews($data) {
         ))) AS distance
         FROM news n
         WHERE n.date <= NOW() AND n.expires > NOW()
-        HAVING distance <= ?
+        HAVING distance <= ? OR n.location = 'Global'
         ORDER BY distance ASC
     ";
 
