@@ -23,12 +23,12 @@ function getLocalPartners($data) {
         l.name AS location_name,
         l.lat,
         l.lng,
-        (
+        ROUND((
             6371 * ACOS(
                 COS(RADIANS(?)) * COS(RADIANS(l.lat)) * COS(RADIANS(l.lng) - RADIANS(?)) +
                 SIN(RADIANS(?)) * SIN(RADIANS(l.lat))
             )
-        ) AS distance,
+        )) AS distance,
         (
             SELECT JSON_ARRAYAGG(
                        JSON_OBJECT(
@@ -56,8 +56,8 @@ function getLocalPartners($data) {
            AND rx.app_id = ?
           WHERE urx.user_id = u.id
       )
-    HAVING distance_km <= ?
-    ORDER BY distance_km ASC
+    HAVING distance <= ?
+    ORDER BY distance ASC
     ";
 
     // Params: lat, lng, lat, role_app_id (for subquery), u.app_id, rx.app_id (exists), distance
