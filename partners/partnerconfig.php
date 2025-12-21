@@ -18,6 +18,7 @@ function getLocalPartners($data) {
         u.firstname,
         u.lastname,
         u.email,
+        u.avatar,
         l.id AS location_id,
         l.name AS location_name,
         l.lat,
