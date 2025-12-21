@@ -28,7 +28,7 @@ function getLocalPartners($data) {
                 COS(RADIANS(?)) * COS(RADIANS(l.lat)) * COS(RADIANS(l.lng) - RADIANS(?)) +
                 SIN(RADIANS(?)) * SIN(RADIANS(l.lat))
             )
-        ) AS distance_km,
+        ) AS distance,
         (
             SELECT JSON_ARRAYAGG(
                        JSON_OBJECT(
