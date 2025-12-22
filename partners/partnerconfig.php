@@ -42,6 +42,20 @@ function getLocalPartners($data) {
              AND r.app_id = ?
             WHERE ur2.user_id = u.id
         ) AS roles
+        ,
+        COALESCE(
+            (
+                SELECT JSON_ARRAYAGG(
+                    JSON_OBJECT('id', oi.id, 'name', oi.name)
+                    ORDER BY COALESCE(oi.sequence, 0), oi.id
+                )
+                FROM user_offerings uo
+                JOIN offeringitem oi ON oi.id = uo.offering_id
+                WHERE uo.user_id = u.id
+                  AND uo.active = 1
+            ),
+            JSON_ARRAY()
+        ) AS offerings
     FROM user u
     JOIN kloko_user_location ul
       ON u.id = ul.user_id
@@ -94,6 +108,30 @@ function getLocalPartners($data) {
         }
 
         $result[$i]['roles'] = $decoded;
+    }
+
+    // Decode offerings JSON similarly
+    foreach ($result as $i => $row) {
+        if (!isset($row['offerings']) || $row['offerings'] === null) {
+            $result[$i]['offerings'] = [];
+            continue;
+        }
+
+        $offJson = $row['offerings'];
+        if (is_resource($offJson) || is_object($offJson)) {
+            $offJson = (string)$offJson;
+        }
+
+        $decodedOff = json_decode($offJson, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return [];
+        }
+
+        if ($decodedOff === null) {
+            $decodedOff = [];
+        }
+
+        $result[$i]['offerings'] = $decodedOff;
     }
 
     return $result;
