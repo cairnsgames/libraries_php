@@ -196,6 +196,12 @@ function getUpcomingEvents($data)
         }
     }
 
+    // If the `classes` filter is set to 1, only return classes; otherwise default to events
+    $eventTypeCondition = "AND e.event_type = 'event'";
+    if (isset($data['classes']) && intval($data['classes']) === 1) {
+        $eventTypeCondition = "AND e.event_type = 'class'";
+    }
+
     $sql = "
         SELECT e.id,
                e.calendar_id,
@@ -229,11 +235,11 @@ function getUpcomingEvents($data)
         LEFT JOIN user_favorites uf 
                ON uf.event_id = e.id 
               AND uf.user_id = ?
-        WHERE e.end_time > ?
-          AND e.app_id = ?
-          AND e.event_type = 'event'
+                WHERE e.end_time > ?
+                    AND e.app_id = ?
+                    $eventTypeCondition
           $whereDistance
-        ORDER BY e.start_time
+        ORDER BY distance
     ";
 
     // IMPORTANT: param order must match placeholder order in SQL:
@@ -565,6 +571,12 @@ function getMyCalendarEvents($data)
     $data["user_id"] = $userid;
     $data["app_id"] = $appId;
 
+    // If the `classes` filter is set to 1, only return classes; otherwise default to events
+    $eventTypeCondition = "AND e.event_type = 'event'";
+    if (isset($data['classes']) && intval($data['classes']) === 1) {
+        $eventTypeCondition = "AND e.event_type = 'class'";
+    }
+
     // echo "User ID: $userid, App ID: $appId\n";
     // Build and execute the UNION query that returns both favorited events and user's tickets
     $sql = "SELECT
@@ -593,7 +605,7 @@ function getMyCalendarEvents($data)
     LEFT JOIN user_favorites uf
         ON uf.event_id = e.id AND uf.user_id = ?
     WHERE e.app_id = ?
-        AND e.event_type = 'event'
+        $eventTypeCondition
         AND uf.id IS NOT NULL
 UNION ALL
     SELECT

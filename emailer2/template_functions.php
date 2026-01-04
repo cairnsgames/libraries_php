@@ -100,6 +100,9 @@ function renderTemplate(string $template_content, array $data, array $properties
     // 1. Replace parts recursively
     $content = replaceParts($template_content, $app_id, $lang, $data_with_props, $properties);
 
+    // 1.5. Process conditionals ({{#if ...}}{{#else}}{{/if}})
+    $content = processConditionals($content, $data_with_props, $lang, $app_id, $properties);
+
     // 2. Process loops
     $content = processLoops($content, $data_with_props, $lang);
 
@@ -173,6 +176,117 @@ function processLoops(string $content, array $data, string $lang = "en"): string
 
         return $result;
     }, $content);
+}
+
+/**
+ * Process conditional blocks of format:
+ * {{#if condition}}
+ *    ... content ...
+ * {{#else}}
+ *    ... else content ...
+ * {{/if}}
+ * Supports simple presence checks (e.g. `options`) and comparisons
+ * like `option.value == "yes"` (double or single quoted) or numeric comparisons.
+ * @param string $content
+ * @param array $data
+ * @param string $lang
+ * @param string $app_id
+ * @param array $properties
+ * @return string
+ */
+function processConditionals(string $content, array $data, string $lang = "en", string $app_id = '', array $properties = []): string
+{
+    // Regex to find the outermost if blocks (non-greedy)
+    $pattern = '/\{\{\#if\s+([^\}]+)\}\}(.*?)\{\{\/if\}\}/s';
+
+    return preg_replace_callback($pattern, function ($matches) use ($data, $lang, $app_id, $properties) {
+        $condition = trim($matches[1]);
+        $block = $matches[2];
+
+        // Split on {{#else}} if present
+        $parts = preg_split('/\{\{\#else\}\}/', $block, 2);
+        $trueBlock = $parts[0];
+        $falseBlock = isset($parts[1]) ? $parts[1] : '';
+
+        $result = evaluateCondition($condition, $data, $lang);
+
+        // If condition true, keep trueBlock, otherwise falseBlock
+        $chosen = $result ? $trueBlock : $falseBlock;
+
+        // Process nested conditionals inside the chosen block
+        $chosen = processConditionals($chosen, $data, $lang, $app_id, $properties);
+
+        // We do not run loops/placeholders here; renderTemplate will handle them next.
+        return $chosen;
+    }, $content);
+}
+
+/**
+ * Evaluate a simple condition string against $data.
+ * Supports:
+ * - Presence/truthiness: `options`
+ * - Equality/inequality with quoted strings or numbers: `option.value == "yes"`
+ * - Numeric comparisons: >, <, >=, <=
+ * @param string $condition
+ * @param array $data
+ * @param string $lang
+ * @return bool
+ */
+function evaluateCondition(string $condition, array $data, string $lang = "en"): bool
+{
+    // Try to parse binary comparisons first
+    $cmpPattern = '/^\s*([a-zA-Z0-9_\.\-]+)\s*(==|!=|===|!==|>=|<=|>|<)\s*(?:"([^"]*)"|\'([^\']*)\'|([0-9]+(?:\.[0-9]+)?))\s*$/';
+    if (preg_match($cmpPattern, $condition, $m)) {
+        $leftKey = $m[1];
+        $op = $m[2];
+        $right = null;
+        if (isset($m[3]) && $m[3] !== '') $right = $m[3];
+        elseif (isset($m[4]) && $m[4] !== '') $right = $m[4];
+        elseif (isset($m[5]) && $m[5] !== '') $right = $m[5];
+
+        $leftVal = getValueFromData($data, $leftKey, $lang);
+
+        // Convert arrays/objects to string for comparison
+        if (is_array($leftVal)) {
+            $leftVal = json_encode($leftVal);
+        }
+
+        // If right looks numeric, compare as numbers when possible
+        $isRightNumeric = is_numeric($right);
+        if ($isRightNumeric) {
+            $leftNum = is_numeric($leftVal) ? (float)$leftVal : null;
+            $rightNum = (float)$right;
+        }
+
+        switch ($op) {
+            case '==':
+            case '===':
+                if ($isRightNumeric && is_numeric($leftVal)) return $leftNum == $rightNum;
+                return (string)$leftVal === (string)$right;
+            case '!=':
+            case '!==':
+                if ($isRightNumeric && is_numeric($leftVal)) return $leftNum != $rightNum;
+                return (string)$leftVal !== (string)$right;
+            case '>':
+                if ($isRightNumeric && is_numeric($leftVal)) return (float)$leftVal > (float)$right;
+                return (string)$leftVal > (string)$right;
+            case '<':
+                if ($isRightNumeric && is_numeric($leftVal)) return (float)$leftVal < (float)$right;
+                return (string)$leftVal < (string)$right;
+            case '>=':
+                if ($isRightNumeric && is_numeric($leftVal)) return (float)$leftVal >= (float)$right;
+                return (string)$leftVal >= (string)$right;
+            case '<=':
+                if ($isRightNumeric && is_numeric($leftVal)) return (float)$leftVal <= (float)$right;
+                return (string)$leftVal <= (string)$right;
+        }
+    }
+
+    // Fallback: treat condition as presence/truthiness of key in $data
+    $val = getValueFromData($data, $condition, $lang);
+    if ($val === null || $val === '' || $val === false) return false;
+    if (is_array($val)) return !empty($val);
+    return (bool)$val;
 }
 
 /**

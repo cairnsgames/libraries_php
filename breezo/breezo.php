@@ -381,14 +381,30 @@ function markBookingsByOrder($orderId, $newStatus)
         ];
         $tickets = [];
         foreach ($ticketItems as $item) {
-            $tickets[] = [
-                "type" => $item["title"],
-                "price" => $item["price"],
-                "quantity" => $item["quantity"]
-            ];
+            if ($item['item_type_id'] == 3) {
+                $tickets[] = [
+                    "type" => $item["title"],
+                    "price" => $item["price"],
+                    "quantity" => $item["quantity"]
+                ];
+            }
+        }
+        $ticketNumbers = [];
+        foreach ($ticketItems as $item) {
+            $ticketNumbers[] = $item["id"];
+        }
+        $options = [];
+        foreach ($ticketItems as $item) {
+            if ($item['item_type_id'] == 4) {
+                $options[] = [
+                    "type" => $item["title"],
+                    "price" => $item["price"],
+                    "quantity" => $item["quantity"]
+                ];
+            }
         }
         global $appId;
-        sendTicketPurchaseEmail($ticketItems[0]["user_id"], $eventInfo, $tickets, $appId);
+        sendTicketPurchaseEmail($ticketItems[0]["user_id"], $eventInfo, $tickets, $ticketNumbers, $options, $appId);
     }
 
     $ticketSql = "SELECT boi.*, bo.user_id 
@@ -433,8 +449,22 @@ function markBookingsByOrder($orderId, $newStatus)
                 "quantity" => $item["quantity"]
             ];
         }
+        $ticketNumbers = [];
+        foreach ($ticketItems as $item) {
+            $ticketNumbers[] = $item["id"];
+        }
+        $options = [];
+        foreach ($ticketItems as $item) {
+            if ($item['item_type_id'] == 4) {
+                $options[] = [
+                    "type" => $item["title"],
+                    "price" => $item["price"],
+                    "quantity" => $item["quantity"]
+                ];
+            }
+        }
         global $appId;
-        sendTicketPurchaseEmail($ticketItems[0]["user_id"], $eventInfo, $tickets, $appId);
+        sendTicketPurchaseEmail($ticketItems[0]["user_id"], $eventInfo, $tickets, $ticketNumbers, $appId);
     }
 
     return $updatedBookings;
@@ -523,7 +553,8 @@ function getUserTickets($data)
 }
 
 function latestOrderForUser($data)
-{global $userid;
+{
+    global $userid;
     $sql = "SELECT * FROM breezo_order WHERE user_id = ? ORDER BY id DESC LIMIT 1";
     return PrepareExecSQL($sql, 'i', [$userid]);
 }
@@ -538,12 +569,13 @@ function getEmailAPIKey($appId)
     return null;
 }
 
-function sendTicketPurchaseEmail($userId, $eventInfo, $tickets, $appId)
+function sendTicketPurchaseEmail($userId, $eventInfo, $tickets, $ticketNumbers, $appId)
 {
     // Fetch user info
     $users = PrepareExecSQL("SELECT * FROM user WHERE id = ?", 'i', [$userId]);
     $user = $users[0];
-    if (empty($user)) return false;
+    if (empty($user))
+        return false;
     var_dump($user);
     $appId = $user["app_id"];
     $apikey = getEmailAPIKey($appId);
