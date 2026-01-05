@@ -12,6 +12,8 @@ function getLocalPartners($data) {
     $appId = getAppId();
 
     $sql = "
+SELECT *
+FROM (
     SELECT
         u.id AS user_id,
         u.username,
@@ -19,30 +21,41 @@ function getLocalPartners($data) {
         u.lastname,
         u.email,
         u.avatar,
+
         l.id AS location_id,
         l.name AS location_name,
         l.lat,
         l.lng,
+
         ROUND((
             6371 * ACOS(
                 COS(RADIANS(?)) * COS(RADIANS(l.lat)) * COS(RADIANS(l.lng) - RADIANS(?)) +
                 SIN(RADIANS(?)) * SIN(RADIANS(l.lat))
             )
         )) AS distance,
+
+        ROW_NUMBER() OVER (
+            PARTITION BY u.id
+            ORDER BY
+                (
+                    6371 * ACOS(
+                        COS(RADIANS(?)) * COS(RADIANS(l.lat)) * COS(RADIANS(l.lng) - RADIANS(?)) +
+                        SIN(RADIANS(?)) * SIN(RADIANS(l.lat))
+                    )
+                )
+        ) AS rn,
+
         (
             SELECT JSON_ARRAYAGG(
-                       JSON_OBJECT(
-                           'id', r.id,
-                           'name', r.name
-                       )
-                   )
+                JSON_OBJECT('id', r.id, 'name', r.name)
+            )
             FROM user_role ur2
             JOIN role r
               ON ur2.role_id = r.id
              AND r.app_id = ?
             WHERE ur2.user_id = u.id
-        ) AS roles
-        ,
+        ) AS roles,
+
         COALESCE(
             (
                 SELECT JSON_ARRAYAGG(
@@ -56,11 +69,11 @@ function getLocalPartners($data) {
             ),
             JSON_ARRAY()
         ) AS offerings
+
     FROM user u
-    JOIN kloko_user_location ul
-      ON u.id = ul.user_id
-    JOIN kloko_location l
-      ON ul.location_id = l.id
+    JOIN kloko_user_location ul ON u.id = ul.user_id
+    JOIN kloko_location l ON ul.location_id = l.id
+
     WHERE u.app_id = ?
       AND EXISTS (
           SELECT 1
@@ -70,14 +83,21 @@ function getLocalPartners($data) {
            AND rx.app_id = ?
           WHERE urx.user_id = u.id
       )
-    HAVING distance <= ?
-    ORDER BY distance ASC
+) ranked
+WHERE rn = 1
+  AND distance <= ?
+ORDER BY distance ASC;
     ";
 
-    // Params: lat, lng, lat, role_app_id (for subquery), u.app_id, rx.app_id (exists), distance
-    $params = [$lat, $lng, $lat, $appId, $appId, $appId, $distance];
-    // types: 3 doubles, 3 strings, 1 double
-    $types = 'dddsssd';
+    $params = [
+        $lat, $lng, $lat,   // distance SELECT
+        $lat, $lng, $lat,   // distance ORDER BY (ROW_NUMBER)
+        $appId,             // roles subquery
+        $appId,             // u.app_id
+        $appId,             // rx.app_id
+        $distance           // max distance
+    ];
+    $types = 'ddddddsssd';
 
     $result = PrepareExecSQL($sql, $types, $params);
 
@@ -167,6 +187,13 @@ $partnerconfigs = [
                 'tablename' => 'partner_banking',
                 'key' => 'partner_id',
                 'select' => ['id', 'partner_id', 'bank_name','account_number','branch_code','payment_method','paypal_username'],
+                'beforeselect' => '',
+                'afterselect' => ''
+            ],
+            'events' => [
+                'tablename' => 'kloko_event',
+                'key' => 'user_id',
+                'select' => ['id', 'user_id', 'title', 'description', 'image', 'event_type', 'keywords', 'duration', 'start_time', 'end_time', 'location', 'lat', 'lng', 'max_participants', 'currency', 'price', 'show_as_news', 'enable_bookings', 'overlay_text'],
                 'beforeselect' => '',
                 'afterselect' => ''
             ],
