@@ -5,8 +5,8 @@ app_id: b0181e17-e5c6-11ee-bb99-1a220d8ac2c9
 Content-Type: application/json
 
 {
-  "lat": -26.41,
-  "lng": 28.00,
+  "lat": -26.00,
+  "lng": 28.10,
 "distance": 50000,
   "classes": 1
 }

@@ -1,4 +1,38 @@
 <?php
+
+function decode_maybe_json($input, $expectArray = false) {
+    if (is_array($input)) {
+        return $input;
+    }
+
+    if ($input === null) {
+        return $expectArray ? [] : null;
+    }
+
+    if (is_resource($input) || is_object($input)) {
+        $input = (string)$input;
+    }
+
+    if (!is_string($input)) {
+        return $input;
+    }
+
+    $trim = trim($input);
+    if ($trim === '') {
+        return $expectArray ? [] : '';
+    }
+
+    $decoded = json_decode($input, true);
+    if (json_last_error() === JSON_ERROR_NONE) {
+        if ($decoded === null && $expectArray) {
+            return [];
+        }
+        return $decoded;
+    }
+
+    return $expectArray ? [] : $input;
+}
+
 function getLocalPartners($data) {
     $lat = isset($data['lat']) ? floatval($data['lat']) : null;
     $lng = isset($data['lng']) ? floatval($data['lng']) : null;
@@ -29,7 +63,8 @@ FROM (
 
         ROUND((
             6371 * ACOS(
-                COS(RADIANS(?)) * COS(RADIANS(l.lat)) * COS(RADIANS(l.lng) - RADIANS(?)) +
+                COS(RADIANS(?)) * COS(RADIANS(l.lat)) *
+                COS(RADIANS(l.lng) - RADIANS(?)) +
                 SIN(RADIANS(?)) * SIN(RADIANS(l.lat))
             )
         )) AS distance,
@@ -39,7 +74,8 @@ FROM (
             ORDER BY
                 (
                     6371 * ACOS(
-                        COS(RADIANS(?)) * COS(RADIANS(l.lat)) * COS(RADIANS(l.lng) - RADIANS(?)) +
+                        COS(RADIANS(?)) * COS(RADIANS(l.lat)) *
+                        COS(RADIANS(l.lng) - RADIANS(?)) +
                         SIN(RADIANS(?)) * SIN(RADIANS(l.lat))
                     )
                 )
@@ -68,7 +104,23 @@ FROM (
                   AND uo.active = 1
             ),
             JSON_ARRAY()
-        ) AS offerings
+        ) AS offerings,
+
+        COALESCE(
+            (
+                SELECT JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'id', up.id,
+                        'name', up.name,
+                        'value', up.value
+                    )
+                    ORDER BY up.id
+                )
+                FROM user_property up
+                WHERE up.user_id = u.id
+            ),
+            JSON_ARRAY()
+        ) AS properties
 
     FROM user u
     JOIN kloko_user_location ul ON u.id = ul.user_id
@@ -106,52 +158,28 @@ ORDER BY distance ASC;
         return [];
     }
 
-    // Decode the roles JSON for each row. If null -> [], on any JSON error -> return []
+    // Decode roles using helper
     foreach ($result as $i => $row) {
-        if (!isset($row['roles']) || $row['roles'] === null) {
-            $result[$i]['roles'] = [];
-            continue;
-        }
-
-        $rolesJson = $row['roles'];
-        if (is_resource($rolesJson) || is_object($rolesJson)) {
-            $rolesJson = (string)$rolesJson;
-        }
-
-        $decoded = json_decode($rolesJson, true);
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return [];
-        }
-
-        if ($decoded === null) {
-            $decoded = [];
-        }
-
-        $result[$i]['roles'] = $decoded;
+        $result[$i]['roles'] = decode_maybe_json($row['roles'] ?? null, true);
     }
 
-    // Decode offerings JSON similarly
+    // Decode offerings using helper
     foreach ($result as $i => $row) {
-        if (!isset($row['offerings']) || $row['offerings'] === null) {
-            $result[$i]['offerings'] = [];
-            continue;
+        $result[$i]['offerings'] = decode_maybe_json($row['offerings'] ?? null, true);
+    }
+
+    // Decode properties using helper and decode each property's value if JSON
+    foreach ($result as $i => $row) {
+        $decodedProps = decode_maybe_json($row['properties'] ?? null, true);
+
+        foreach ($decodedProps as $pi => $prop) {
+            if (isset($prop['value']) && (is_string($prop['value']) || is_resource($prop['value']) || is_object($prop['value']))) {
+                $decodedVal = decode_maybe_json($prop['value'], false);
+                $decodedProps[$pi]['value'] = $decodedVal;
+            }
         }
 
-        $offJson = $row['offerings'];
-        if (is_resource($offJson) || is_object($offJson)) {
-            $offJson = (string)$offJson;
-        }
-
-        $decodedOff = json_decode($offJson, true);
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return [];
-        }
-
-        if ($decodedOff === null) {
-            $decodedOff = [];
-        }
-
-        $result[$i]['offerings'] = $decodedOff;
+        $result[$i]['properties'] = $decodedProps;
     }
 
     return $result;
