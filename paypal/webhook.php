@@ -59,7 +59,7 @@ try {
     $stmt->bind_param('sssssss', $body, $eventtype, $status, $custom->order_id, $custom->app_id, $custom->total_price, $paymentid);
     $stmt->execute();
 
-    processOrderPayment($custom->order_id);
+    // processOrderPayment($custom->order_id);
 
 } catch (Exception $e) {
     http_response_code(400); // Bad Request
