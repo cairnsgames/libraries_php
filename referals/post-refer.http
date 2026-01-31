@@ -1,0 +1,5 @@
+### Record referral (POST form)
+POST http://localhost/cairnsgames/libraries_php/referals/refer.php
+Content-Type: application/x-www-form-urlencoded
+
+refer=319&t=10
