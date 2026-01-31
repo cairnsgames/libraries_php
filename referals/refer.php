@@ -5,14 +5,33 @@ include_once dirname(__FILE__)."/../dbutils.php";
 header('Content-Type: application/json');
 
 try {
+    // If request body is JSON, parse it and populate $_REQUEST-like values
+    $contentType = '';
+    if (isset($_SERVER['CONTENT_TYPE'])) {
+        $contentType = strtolower(trim(explode(';', $_SERVER['CONTENT_TYPE'])[0]));
+    }
+    if ($contentType === 'application/json') {
+        $raw = file_get_contents('php://input');
+        $json = json_decode($raw, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($json)) {
+            // map json values into local variables later instead of $_REQUEST
+        } else {
+            throw new Exception('Invalid JSON body');
+        }
+    }
     // Read params (GET or POST)
     $user_id = 0;
-    if (isset($_REQUEST['refer'])) {
+    // prefer JSON body values when provided
+    if (isset($json) && is_array($json) && isset($json['refer'])) {
+        $user_id = intval($json['refer']);
+    } elseif (isset($_REQUEST['refer'])) {
         $user_id = intval($_REQUEST['refer']);
     }
 
     $referal_type = '';
-    if (isset($_REQUEST['t'])) {
+    if (isset($json) && is_array($json) && isset($json['t'])) {
+        $referal_type = trim($json['t']);
+    } elseif (isset($_REQUEST['t'])) {
         $referal_type = trim($_REQUEST['t']);
     }
 
