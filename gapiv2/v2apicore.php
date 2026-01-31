@@ -59,7 +59,11 @@ function runAPI($configs)
                         }
 
                         // Call the function with the data
-                        $response = $functionName($data);
+                        if (!is_callable($functionName)) {
+    throw new Exception("Function '$functionName' is not callable.");
+}
+                        $response = call_user_func($functionName, $data);
+                        
                         header('Content-Type: application/json');
                         $response = utf8ize($response);
                         $json = json_encode($response, JSON_UNESCAPED_UNICODE);

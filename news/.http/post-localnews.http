@@ -1,13 +1,9 @@
-POST http://cairnsgames.co.za/php/news/api.php/news
+POST http://localhost/cairnsgames/php/news/api.php/localnews
 app_id: b0181e17-e5c6-11ee-bb99-1a220d8ac2c9
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOm51bGwsInN1YiI6bnVsbCwiYXVkIjpudWxsLCJleHAiOjE4MjE3NTMxNjUsIm5iZiI6MTc2MTI3MzE2NSwiaWF0IjoxNzYxMjczMTY1LCJqdGkiOiJ7QzMwMUEyNDQtNjY5Ri02Q0NGLUM4NzUtQkQyMTA1QjdEOUZBfSIsImRhdGEiOnsiaWQiOjIxLCJ1c2VybmFtZSI6IjAiLCJmaXJzdG5hbWUiOiJXaWxsaWFtIiwibGFzdG5hbWUiOiJDYWlybnMiLCJyb2xlaWQiOjIsInJvbGUiOiJVc2VyIiwicGVybWlzc2lvbnMiOlt7Im5hbWUiOiJBdXRoIiwicGVybWlzc2lvbiI6IllFUyJ9LHsibmFtZSI6IkNhbGVuZGFyIiwicGVybWlzc2lvbiI6IllFUyJ9LHsibmFtZSI6IkV2ZW50cyIsInBlcm1pc3Npb24iOiJZRVMifSx7Im5hbWUiOiJJbXBlcnNvbmF0ZVVzZXIiLCJwZXJtaXNzaW9uIjoiWUVTIn0seyJuYW1lIjoiTG95YWx0eSIsInBlcm1pc3Npb24iOiJZRVMifSx7Im5hbWUiOiJNZW1iZXJzaGlwQWRtaW5pc3RyYXRpb24iLCJwZXJtaXNzaW9uIjoiWUVTIn0seyJuYW1lIjoiT3JkZXJzIiwicGVybWlzc2lvbiI6Ik5PIn0seyJuYW1lIjoiUGFydG5lciIsInBlcm1pc3Npb24iOiJZRVMifSx7Im5hbWUiOiJTdG9yZSIsInBlcm1pc3Npb24iOiJOTyJ9LHsibmFtZSI6IlRlbmFudCIsInBlcm1pc3Npb24iOiJOTyJ9XX19.MDY0MGIzMjk4MWJmYTYzY2FhMjdiMmQ4ZDIxNzg4Y2Q3ZGJjNDI5Y2E4YWU4ZGZiYjRmNDYyZjI5NDk1YzFjYw
 
 {
-  "title": "Test News",
-  "body": "This is a test news item created via the API.",
-  "image_url": "http://example.com/image.jpg",
-  "expires": "2025-12-31 23:59:59",
-  "location": "Test Location 2",
-  "lat": -34.0,
-  "lng": 18.0
+  "lat": -26.096,
+  "lng": 28.009,
+  "distance": 50
 }

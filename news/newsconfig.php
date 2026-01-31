@@ -1,6 +1,47 @@
 <?php
+
+function getNews($data) {
+    $lat = isset($data['lat']) ? floatval($data['lat']) : null;
+    $lng = isset($data['lng']) ? floatval($data['lng']) : null;
+    $distance = isset($data['distance']) ? floatval($data['distance']) : 50; // default 50 km
+
+    // If lat/lng are not provided, return all news ordered by date
+    if ($lat === null || $lng === null) {
+        $sql = "
+            SELECT n.*, 0 as distance
+            FROM news n
+            WHERE n.date <= NOW() AND n.expires > NOW()
+            ORDER BY n.date DESC
+        ";
+
+        // No bound parameters required
+        return PrepareExecSQL($sql, "", []);
+    }
+
+    // Haversine formula to calculate distance (use positional placeholders)
+    $sql = "
+        SELECT n.*, 
+        ROUND((6371 * acos(
+            cos(radians(?)) * cos(radians(n.lat)) * cos(radians(n.lng) - radians(?)) +
+            sin(radians(?)) * sin(radians(n.lat))
+        ))) AS distance
+        FROM news n
+        WHERE n.date <= NOW() AND n.expires > NOW()
+        HAVING distance <= ? OR n.location = 'Global'
+        ORDER BY distance ASC
+    ";
+
+    // PrepareExecSQL in this codebase expects a types string and a numeric params array
+    $types = 'dddd';
+    $params = [$lat, $lng, $lat, $distance];
+
+    return PrepareExecSQL($sql, $types, $params);
+}
 // Define the configurations
 $newsconfigs = [
+    "post" => [
+        "localnews" => "getNews"
+    ],
     "news" => [
         'tablename' => 'news',
         'key' => 'id',
