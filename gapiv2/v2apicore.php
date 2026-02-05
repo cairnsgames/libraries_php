@@ -19,6 +19,8 @@ function runAPI($configs)
         $id = isset($parts[1]) ? $parts[1] : null;
         $subkey = isset($parts[2]) ? $parts[2] : null;
 
+        // echo "Endpoint: $endpoint, ID: $id, Subkey: $subkey, Method: $method\n";
+
         // Handle the special $$ endpoint
         if ($endpoint === '$$') {
             if ($method === 'GET') {
@@ -94,6 +96,7 @@ function runAPI($configs)
 
             switch ($method) {
                 case 'GET':
+                    // var_dump("SUBCONFIG", $subconfig);
                     $response = SelectData($subconfig);
                     break;
                 default:

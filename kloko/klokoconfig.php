@@ -78,6 +78,13 @@ $klokoconfigs = [
                 'beforeselect' => '',
                 'afterselect' => ''
             ],
+            'classes' => [
+                'tablename' => 'kloko_events',
+                'key' => 'parent_id',
+                'select' => ['id', 'event_id', 'title', 'description', 'class_date', 'start_time', 'end_time', 'location'],
+                'beforeselect' => '',
+                'afterselect' => ''
+            ]
         ]
     ],
     "user" => [
