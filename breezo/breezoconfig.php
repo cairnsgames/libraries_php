@@ -94,7 +94,7 @@ $breezoconfigs = [
                 breezo_cart_item.price,
                 item_type_id,
                 ifnull(breezo_cart_item.title, kloko_event.title) title,
-                parent_id,
+                breezo_cart_item.parent_id,
                 item_id, item_description,
                 booking_id,
                 supplier_id,
