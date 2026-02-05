@@ -81,7 +81,7 @@ $klokoconfigs = [
             'classes' => [
                 'tablename' => 'kloko_event',
                 'key' => 'parent_id',
-                'select' => ['id', 'event_id', 'title', 'description', 'class_date', 'start_time', 'end_time', 'location'],
+                'select' => ['id', 'calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'currency', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time', 'period_type', 'tickettypes', 'options', 'show_as_news', 'overlay_text', 'enable_bookings'],,
                 'beforeselect' => '',
                 'afterselect' => ''
             ]
