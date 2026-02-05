@@ -7,6 +7,6 @@ Content-Type: application/json
 {
   "lat": -26.00,
   "lng": 28.10,
-"distance": 50000,
-  "classes": 1
+"distance": 50000
+
 }

@@ -1,6 +1,6 @@
 <?php
 
-$EVENT_FIELDS = ['id', 'calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'currency', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'period_type', 'tickettypes', 'options', 'start_time', 'end_time', 'show_as_news', 'overlay_text','enable_bookings'];
+$EVENT_FIELDS = ['id', 'calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'currency', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'period_type', 'tickettypes', 'options', 'start_time', 'end_time', 'show_as_news', 'overlay_text', 'enable_bookings'];
 
 // Define the configurations
 $klokoconfigs = [
@@ -38,9 +38,9 @@ $klokoconfigs = [
     "event" => [
         'tablename' => 'kloko_event',
         'key' => 'id',
-        'select' => ['id', 'calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'currency', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time', 'period_type', 'tickettypes', 'options', 'show_as_news', 'overlay_text','enable_bookings'],
-        'create' => ['calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'currency', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time','period_type', 'tickettypes', 'options', 'show_as_news', 'overlay_text','enable_bookings'],
-        'update' => ['title', 'description', 'currency', 'price', 'image', 'content_id', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time','period_type', 'tickettypes', 'options', 'show_as_news', 'overlay_text','enable_bookings'],
+        'select' => ['id', 'calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'currency', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time', 'period_type', 'tickettypes', 'options', 'show_as_news', 'overlay_text', 'enable_bookings'],
+        'create' => ['calendar_id', 'user_id', 'event_template_id', 'content_id', 'app_id', 'title', 'description', 'currency', 'price', 'image', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time', 'period_type', 'tickettypes', 'options', 'show_as_news', 'overlay_text', 'enable_bookings'],
+        'update' => ['title', 'description', 'currency', 'price', 'image', 'content_id', 'keywords', 'event_type', 'duration', 'location', 'lat', 'lng', 'max_participants', 'start_time', 'end_time', 'period_type', 'tickettypes', 'options', 'show_as_news', 'overlay_text', 'enable_bookings'],
         'delete' => true,
         'beforeselect' => '',
         'afterselect' => '',
@@ -117,8 +117,29 @@ JOIN kloko_location l ON ul.location_id = l.id",
             "events" => [
                 'tablename' => 'kloko_event',
                 'key' => 'user_id',
-                'select' => ['id', 'user_id', 'title', 'description', 'image', 'event_type', 'keywords', 'duration', 'start_time', 'end_time', 'location', 'lat', 'lng', 
-                             'max_participants', 'currency', 'price', 'keywords', 'event_type', 'show_as_news', 'enable_bookings', 'overlay_text'],
+                'select' => [
+                    'id',
+                    'user_id',
+                    'title',
+                    'description',
+                    'image',
+                    'event_type',
+                    'keywords',
+                    'duration',
+                    'start_time',
+                    'end_time',
+                    'location',
+                    'lat',
+                    'lng',
+                    'max_participants',
+                    'currency',
+                    'price',
+                    'keywords',
+                    'event_type',
+                    'show_as_news',
+                    'enable_bookings',
+                    'overlay_text'
+                ],
             ]
         ]
     ],
@@ -312,9 +333,9 @@ JOIN kloko_location l ON ul.location_id = l.id",
         'beforeselect' => 'beforesearch',
         'afterselect' => ''
     ],
-            "mycalendar" => [
-                'tablename' => 'kloko_calendar',
-                'key' => 'user_id',
-                'select' => "getMyCalendarEvents",
-            ]
+    "mycalendar" => [
+        'tablename' => 'kloko_calendar',
+        'key' => 'user_id',
+        'select' => "getMyCalendarEvents",
+    ]
 ];

@@ -93,7 +93,7 @@ function convertCartToOrder($data)
     // Calculate total price
     $totalPrice = 0;
     foreach ($cartItems as $item) {
-        $totalPrice += $item['price'];
+        $totalPrice += $item['price'] * $item['quantity'];
     }
 
     // Create the order

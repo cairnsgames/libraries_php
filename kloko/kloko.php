@@ -146,6 +146,8 @@ function getUpcomingEvents($data)
 {
     global $userid, $appId;
 
+    var_dump("EVENTS DATA", $data);
+
     // Defaults
     $lat = null;
     $lng = null;
