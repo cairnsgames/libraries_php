@@ -90,7 +90,7 @@ LEFT JOIN kloko_tickets t
     ON t.event_id = e.id
 WHERE e.parent_id = {parent_id}
 GROUP BY e.id
-ORDER BY e.start_time",
+ORDER BY e.start_time asc",
                 'beforeselect' => '',
                 'afterselect' => ''
             ]
