@@ -82,7 +82,7 @@ $klokoconfigs = [
                 'tablename' => 'kloko_event',
                 'key' => 'parent_id',
                 'select' => "SELECT
-    e.id, e.parent_id, e.user_id, e.title, e.DESCRIPTION, e.image, e.keywords, e.location, e.lat, e.lng, 
+    e.id, e.parent_id, e.user_id, e.title, e.description, e.image, e.keywords, e.location, e.lat, e.lng, 
 	 e.max_participants, COALESCE(SUM(t.quantity), 0) AS participants,
     least(e.start_time, e.end_time) as start_time, greatest(e.start_time, e.end_time) as end_time , e.currency, e.price, e.show_as_news, e.overlay_text, e.enable_bookings
 FROM kloko_event e
