@@ -17,7 +17,7 @@ function buildQuery($config)
     $specialParams = isset($config['params']) ? $config['params'] : [];
 
     // Combine query string parameters and special parameters
-    $allParams = array_merge($queryParams, $specialParams);
+    $allParams = array_merge($queryParams, $specialParams, $where);
 
     // Track unresolved placeholders
     $unresolvedParams = [];
