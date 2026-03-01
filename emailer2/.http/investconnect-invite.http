@@ -1,4 +1,4 @@
-POST https://localhost/cairnsgames/libraries_php/emailer2/emailbytemplate.php HTTP/1.1
+POST https://cairnsgames.co.za/php/emailer2/emailbytemplate.php HTTP/1.1
 app_id: e09abd51-1160-11f1-b150-fe88d4cc3569
 apikey: 593dfaf9-118d-11f1-a4d3-1a220d8ac2c9
 Content-Type: application/json
@@ -9,6 +9,7 @@ to: cairnswm@gmail.com
   "template_name": "invite",
   "data": {
     "name": "William Cairns",
-    "link": "https://investconnect.runeworkz.co.za/respond/TOKEN"
+    "link": "https://investconnect.runeworkz.co.za/respond/TOKEN",
+    "event_name": "InvestConnect 2024"
   }
 }

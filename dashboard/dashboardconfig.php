@@ -85,6 +85,68 @@ function getDashboardStats($data)
 
     $tickets = executeSQL($sql_tickets, [$app_id, $start_dt, $end_dt]);
 
+    // 4) News items count
+    $sql_news = "SELECT DATE_FORMAT(created_at, '{$fmt}') AS period, COUNT(*) AS count\n" .
+        "FROM news\n" .
+        "WHERE app_id = ? AND created_at BETWEEN ? AND ?\n" .
+        "GROUP BY period\n" .
+        "ORDER BY period";
+
+    $news = executeSQL($sql_news, [$app_id, $start_dt, $end_dt]);
+
+    // 5) Loyalty systems created
+    $sql_loyalty_systems = "SELECT DATE_FORMAT(date_created, '{$fmt}') AS period, COUNT(*) AS count\n" .
+        "FROM loyalty_system\n" .
+        "WHERE app_id = ? AND date_created BETWEEN ? AND ?\n" .
+        "GROUP BY period\n" .
+        "ORDER BY period";
+
+    $loyalty_systems = executeSQL($sql_loyalty_systems, [$app_id, $start_dt, $end_dt]);
+
+    // 6) Loyalty stamps added
+    $sql_loyalty_stamps = "SELECT DATE_FORMAT(date_created, '{$fmt}') AS period, COUNT(*) AS stamps_added\n" .
+        "FROM loyalty_stamp\n" .
+        "WHERE app_id = ? AND date_created BETWEEN ? AND ?\n" .
+        "GROUP BY period\n" .
+        "ORDER BY period";
+
+    $loyalty_stamps = executeSQL($sql_loyalty_stamps, [$app_id, $start_dt, $end_dt]);
+
+    // 7) Loyalty rewards earned (date_earned) and redeemed (date_redeemed)
+    $sql_rewards_earned = "SELECT DATE_FORMAT(date_earned, '{$fmt}') AS period, COUNT(*) AS earned\n" .
+        "FROM loyalty_reward\n" .
+        "WHERE app_id = ? AND date_earned BETWEEN ? AND ?\n" .
+        "GROUP BY period\n" .
+        "ORDER BY period";
+
+    $rewards_earned = executeSQL($sql_rewards_earned, [$app_id, $start_dt, $end_dt]);
+
+    $sql_rewards_redeemed = "SELECT DATE_FORMAT(date_redeemed, '{$fmt}') AS period, COUNT(*) AS redeemed\n" .
+        "FROM loyalty_reward\n" .
+        "WHERE app_id = ? AND date_redeemed IS NOT NULL AND date_redeemed BETWEEN ? AND ?\n" .
+        "GROUP BY period\n" .
+        "ORDER BY period";
+
+    $rewards_redeemed = executeSQL($sql_rewards_redeemed, [$app_id, $start_dt, $end_dt]);
+
+    // 8) Loyalty cards created
+    $sql_cards_created = "SELECT DATE_FORMAT(date_created, '{$fmt}') AS period, COUNT(*) AS cards_created\n" .
+        "FROM loyalty_card\n" .
+        "WHERE app_id = ? AND date_created BETWEEN ? AND ?\n" .
+        "GROUP BY period\n" .
+        "ORDER BY period";
+
+    $cards_created = executeSQL($sql_cards_created, [$app_id, $start_dt, $end_dt]);
+
+    // 9) Loyalty cards that were allocated at least 1 stamp (based on stamps in period)
+    $sql_cards_with_stamps = "SELECT DATE_FORMAT(s.date_created, '{$fmt}') AS period, COUNT(DISTINCT s.card_id) AS cards_with_stamps\n" .
+        "FROM loyalty_stamp s\n" .
+        "WHERE s.app_id = ? AND s.card_id IS NOT NULL AND s.card_id <> 0 AND s.date_created BETWEEN ? AND ?\n" .
+        "GROUP BY period\n" .
+        "ORDER BY period";
+
+    $cards_with_stamps = executeSQL($sql_cards_with_stamps, [$app_id, $start_dt, $end_dt]);
+
     return [
         'success' => true,
         'params' => [
@@ -96,7 +158,14 @@ function getDashboardStats($data)
         'data' => [
             'users' => $users,
             'events' => $events,
-            'tickets' => $tickets
+            'tickets' => $tickets,
+            'news' => $news,
+            'loyalty_systems' => $loyalty_systems,
+            'loyalty_stamps' => $loyalty_stamps,
+            'rewards_earned' => $rewards_earned,
+            'rewards_redeemed' => $rewards_redeemed,
+            'cards_created' => $cards_created,
+            'cards_with_stamps' => $cards_with_stamps
         ]
     ];
 }
