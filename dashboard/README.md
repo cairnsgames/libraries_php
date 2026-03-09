@@ -1,0 +1,1 @@
+The dashboard endpoints are for Admins to manage the system data

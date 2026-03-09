@@ -17,7 +17,41 @@ if (!$userid) {
 
 // Define the configurations
 $dashboardconfigs = [
-    
+    "news" => [
+        'tablename' => 'news',
+        'key' => 'id',
+        'select' => 'dashboardNewsSelect',
+        'create' => [
+            'title',
+            'body',
+            'image_url',
+            'overlay_text',
+            'date',
+            'location',
+            'lat',
+            'lng',
+            'expires',
+            'app_id',
+            'user_id'
+        ],
+        'update' => [
+            'title',
+            'body',
+            'image_url',
+            'overlay_text',
+            'date',
+            'location',
+            'lat',
+            'lng',
+            'expires',
+            'deleted'
+        ],
+        'delete' => true,
+        'beforeselect' => 'dashboardNewsBeforeSelect',
+        'beforecreate' => 'dashboardNewsBeforeCreate',
+        'beforeupdate' => 'dashboardNewsBeforeUpdate',
+        'beforedelete' => 'dashboardNewsBeforeDelete'
+    ],
     "post" => [
         "toggle" => "toggleOffering",
         "stats" => "getDashboardStats"
@@ -202,4 +236,93 @@ function toggleOffering($data)
             'record' => !empty($newRecord) ? $newRecord[0] : null
         ];
     }
+}
+
+function dashboardNewsBeforeSelect($config, $data)
+{
+    global $appId;
+
+    $config['params']['app_id'] = $appId;
+    $config['params']['start_dt'] = getParam('start_date', date('Y-m-d', strtotime('-14 days'))) . ' 00:00:00';
+    $config['params']['now_dt'] = date('Y-m-d H:i:s');
+
+    return [$config, $data];
+}
+
+function dashboardNewsBeforeCreate($config, $data)
+{
+    global $appId, $userid;
+
+    $data['app_id'] = $appId;
+    $data['user_id'] = $userid;
+
+    return [$config, $data];
+}
+
+function dashboardNewsBeforeUpdate($config, $id, $data)
+{
+    global $appId;
+
+    $existing = PrepareExecSQL(
+        "SELECT id FROM news WHERE id = ? AND app_id = ? LIMIT 1",
+        'is',
+        [(int) $id, $appId]
+    );
+
+    if (empty($existing)) {
+        sendUnauthorizedResponse('News item not found for this tenant');
+    }
+
+    return [$config, $data];
+}
+
+function dashboardNewsBeforeDelete($config, $id)
+{
+    global $appId;
+
+    $existing = PrepareExecSQL(
+        "SELECT id FROM news WHERE id = ? AND app_id = ? LIMIT 1",
+        'is',
+        [(int) $id, $appId]
+    );
+
+    if (empty($existing)) {
+        sendUnauthorizedResponse('News item not found for this tenant');
+    }
+
+    return [$config, $id];
+}
+
+function dashboardNewsSelect($config, $id = null)
+{
+    $app_id = isset($config['params']['app_id']) ? $config['params']['app_id'] : '';
+    $start_dt = isset($config['params']['start_dt']) ? $config['params']['start_dt'] : date('Y-m-d', strtotime('-14 days')) . ' 00:00:00';
+    $now_dt = isset($config['params']['now_dt']) ? $config['params']['now_dt'] : date('Y-m-d H:i:s');
+
+    if (!$app_id) {
+        return [];
+    }
+
+    $sql = "SELECT n.id, n.title, n.app_id, n.body, n.user_id,\n" .
+        "       TRIM(CONCAT(COALESCE(u.firstname, ''), IF(u.lastname IS NULL OR u.lastname = '', '', CONCAT(' ', u.lastname)))) AS user_name,\n" .
+        "       n.image_url, n.overlay_text, n.deleted, n.date, n.location, n.lat, n.lng, n.expires, n.created_at, n.updated_at\n" .
+        "FROM news n\n" .
+        "LEFT JOIN user u ON u.id = n.user_id AND u.app_id = n.app_id\n" .
+        "WHERE n.app_id = ?\n" .
+        "  AND n.deleted = 'N'\n" .
+        "  AND n.date >= ?\n" .
+        "  AND n.expires >= ?";
+
+    $params = [$app_id, $start_dt, $now_dt];
+    $types = 'sss';
+
+    if ($id !== null && $id !== '') {
+        $sql .= "\n  AND n.id = ?";
+        $params[] = (int) $id;
+        $types .= 'i';
+    }
+
+    $sql .= "\nORDER BY date DESC, id DESC";
+
+    return PrepareExecSQL($sql, $types, $params);
 }
