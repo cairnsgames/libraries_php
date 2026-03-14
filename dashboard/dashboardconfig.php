@@ -142,21 +142,7 @@ $dashboardconfigs = [
             'tickets' => [
                 'tablename' => 'kloko_tickets',
                 'key' => 'event_id',
-                'select' => [
-                    'id',
-                    'user_id',
-                    'event_id',
-                    'ticket_type_id',
-                    'ticket_option_id',
-                    'title',
-                    'description',
-                    'quantity',
-                    'currency',
-                    'price',
-                    'order_item_id',
-                    'created',
-                    'modified'
-                ]
+                'select' => 'dashboardEventTicketsSelect'
             ]
         ]
     ],
@@ -580,6 +566,47 @@ function dashboardEventSelect($config, $id = null)
 
     $sql .= "\nGROUP BY e.id\n" .
         "ORDER BY e.start_time DESC, e.id DESC";
+
+    return PrepareExecSQL($sql, $types, $params);
+}
+
+function dashboardEventTicketsSelect($config, $id = null)
+{
+    // For subkey requests, event_id is provided in $config['where']['event_id'] by v2apicore.
+    $event_id = null;
+    if ($id !== null && $id !== '') {
+        $event_id = (int) $id;
+    } elseif (isset($config['where']['event_id']) && $config['where']['event_id'] !== '') {
+        $event_id = (int) $config['where']['event_id'];
+    }
+
+    if (!$event_id) {
+        return [];
+    }
+
+    $sql = "SELECT t.id, t.user_id,\n" .
+        "       TRIM(CONCAT(COALESCE(u.firstname, ''), IF(u.lastname IS NULL OR u.lastname = '', '', CONCAT(' ', u.lastname)))) AS user_name,\n" .
+        "       t.event_id, t.ticket_type_id,\n" .
+        "       tt.name AS ticket_type_name,\n" .
+        "       t.ticket_option_id, t.title, t.description,\n" .
+        "       t.quantity, t.currency, t.price, t.order_item_id,\n" .
+        "       t.created, t.modified\n" .
+        "FROM kloko_tickets t\n" .
+        "LEFT JOIN user u ON u.id = t.user_id\n" .
+        "LEFT JOIN kloko_ticket_types tt ON tt.id = t.ticket_type_id\n" .
+        "WHERE t.event_id = ?\n" .
+        "ORDER BY t.id DESC";
+
+    $types = 'i';
+    $params = [$event_id];
+
+    if ((string) getParam('debug_sql', '0') === '1') {
+        return [[
+            'debug_sql' => $sql,
+            'debug_types' => $types,
+            'debug_params' => $params
+        ]];
+    }
 
     return PrepareExecSQL($sql, $types, $params);
 }
