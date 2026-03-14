@@ -52,6 +52,159 @@ $dashboardconfigs = [
         'beforeupdate' => 'dashboardNewsBeforeUpdate',
         'beforedelete' => 'dashboardNewsBeforeDelete'
     ],
+    "event" => [
+        'tablename' => 'kloko_event',
+        'key' => 'id',
+        'select' => 'dashboardEventSelect',
+        'create' => [
+            'title',
+            'description',
+            'image',
+            'event_type',
+            'keywords',
+            'duration',
+            'location',
+            'lat',
+            'lng',
+            'max_participants',
+            'period_type',
+            'start_time',
+            'end_time',
+            'currency',
+            'tickets',
+            'tickettypes',
+            'options',
+            'price',
+            'content_id',
+            'show_as_news',
+            'overlay_text',
+            'enable_bookings'
+        ],
+        'update' => [
+            'title',
+            'description',
+            'image',
+            'event_type',
+            'keywords',
+            'duration',
+            'location',
+            'lat',
+            'lng',
+            'max_participants',
+            'period_type',
+            'start_time',
+            'end_time',
+            'currency',
+            'tickets',
+            'tickettypes',
+            'options',
+            'price',
+            'content_id',
+            'show_as_news',
+            'overlay_text',
+            'enable_bookings'
+        ],
+        'delete' => true,
+        'beforeselect' => 'dashboardEventBeforeSelect',
+        'beforecreate' => 'dashboardEventBeforeCreate',
+        'beforeupdate' => 'dashboardEventBeforeUpdate',
+        'beforedelete' => 'dashboardEventBeforeDelete',
+        'subkeys' => [
+            'tickettypes' => [
+                'tablename' => 'kloko_ticket_types',
+                'key' => 'event_id',
+                'select' => [
+                    'id',
+                    'event_id',
+                    'name',
+                    'description',
+                    'price',
+                    'currency',
+                    'created',
+                    'modified'
+                ]
+            ],
+            'ticketoptions' => [
+                'tablename' => 'kloko_ticket_options',
+                'key' => 'event_id',
+                'select' => [
+                    'id',
+                    'event_id',
+                    'ticket_type_id',
+                    'name',
+                    'description',
+                    'price',
+                    'currency',
+                    'created',
+                    'modified'
+                ]
+            ],
+            'tickets' => [
+                'tablename' => 'kloko_tickets',
+                'key' => 'event_id',
+                'select' => [
+                    'id',
+                    'user_id',
+                    'event_id',
+                    'ticket_type_id',
+                    'ticket_option_id',
+                    'title',
+                    'description',
+                    'quantity',
+                    'currency',
+                    'price',
+                    'order_item_id',
+                    'created',
+                    'modified'
+                ]
+            ]
+        ]
+    ],
+    "tickettype" => [
+        'tablename' => 'kloko_ticket_types',
+        'key' => 'id',
+        'select' => 'dashboardTicketTypeSelect',
+        'create' => [
+            'event_id',
+            'name',
+            'description',
+            'price',
+            'currency'
+        ],
+        'update' => [
+            'name',
+            'description',
+            'price',
+            'currency'
+        ],
+        'delete' => true,
+        'beforecreate' => 'dashboardTicketTypeBeforeCreate',
+        'beforeupdate' => 'dashboardTicketTypeBeforeUpdate',
+        'beforedelete' => 'dashboardTicketTypeBeforeDelete'
+    ],
+    "ticketoption" => [
+        'tablename' => 'kloko_ticket_options',
+        'key' => 'id',
+        'select' => 'dashboardTicketOptionSelect',
+        'create' => [
+            'event_id',
+            'ticket_type_id',
+            'name',
+            'description',
+            'price',
+            'currency'
+        ],
+        'update' => [
+            'name',
+            'description',
+            'price',
+            'currency'
+        ],
+        'delete' => true,
+        'beforecreate' => 'dashboardTicketOptionBeforeCreate',
+        'beforeupdate' => 'dashboardTicketOptionBeforeUpdate',
+        'beforedelete' => 'dashboardTicketOptionBeforeDelete'
+    ],
     "post" => [
         "toggle" => "toggleOffering",
         "stats" => "getDashboardStats"
@@ -323,6 +476,340 @@ function dashboardNewsSelect($config, $id = null)
     }
 
     $sql .= "\nORDER BY date DESC, id DESC";
+
+    return PrepareExecSQL($sql, $types, $params);
+}
+
+function dashboardEventBeforeSelect($config, $data)
+{
+    global $appId;
+
+    $config['params']['app_id'] = $appId;
+
+    return [$config, $data];
+}
+
+function dashboardEventBeforeCreate($config, $data)
+{
+    global $appId, $userid;
+
+    $data['app_id'] = $appId;
+    $data['user_id'] = $userid;
+    $data['calendar_id'] = $data['calendar_id'] ?? 1; // Default calendar_id
+    $data['parent_id'] = $data['parent_id'] ?? 0; // Default parent_id
+
+    return [$config, $data];
+}
+
+function dashboardEventBeforeUpdate($config, $id, $data)
+{
+    global $appId;
+
+    // Verify the event exists and belongs to this tenant
+    $existing = PrepareExecSQL(
+        "SELECT id FROM kloko_event WHERE id = ? AND app_id = ? LIMIT 1",
+        'is',
+        [(int) $id, $appId]
+    );
+
+    if (empty($existing)) {
+        sendUnauthorizedResponse('Event not found for this tenant');
+    }
+
+    // Remove any fields that should not be updated
+    unset($data['user_id']);
+    unset($data['user_name']);
+    unset($data['created']);
+    unset($data['modified']);
+    unset($data['app_id']);
+    unset($data['calendar_id']);
+    unset($data['parent_id']);
+    unset($data['event_template_id']);
+
+    return [$config, $data];
+}
+
+function dashboardEventBeforeDelete($config, $id)
+{
+    global $appId;
+
+    // Verify the event exists and belongs to this tenant
+    $existing = PrepareExecSQL(
+        "SELECT id FROM kloko_event WHERE id = ? AND app_id = ? LIMIT 1",
+        'is',
+        [(int) $id, $appId]
+    );
+
+    if (empty($existing)) {
+        sendUnauthorizedResponse('Event not found for this tenant');
+    }
+
+    return [$config, $id];
+}
+
+function dashboardEventSelect($config, $id = null)
+{
+    $app_id = isset($config['params']['app_id']) ? $config['params']['app_id'] : '';
+
+    if (!$app_id) {
+        return [];
+    }
+
+    $sql = "SELECT e.id, e.title, e.app_id, e.description, e.user_id,\n" .
+        "       TRIM(CONCAT(COALESCE(u.firstname, ''), IF(u.lastname IS NULL OR u.lastname = '', '', CONCAT(' ', u.lastname)))) AS user_name,\n" .
+        "       e.image, e.event_type, e.keywords, e.duration, e.location, e.lat, e.lng,\n" .
+        "       e.max_participants, e.period_type, e.start_time, e.end_time, e.currency,\n" .
+        "       e.tickets, e.tickettypes, e.options, e.price, e.content_id,\n" .
+        "       e.show_as_news, e.overlay_text, e.enable_bookings,\n" .
+        "       COALESCE(SUM(t.quantity), 0) AS total_tickets_sold,\n" .
+        "       COALESCE(SUM(t.price * t.quantity), 0) AS total_tickets_value,\n" .
+        "       e.created, e.modified\n" .
+        "FROM kloko_event e\n" .
+        "LEFT JOIN user u ON u.id = e.user_id AND u.app_id = e.app_id\n" .
+        "LEFT JOIN kloko_tickets t ON t.event_id = e.id\n" .
+        "WHERE e.app_id = ?\n";
+
+    $params = [$app_id];
+    $types = 's';
+
+    if ($id !== null && $id !== '') {
+        $sql .= "  AND e.id = ?";
+        $params[] = (int) $id;
+        $types .= 'i';
+    }
+
+    $sql .= "\nGROUP BY e.id\n" .
+        "ORDER BY e.start_time DESC, e.id DESC";
+
+    return PrepareExecSQL($sql, $types, $params);
+}
+
+function dashboardTicketTypeBeforeCreate($config, $data)
+{
+    global $appId;
+
+    // Verify event exists and belongs to this tenant
+    if (!isset($data['event_id']) || !$data['event_id']) {
+        sendErrorResponse('event_id is required');
+    }
+
+    $event = PrepareExecSQL(
+        "SELECT id FROM kloko_event WHERE id = ? AND app_id = ? LIMIT 1",
+        'is',
+        [(int) $data['event_id'], $appId]
+    );
+
+    if (empty($event)) {
+        sendUnauthorizedResponse('Event not found for this tenant');
+    }
+
+    return [$config, $data];
+}
+
+function dashboardTicketTypeBeforeUpdate($config, $id, $data)
+{
+    global $appId;
+
+    // Verify ticket type exists
+    $existing = PrepareExecSQL(
+        "SELECT event_id FROM kloko_ticket_types WHERE id = ? LIMIT 1",
+        'i',
+        [(int) $id]
+    );
+
+    if (empty($existing)) {
+        sendUnauthorizedResponse('Ticket type not found');
+    }
+
+    $event_id = $existing[0]['event_id'];
+
+    // Verify the associated event belongs to this tenant
+    $event = PrepareExecSQL(
+        "SELECT id FROM kloko_event WHERE id = ? AND app_id = ? LIMIT 1",
+        'is',
+        [(int) $event_id, $appId]
+    );
+
+    if (empty($event)) {
+        sendUnauthorizedResponse('Event not found for this tenant');
+    }
+
+    // Remove protected fields
+    unset($data['event_id']);
+    unset($data['created']);
+    unset($data['modified']);
+
+    return [$config, $data];
+}
+
+function dashboardTicketTypeBeforeDelete($config, $id)
+{
+    global $appId;
+
+    // Verify ticket type exists
+    $existing = PrepareExecSQL(
+        "SELECT event_id FROM kloko_ticket_types WHERE id = ? LIMIT 1",
+        'i',
+        [(int) $id]
+    );
+
+    if (empty($existing)) {
+        sendUnauthorizedResponse('Ticket type not found');
+    }
+
+    $event_id = $existing[0]['event_id'];
+
+    // Verify the associated event belongs to this tenant
+    $event = PrepareExecSQL(
+        "SELECT id FROM kloko_event WHERE id = ? AND app_id = ? LIMIT 1",
+        'is',
+        [(int) $event_id, $appId]
+    );
+
+    if (empty($event)) {
+        sendUnauthorizedResponse('Event not found for this tenant');
+    }
+
+    return [$config, $id];
+}
+
+function dashboardTicketTypeSelect($config, $id = null)
+{
+    $sql = "SELECT id, event_id, name, description, price, currency, created, modified\n" .
+        "FROM kloko_ticket_types\n";
+
+    $params = [];
+    $types = '';
+
+    if ($id !== null && $id !== '') {
+        $sql .= "WHERE id = ?\n";
+        $params[] = (int) $id;
+        $types = 'i';
+    }
+
+    $sql .= "ORDER BY id DESC";
+
+    return PrepareExecSQL($sql, $types, $params);
+}
+
+function dashboardTicketOptionBeforeCreate($config, $data)
+{
+    global $appId;
+
+    // Verify event exists and belongs to this tenant
+    if (!isset($data['event_id']) || !$data['event_id']) {
+        sendErrorResponse('event_id is required');
+    }
+
+    $event = PrepareExecSQL(
+        "SELECT id FROM kloko_event WHERE id = ? AND app_id = ? LIMIT 1",
+        'is',
+        [(int) $data['event_id'], $appId]
+    );
+
+    if (empty($event)) {
+        sendUnauthorizedResponse('Event not found for this tenant');
+    }
+
+    // Verify ticket type exists if provided
+    if (isset($data['ticket_type_id']) && $data['ticket_type_id']) {
+        $ticketType = PrepareExecSQL(
+            "SELECT id FROM kloko_ticket_types WHERE id = ? AND event_id = ? LIMIT 1",
+            'ii',
+            [(int) $data['ticket_type_id'], (int) $data['event_id']]
+        );
+
+        if (empty($ticketType)) {
+            sendUnauthorizedResponse('Ticket type not found for this event');
+        }
+    }
+
+    return [$config, $data];
+}
+
+function dashboardTicketOptionBeforeUpdate($config, $id, $data)
+{
+    global $appId;
+
+    // Verify ticket option exists
+    $existing = PrepareExecSQL(
+        "SELECT event_id FROM kloko_ticket_options WHERE id = ? LIMIT 1",
+        'i',
+        [(int) $id]
+    );
+
+    if (empty($existing)) {
+        sendUnauthorizedResponse('Ticket option not found');
+    }
+
+    $event_id = $existing[0]['event_id'];
+
+    // Verify the associated event belongs to this tenant
+    $event = PrepareExecSQL(
+        "SELECT id FROM kloko_event WHERE id = ? AND app_id = ? LIMIT 1",
+        'is',
+        [(int) $event_id, $appId]
+    );
+
+    if (empty($event)) {
+        sendUnauthorizedResponse('Event not found for this tenant');
+    }
+
+    // Remove protected fields
+    unset($data['event_id']);
+    unset($data['ticket_type_id']);
+    unset($data['created']);
+    unset($data['modified']);
+
+    return [$config, $data];
+}
+
+function dashboardTicketOptionBeforeDelete($config, $id)
+{
+    global $appId;
+
+    // Verify ticket option exists
+    $existing = PrepareExecSQL(
+        "SELECT event_id FROM kloko_ticket_options WHERE id = ? LIMIT 1",
+        'i',
+        [(int) $id]
+    );
+
+    if (empty($existing)) {
+        sendUnauthorizedResponse('Ticket option not found');
+    }
+
+    $event_id = $existing[0]['event_id'];
+
+    // Verify the associated event belongs to this tenant
+    $event = PrepareExecSQL(
+        "SELECT id FROM kloko_event WHERE id = ? AND app_id = ? LIMIT 1",
+        'is',
+        [(int) $event_id, $appId]
+    );
+
+    if (empty($event)) {
+        sendUnauthorizedResponse('Event not found for this tenant');
+    }
+
+    return [$config, $id];
+}
+
+function dashboardTicketOptionSelect($config, $id = null)
+{
+    $sql = "SELECT id, event_id, ticket_type_id, name, description, price, currency, created, modified\n" .
+        "FROM kloko_ticket_options\n";
+
+    $params = [];
+    $types = '';
+
+    if ($id !== null && $id !== '') {
+        $sql .= "WHERE id = ?\n";
+        $params[] = (int) $id;
+        $types = 'i';
+    }
+
+    $sql .= "ORDER BY id DESC";
 
     return PrepareExecSQL($sql, $types, $params);
 }
